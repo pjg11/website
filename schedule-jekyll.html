@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,9 +87,10 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
 a code { background-color: #d0d0df; }
 body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
@@ -112,16 +111,16 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>Schedule Posts in Jekyll</h1>
-<p id="postinfo"><time>2023-07-22</time></p>
+<p><time datetime="2023-07-22">2023-07-22</time></p>
 <p>My current blogging setup consists of me publishing a post shortly after I've finished typing and proofreading. While this is a straightforward and easy process, it also makes it easy for me to procrastinate on posts for days on end.</p>
 <p>As a way to introduce some form of accountability, I thought having the option to schedule a post in advance might be a good idea.</p>
 <p>My current publishing setup is a <code>bash</code> script, that builds the site files and deploys the build to Netlify. I started finding ways to automate the execution of this script at a later date.</p>
 <p>A cron job might be the first thing comes to mind, however I would like to introduce another tool that is just as useful.</p>
-<h2 id="say-hello-to-at">Say hello to <code>at</code> <a href="#say-hello-to-at">#</a></h2>
+<h2 id="say-hello-to-at"><a href="#say-hello-to-at">Say hello to <code>at</code></a></h2>
 <p>A cron job will run more than once at the schedule set by you - the same time every hour/day/week/month/year. However, I was looking for something more flexible.</p>
 <p>Maybe I feel like posting one article in one week, but two the next week. One week I may post on a Monday, the other week I may feel like posting on a Friday. This is where <a href="https://linux.die.net/man/1/at"><code>at</code></a> comes in, a command line tool to execute a set of commands once, at the specified date and time.</p>
 <p>It is installed by default on both Linux and Mac, however, it requires additional steps to work on Mac.</p>
-<h3 id="setup-at-on-mac">Setup <code>at</code> on Mac <a href="#setup-at-on-mac">#</a></h3>
+<h3 id="setup-at-on-mac"><a href="#setup-at-on-mac">Setup <code>at</code> on Mac</a></h3>
 <p><code>atrun</code>, the utility that executes <code>at</code> jobs, is disabled by default on Mac. Enable it with the following command:</p>
 <pre><code>$ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.atrun.plist
 </code></pre>
@@ -132,7 +131,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <li>Press <kbd>Cmd+Shift+G</kbd> and enter <code>/usr/libexec/atrun</code>.</li>
 <li>Select <code>atrun</code>, after which it should <a href="/public/images/schedule-jekyll/preferences.png" target="_blank">appear in the list</a>.</li>
 </ol>
-<h2 id="creating-the-script">Creating the script <a href="#creating-the-script">#</a></h2>
+<h2 id="creating-the-script"><a href="#creating-the-script">Creating the script</a></h2>
 <p>The script takes the following arguments:</p>
 <ul>
 <li><code>$1</code> - the filename of the post to publish</li>
@@ -168,15 +167,15 @@ netlify deploy --prod --dir=_site
 </code></pre>
 <p>I could add the delimiter, <code>EOF</code> at the end of the script and call it a day. But then I started to think of additional features to add.</p>
 <p>How would I know if the build was successful? Apart from checking the site after the scheduled time, was there a way I could receive a <em>notification</em>?</p>
-<h2 id="implementing-notifications">Implementing notifications <a href="#implementing-notifications">#</a></h2>
+<h2 id="implementing-notifications"><a href="#implementing-notifications">Implementing notifications</a></h2>
 <p>I initially thought that this would be a very complex process. I was totally wrong, as both Linux and Mac have command line tools that make creating a notification easy peezy lemon squeezy (well, almost, as Mac seems to require extra steps once again 😅)</p>
-<h3 id="linux">Linux <a href="#linux">#</a></h3>
+<h3 id="linux"><a href="#linux">Linux</a></h3>
 <p>Notifications can be created using <a href="https://letsdebug.it/post/30-linux-desktop-notifications/#combine-notify-send-with-at"><code>notify-send</code></a>. Add the following line followed by the delimiter and you're good to go!</p>
 <pre><code>notify-send "Published! 🎉" "The post, $title, is now live."
 EOF
 </code></pre>
 <p>The first string is the title of the notification, and the second string is the message below the title.</p>
-<h3 id="mac">Mac <a href="#mac">#</a></h3>
+<h3 id="mac"><a href="#mac">Mac</a></h3>
 <p>Creating a notification is very simple thanks to <a href="https://apple.stackexchange.com/a/238820"><code>osascript</code></a>:</p>
 <pre><code>osascript -e \
 'display notification "The post, $title is now live." with title "Published!"'
@@ -203,7 +202,7 @@ fatal: usage: reattach-to-user-namespace [-l] &lt;program&gt; [args...]
 'display notification "The post, $title is now live." with title "Published!"'
 EOF
 </code></pre>
-<h2 id="testing-the-script">Testing the script <a href="#testing-the-script">#</a></h2>
+<h2 id="testing-the-script"><a href="#testing-the-script">Testing the script</a></h2>
 <p>I've implemented the script as a shell function, <a href="https://github.com/pjg11/scripts/tree/main/schedule"><code>schedule</code></a>. I've additionally added tab completion for the filename, which works with the <code>zsh</code> shell. However, these commands would work just as fine as a <a href="https://github.com/pjg11/scripts/tree/main/schedule/schedule.sh">shell script</a>.</p>
 <p>Using this post as an example, I ran <code>schedule</code> to publish this post at 4pm UTC on July 22nd.</p>
 <pre><code>$ schedule schedule-jekyll.md "Jul 22 4pm" "new post: schedule posts in jekyll"

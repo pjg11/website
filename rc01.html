@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,9 +87,10 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
 a code { background-color: #d0d0df; }
 body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
@@ -111,7 +110,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>RC01: Some InconsistenC's</h1>
-<p id="postinfo"><time>2023-08-19</time> | <a href="recurse">recurse</a></p>
+<p><time datetime="2023-08-19">2023-08-19</time></p>
 <blockquote>
 <p><strong>Note:</strong> Commands preceeded with a <code>$</code> are Linux commands, while commands preeceded with <code>%</code> are macOS commands.</p>
 </blockquote>
@@ -142,7 +141,7 @@ $ ./pin
 </code></pre>
 <p>Same code, different output? I think we attributed the issue to some differences in implementations on different operating systems, I'm not sure. Regardless, I left it there and didn't look into it further.</p>
 <p>However, upon seeing the writeup recently, I got curious and decided to figure out why this happened, and if there was a way to get the correct output on macOS.</p>
-<h2 id="gcc-isnt-the-issue"><code>gcc</code> isn't the issue <a href="#gcc-isnt-the-issue">#</a></h2>
+<h2 id="gcc-isnt-the-issue"><a href="#gcc-isnt-the-issue"><code>gcc</code> isn't the issue</a></h2>
 <p>During the search process, I was shocked to find out that Apple actually executes <code>clang</code> whenever you type <code>gcc</code> in the terminal.</p>
 <pre><code>% gcc
 clang: error: no input files
@@ -167,7 +166,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % ./pin
 444334282
 </code></pre>
-<h2 id="the-libc-looks-different">The libc looks different <a href="#the-libc-looks-different">#</a></h2>
+<h2 id="the-libc-looks-different"><a href="#the-libc-looks-different">The libc looks different</a></h2>
 <p>I was reading through a post from Julia Evans before starting RC - <a href="https://jvns.ca/blog/2023/08/03/behind--hello-world">Behind Hello World on Linux</a> - which briefly mentions about libc, the C standard library. These lines stood out:</p>
 <blockquote>
 <p>But there are different libc implementations, and sometimes they behave differently. The two main ones are glibc (GNU libc) and musl libc.</p>
@@ -187,7 +186,7 @@ pin:
 </code></pre>
 <p>In macOS, libc is part of Apple's system library, called <a href="https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/intro.3.html">libSystem</a>. It seems to be Apple's own implementation, as I found a link to the <a href="https://opensource.apple.com/source/Libc/">libc source code</a> while searching.</p>
 <p>So different implementations mean there is no way I could get the same output on both Linux and Mac? That doesn't seem right.</p>
-<h2 id="meet-srandom-and-random">Meet <code>srandom()</code> and <code>random()</code> <a href="#meet-srandom-and-random">#</a></h2>
+<h2 id="meet-srandom-and-random"><a href="#meet-srandom-and-random">Meet <code>srandom()</code> and <code>random()</code></a></h2>
 <p>I came across a pair of similar functions in my searches - <code>srandom()</code> and <code>random()</code>. In their <a href="https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/random.3.html">man page</a> on macOS, they're termed as the "better random number generator"</p>
 <pre class="highlight"><code class="language-console"><span class="b">NAME</span>
     <span class="b">initstate, random, setstate, srandom, srandomdev</span> – better random

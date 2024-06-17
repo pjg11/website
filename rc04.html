@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,9 +87,10 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
 a code { background-color: #d0d0df; }
 body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
@@ -112,7 +111,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>RC04: Shell Scripting Adventures</h1>
-<p id="postinfo"><time>2023-09-30</time> | <a href="recurse">recurse</a></p>
+<p><time datetime="2023-09-30">2023-09-30</time></p>
 <p>One of the things that helped me rediscover the joy of programming was making tiny shell scripts/functions for a specific purpose.</p>
 <p>As I started using the command line more often, these functions helped execute commands that I would otherwise have to type repeatedly. And that set off a chain reaction - the more functions I made, the more ideas I'd get.</p>
 <p>The first one I made was <a href="https://github.com/pjg11/scripts/tree/main/tzc"><code>tzc</code></a>, to convert time from another timezone to my local time. It was inspired by two things:</p>
@@ -127,7 +126,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <li>It's a great learning opportunity, as I end up learning something new about shell scripting concepts or the thing I'm making the script for.</li>
 </ul>
 <p>I made a couple of functions while at RC - particularly over the last two weeks - which I'll share in this post.</p>
-<h2 id="note"><code>note</code> <a href="#note">#</a></h2>
+<h2 id="note"><a href="#note"><code>note</code></a></h2>
 <p>I came across <a href="https://github.com/cdkini/quicknote"><code>quicknote</code></a> recently, and really liked the way it was structured. It made it easier to capture notes and search them, so I made its <code>zsh</code> equivalent:</p>
 <pre><code>#!/bin/zsh
 note() (
@@ -145,7 +144,7 @@ note() (
 </code></pre>
 <p>A neat trick I learnt while making this is writing the function block in regular braces <code>()</code> - which runs commands in a subshell as opposed to curly braces <code>{}</code> - to prevent changing the directory of my current shell session.</p>
 <p>The full code with error handling and usage information can be found <a href="https://github.com/pjg11/scripts/blob/main/note">here</a>.</p>
-<h2 id="blog"><code>blog</code> <a href="#blog">#</a></h2>
+<h2 id="blog"><a href="#blog"><code>blog</code></a></h2>
 <p>This function is my take on a basic CLI content management system.</p>
 <pre><code>$ blog -h
 blog - commands to manage your Jekyll blog
@@ -166,7 +165,7 @@ Commands:
 </code></pre>
 <p>These commands have existed as a bunch of separate shell scripts and aliases. Some of them have featured on this blog - a <a href="/jekyll-blog-setup#publish-your-website#testing-the-script">publish script</a> and a post on <a href="/schedule-jekyll">scheduling</a>.</p>
 <p>The upgraded function code can be found <a href="https://github.com/pjg11/scripts/blob/main/blog">here</a>.</p>
-<h2 id="rlist"><code>rlist</code> <a href="#rlist">#</a></h2>
+<h2 id="rlist"><a href="#rlist"><code>rlist</code></a></h2>
 <p>I use Safari's Reading List to save links, and I wanted a way to manage them from the command line, particularly to view all links and delete a link once I'm done reading.</p>
 <pre><code>$ rlist -h
 rlist - Manage Safari's Reading List from the command line
@@ -186,7 +185,7 @@ Commands:
 <p>Here's a demo of the search command, that works like a fuzzy finder, along with the option to open the link in a browser.</p>
 <img src="/public/images/rc04/rlist.gif" alt="">
 <p>This is possibly the coolest script I've made yet, as it took a while to understand how <code>PlistBuddy</code> works, and using <a href="https://github.com/charmbracelet/gum"><code>gum</code></a> for the fancy formatting added to the coolness. 😎</p>
-<h2 id="mkfunc"><code>mkfunc</code> <a href="#mkfunc">#</a></h2>
+<h2 id="mkfunc"><a href="#mkfunc"><code>mkfunc</code></a></h2>
 <p>Lastly, a meta function whose naming is inspired by <code>mkdir</code>. It creates a file with starter code for a shell function when called.</p>
 <pre><code>#!/bin/zsh
 

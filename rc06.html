@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,9 +87,10 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
 a code { background-color: #d0d0df; }
 body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
@@ -112,7 +111,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>RC06: Notes on creating a TUN interface</h1>
-<p id="postinfo"><time>2023-10-23</time> | <a href="recurse">recurse</a></p>
+<p><time datetime="2023-10-23">2023-10-23</time></p>
 <p>While working on <a href="http://github.com/pjg11/tcpip"><code>tcpip</code></a>, one of the first things I did was set up a <a href="https://en.wikipedia.org/wiki/TUN/TAP">TUN interface</a>, a virtual network device operating at the Network Layer/Layer 3 of the network stack. I used the following commands:</p>
 <pre><code>sudo ip tuntap add dev tun0 mode tun user $USER
 sudo ip addr add 192.0.2.1 peer 192.0.2.2 dev tun0
@@ -120,7 +119,7 @@ sudo ip link set dev tun0 up
 </code></pre>
 <p>I ran these commands with only a vague understanding of what's going on - it creates a TUN device called <code>tun0</code>, assigns it two IP addresses for some reason and sets the interface to <code>up</code>.</p>
 <p>However, I had questions, which I kept ignoring as I was making progress in terms of code. When I got stuck on another part of the project and was unable to code, I decided figure out what these commands <em>really</em> do. This post is a collection of notes I made along the way.</p>
-<h2 id="why-are-there-two-addresses-for-a-tun-interface">Why are there two addresses for a TUN interface? <a href="#why-are-there-two-addresses-for-a-tun-interface">#</a></h2>
+<h2 id="why-are-there-two-addresses-for-a-tun-interface"><a href="#why-are-there-two-addresses-for-a-tun-interface">Why are there two addresses for a TUN interface?</a></h2>
 <p>The first thing that confused me was the mention of two addresses. I initially thought that it might not be significant, however any packets I created used the peer address as the source address, <code>192.0.2.2</code>, which didn't make sense.</p>
 <p>I started with the <code>man</code> page for <code>ip-address</code>:</p>
 <pre><code>peer ADDRESS
@@ -138,7 +137,7 @@ sudo ip link set dev tun0 up
 <p>For TUN virtual devices, your user-space program will act as <em>the remote computer at the other side of the tunnel</em>. Therefore, in order to have your program injecting IP packets to the kernel network stack, the program is supposed to generate packets with source address set to the tunnel remote address (<code>192.168.69.1</code>) and receive packets whose destination is set to the same address.</p>
 </blockquote>
 <p>After reading this, it all clicked into place.</p>
-<h2 id="why-is-the-state-down-when-i-set-the-link-to-up">Why is the state DOWN when I set the link to UP? <a href="#why-is-the-state-down-when-i-set-the-link-to-up">#</a></h2>
+<h2 id="why-is-the-state-down-when-i-set-the-link-to-up"><a href="#why-is-the-state-down-when-i-set-the-link-to-up">Why is the state DOWN when I set the link to UP?</a></h2>
 <p>This confusion comes from the output of the TUN interface settings.</p>
 <pre><code>$ ip addr show tun0
 8: tun0: &lt;NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP&gt; mtu 1500 qdisc fq_codel state DOWN group default qlen 500
@@ -157,7 +156,7 @@ sudo ip link set dev tun0 up
         valid_lft forever preferred_lft forever
 </code></pre>
 <p><code>NO_CARRIER</code> disappears, <code>LOWER_UP</code> appears and the state changes to <code>UP</code>.</p>
-<h2 id="why-does-pinging-work-differently-for-the-two-addresses">Why does pinging work differently for the two addresses? <a href="#why-does-pinging-work-differently-for-the-two-addresses">#</a></h2>
+<h2 id="why-does-pinging-work-differently-for-the-two-addresses"><a href="#why-does-pinging-work-differently-for-the-two-addresses">Why does pinging work differently for the two addresses?</a></h2>
 <p>Another useful resource I found was a post titled <a href="https://backreference.org/2010/03/26/tuntap-interface-tutorial/index.html">Tun/Tap interface tutorial</a>. It goes in-depth about how TUN interfaces work and are set up.</p>
 <p>The part that confused me was the section about pinging the two addresses (<code>10.0.0.1</code> and <code>10.0.0.2</code> in the article), and the difference in output. The interface address (<code>10.0.0.1</code>) responded to pings, whereas the peer address (<code>10.0.0.2</code>) did not, and I didn't fully understand the explanation provided.</p>
 <p>I also wanted to know where the ping packets for the interface address were going, which wasn't specified in the post. So I decided to capture ICMP packets at all interfaces to find out.</p>
@@ -188,7 +187,7 @@ listening on any, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 262144
 </code></pre>
 <p>The source address is <code>192.0.2.1</code>, and the packet is captured at the <code>tun0</code> interface. Also, no echo reply packet after the request.</p>
 <p>Why does each address return different packets? I think it may have something to do with the routes created when the interface is set up.</p>
-<h3 id="checking-the-routing-table">Checking the routing table <a href="#checking-the-routing-table">#</a></h3>
+<h3 id="checking-the-routing-table"><a href="#checking-the-routing-table">Checking the routing table</a></h3>
 <pre><code>$ ip route show table all | grep tun0
 192.0.2.2 dev tun0 proto kernel scope link src 192.0.2.1
 local 192.0.2.1 dev tun0 table local proto kernel scope host src 192.0.2.1
@@ -214,7 +213,7 @@ src 192.0.2.1      preferred source address when sending to this destination
 <p>This is specified as a local address, an address directly accessible to the machine. The route is added to a routing table called <code>local</code>. When pinging local addresses, the packets are sent in and out from the loopback interface, <code>lo</code>, as seen earlier.</p>
 <p>Being a local address, the kernel's network stack manages the sending and receiving, which is why there was an echo reply when pinging to this address.</p>
 <p>This is how local routes for other interfaces are written too, which I found out from <a href="https://backreference.org/2010/03/26/tuntap-interface-tutorial/index.html#comment-24909">this comment</a> from the tutorial post.</p>
-<h2 id="more-questions">More questions? <a href="#more-questions">#</a></h2>
+<h2 id="more-questions"><a href="#more-questions">More questions?</a></h2>
 <p>TUN interfaces are starting to make a lot more sense now, but it also raises one more question. Both the hosts are only accessible within this machine. I'd like to send TCP packets to other hosts on the Internet, which doesn't seem possible with this setup.</p>
 <p>Turns out it is possible, with the help this of NAT or Network Address Translation, which I'll save for another post as this one has a TUN of information already. 😅</p>
 <section class="links"><a href="mailto:comments@pjg1.site?subject=Re:%20RC06%3A%20Notes%20on%20creating%20a%20TUN%20interface">Comment via email</a> <a href="/feed.xml">RSS feed</a></section>

@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,9 +87,10 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
 a code { background-color: #d0d0df; }
 body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
@@ -113,9 +112,9 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>Python type conversion cheatsheet</h1>
-<p id="postinfo"><time>2024-02-11</time></p>
+<p><time datetime="2024-02-11">2024-02-11</time></p>
 <p>The built-in functions to convert between different types in Python is something I keep forgetting and have to look up each time. So I decided to make a cheatsheet for reference. Tested on version 3.11.7.</p>
-<h2 id="int--hex">int ↔ hex <a href="#int--hex">#</a></h2>
+<h2 id="int--hex"><a href="#int--hex">int ↔ hex</a></h2>
 <p>There are two <a href="https://docs.python.org/3.11/library/functions.html">built-in functions</a> for this, <code>hex()</code> and <code>int()</code>.</p>
 <p><code>hex()</code> converts an integer (base 10) to a hexadecimal number (base 16). Hexadecimal numbers aren't a separate type in Python, so the resuting output is of type <code>str</code>.</p>
 <pre><code>&gt;&gt;&gt; hex(255)
@@ -131,7 +130,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <pre><code>&gt;&gt;&gt; 0xff
 255
 </code></pre>
-<h2 id="hex--bytes">hex ↔ bytes <a href="#hex--bytes">#</a></h2>
+<h2 id="hex--bytes"><a href="#hex--bytes">hex ↔ bytes</a></h2>
 <p>The functions are part of the <a href="https://docs.python.org/3.11/library/stdtypes.html#bytes"><code>bytes</code></a> built-in type.</p>
 <p><code>bytes.hex()</code> converts bytes to a hexadecimal string.</p>
 <pre><code>&gt;&gt;&gt; bytes.hex(b'hello')
@@ -145,7 +144,7 @@ Traceback (most recent call last):
   File "&lt;stdin&gt;", line 1, in &lt;module&gt;
 ValueError: non-hexadecimal number found in fromhex() arg at position 1
 </code></pre>
-<h2 id="int--bytes">int ↔ bytes <a href="#int--bytes">#</a></h2>
+<h2 id="int--bytes"><a href="#int--bytes">int ↔ bytes</a></h2>
 <p>The <code>int</code> data type has <a href="https://docs.python.org/3.11/library/stdtypes.html#additional-methods-on-integer-types">functions</a> for converting to and from bytes.</p>
 <p><code>int.to_bytes()</code> requires two parameters apart from the number itself.</p>
 <p>The first is the length of the resulting output, or the number of bytes. I can either specify a number, or use another function, <code>int.bit_length()</code> to calculate the number of bytes.</p>
@@ -172,7 +171,7 @@ b'\x05\x00'
 &gt;&gt;&gt; int.from_bytes(b'\x05\x00', 'little')
 5
 </code></pre>
-<h2 id="str--bytes">str ↔ bytes <a href="#str--bytes">#</a></h2>
+<h2 id="str--bytes"><a href="#str--bytes">str ↔ bytes</a></h2>
 <p>The process of translating human readable characters (string) to something computers can understand (bytes) is called encoding. Strings can be encoded using <a href="https://docs.python.org/3.11/library/stdtypes.html#str.encode"><code>str.encode()</code></a>. <code>utf-8</code> is the default encoding, however this can be changed.</p>
 <pre><code>&gt;&gt;&gt; str.encode('hello', 'utf-8')
 b'hello'
@@ -185,7 +184,7 @@ b'\xff\xfeh\x00e\x00l\x00l\x00o\x00'
 &gt;&gt;&gt; bytes.decode(b'\xff\xfeh\x00e\x00l\x00l\x00o\x00', 'utf-16')
 'hello'
 </code></pre>
-<h2 id="int--str">int ↔ str <a href="#int--str">#</a></h2>
+<h2 id="int--str"><a href="#int--str">int ↔ str</a></h2>
 <p>This is the one I have most confusion about, as the <code>int</code>s are one of two types:</p>
 <ul>
 <li>ASCII characters, either individual or appended together</li>

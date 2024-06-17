@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,9 +87,10 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
 a code { background-color: #d0d0df; }
 body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
@@ -102,10 +101,10 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>RC07: return statement;</h1>
-<p id="postinfo"><time>2023-11-04</time> | <a href="recurse">recurse</a></p>
+<p><time datetime="2023-11-04">2023-11-04</time></p>
 <p>A <code>return statement;</code> is a post to describe and reflect on one's time at the Recurse Center <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>. I completed my batch last week, and decided to follow this tradition to close out the RC series of posts on this blog.</p>
 <p>This post goes over the highlights of my batch, a combination of the technical stuff I learnt, and most importantly the discoveries I made - about myself and my approach to programming and learning in general.</p>
-<h2 id="starting-a-personal-project">Starting a personal project <a href="#starting-a-personal-project">#</a></h2>
+<h2 id="starting-a-personal-project"><a href="#starting-a-personal-project">Starting a personal project</a></h2>
 <p>I've had a mental block regarding personal coding projects for the longest time, and thought that working on multiple, tiny projects at RC would be the solution to the problem.</p>
 <p>Initial attempts at tiny projects left me with mixed feelings:</p>
 <ul>
@@ -122,14 +121,14 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <p>After hopping between projects for a while, it was great to have moments of focused programming, where I was also learning things in line with my goals.</p>
 <p>This also made me realize that I'm a fairly good programmer, who can write decent code outside of one-off shell scripts.</p>
 <p>Overall, this project really boosted my confidence, and my approach to RC changed for the better after this. One such change was in the group project I mentioned earlier.</p>
-<h2 id="contributing-to-a-group-project">Contributing to a group project <a href="#contributing-to-a-group-project">#</a></h2>
+<h2 id="contributing-to-a-group-project"><a href="#contributing-to-a-group-project">Contributing to a group project</a></h2>
 <p>A group of Recursers from a previous batch kept weekly meeting to work on a <a href="https://github.com/zrottman/dns_c">C implementation</a> of Julia Evans' <a href="https://implement-dns.wizardzines.com">Implement DNS in a Weekend</a>.</p>
 <p>My batch started when they were probably half-way through the guide. I started off on the listening end in the first few weeks, as I was unfamiliar with the code and was intimidated to contribute.</p>
 <p>At one point, I considered dropping out of this session, as it was taking up a big chunk of time, and I wasn't gaining much out of it. However I continued to attend, hoping I would contribute someday.</p>
 <p>That day finally came in Week 7, as I lead the group session for the first time. Working on <code>tcpip</code> gave me the confidence of writing C code, and the 6 weeks of observing made me familiar with the codebase.</p>
 <p>This project was also responsible for the initial progress of <code>tcpip</code>, as I used the project's source code as inspiration for the code structure.</p>
 <p>I went from wanting to leave this session, to completing the core of the project on the last day of my batch. 🥹</p>
-<h2 id="pair-programming--coffee-chats">Pair programming + coffee chats <a href="#pair-programming--coffee-chats">#</a></h2>
+<h2 id="pair-programming--coffee-chats"><a href="#pair-programming--coffee-chats">Pair programming + coffee chats</a></h2>
 <p>Pair programming as a concept is first introduced during the pairing workshop, as part of the orientation events. By the end of that session, I was a fan. I knew this would become my favorite way of learning, and looking back at 31 pairing sessions on my calendar, I was right!</p>
 <p>Pairing is when I find myself most engaged with the task at hand and make significant progress or learn something new. A downside is that it demands a lot of energy and focus, which meant I had to schedule these carefully.</p>
 <p>It also contributed significantly to building my <a href="https://www.recurse.com/self-directives#volitional-muscles">volitional muscles</a>, as many of these pairing sessions were initiated based on what I found interesting <sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup>.</p>
@@ -150,7 +149,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </ul>
 <p>Another form of 1:1 interactions I enjoyed were coffee chats - casual chats with fellow Recursers. I really looked forward to these, as these were the closest I got to informal chats one would have when attending in-person.</p>
 <p>It was a great way to meet people with both similar and completely different interests, and to get to hear about different approaches to programming, learning and even jobs.</p>
-<h2 id="impossible-stuff-day">Impossible Stuff Day <a href="#impossible-stuff-day">#</a></h2>
+<h2 id="impossible-stuff-day"><a href="#impossible-stuff-day">Impossible Stuff Day</a></h2>
 <p>Impossible Stuff Day is a day organized by RC to work on something that is well beyond what you're currently capable of. The idea is to take the first step towards doing something seemingly impossible, and seeing how far you can get.</p>
 <p>This concept clicked really well with me. The first Impossible Stuff Day in Week 3 helped me get unstuck, while the second one in Week 9 exceeded my own expectations.</p>
 <p>The week of the first Impossible Stuff Day was possibly the lowest point of my batch, as I was unsure of what I really wanted to do. I'd heard about how installing <a href="https://www.gentoo.org">Gentoo Linux</a> helps you understand how the operating system really works, as it's installation requires a fair amount of manual configuration.</p>
@@ -159,7 +158,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <p>By the time the second Impossible Stuff Day happened, I felt like a completely different person, and my choice of project reflected that.</p>
 <p>I created and hosted a tiny Capture The Flag challenge using Docker on a DigitalOcean droplet. I wrote <a href="https://pjg1.site/rc05">a blog post</a> covering all the details and gave a presentation about it the week after, which was also well-received!</p>
 <p>I think I blew my own mind with this project. This was the first time I made something that people could try out, and that too in two days! It's the closest I got to <a href="https://www.recurse.com/self-directives#work-at-the-edge">working at the edge of my abilities</a>, and it felt great.</p>
-<h2 id="learning-in-public">Learning in public <a href="#learning-in-public">#</a></h2>
+<h2 id="learning-in-public"><a href="#learning-in-public">Learning in public</a></h2>
 <p><a href="https://www.recurse.com/self-directives#learn-generously">Learning generously</a> is a big part of RC and is encouraged from the very first day. I did so in three significant ways - blog posts, written checkins and presentations.</p>
 <p>I had picked up blogging again shortly before RC but didn't have a regular schedule. So I thought blogging during my batch would be a good way to establish a schedule.</p>
 <p>There were initial troubles, as it was hard to find time to write with so many activities going on during the week. The momentum came in the latter half of my batch, where I posted once every 7-10 days.</p>
@@ -174,17 +173,17 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <li>How I created and hosted the <a href="https://github.com/pjg11/quack-ctf-challenge">CTF challenge</a> during Impossible Stuff Day in Week 10</li>
 </ul>
 <p>I enjoyed presenting, and it was a good practice on how to convey information in a limited timeframe, despite the preparation taking forever. 😅</p>
-<h2 id="finding-a-routine-that-works-for-me">Finding a routine that works for me <a href="#finding-a-routine-that-works-for-me">#</a></h2>
+<h2 id="finding-a-routine-that-works-for-me"><a href="#finding-a-routine-that-works-for-me">Finding a routine that works for me</a></h2>
 <p>Being self-directed meant I was responsible for making my own schedule.</p>
 <p>The first two weeks were a little confusing. I was adjusting to Zoom fatigue and an 8-hour time difference (Zoom fatigue being the bigger problem), which meant that the scheduling was slightly all over the place.</p>
 <p>Around Week 3, I figured a set of hours that worked - with my timezone and core RC hours. I kept the core RC hours being open for chats, group meetings and other events, and did solo work either before or after that.</p>
 <p>Scheduling things within those set of hours was another task. I had all different kinds of weeks, ranging from great to not great. I realized that my ideal schedule requires an equal mix of social interactions and solo work. Overdoing any one will leave me feeling completely drained.</p>
 <p>How I ensure this balance post-batch will be an interesting task. At least I have the weekly reflections and checkins to help along the way.</p>
-<h2 id="discovering-a-field-i-like">Discovering a field I like <a href="#discovering-a-field-i-like">#</a></h2>
+<h2 id="discovering-a-field-i-like"><a href="#discovering-a-field-i-like">Discovering a field I like</a></h2>
 <p>I came to RC with a vague idea of the topics I liked - Linux, security, networking, and low-level programming. I came to RC to find a field or job role that included the right combination of these interests.</p>
 <p>Thanks to coffee chats and exposure to so many different topics, I found <em>DevOps</em> to be a field that matched my interests the most.</p>
 <p>This gives me a good idea of what I need to learn next, and makes the job search easier as I know what I'm looking for.</p>
-<h2 id="whats-next">What's next? <a href="#whats-next">#</a></h2>
+<h2 id="whats-next"><a href="#whats-next">What's next?</a></h2>
 <p>The Recurse Center helped develop a set of learning strategies that work for me, and now is the time to put them to practice.</p>
 <p>At the end of a batch, you <a href="https://www.recurse.com/manual#sub-sec-never-graduate">Never Graduate</a>, and can continue to be a part of the community and events. That's what I'll be doing for a while - working on existing projects (maybe starting new ones?) blogging, pairing away and learning new things.</p>
 <p>I remember thinking "this is exactly what I was looking for" when reading through RC's website for the first time, and it still holds true three months later.</p>

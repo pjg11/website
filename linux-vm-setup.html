@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,7 +87,7 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
 h2 a, h3 a { color: inherit; text-decoration: none; }
@@ -115,12 +113,12 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>Linux x64 VM on an M1 Macbook</h1>
-<p id="postinfo"><time>2023-01-13</time></p>
+<p><time datetime="2023-01-13">2023-01-13</time></p>
 <p>I upgraded to the M1 MacBook Pro as my daily driver laptop about a year ago. Being a machine with the ARM architecture, I couldn’t use the same setup that I had on my previous machine, an Intel machine. I tried a bunch of solutions before finally settling on the current one, which I’ll describe in detail in this post.</p>
-<h2 id="initial-trial-and-error">Initial trial and error <a href="#initial-trial-and-error">#</a></h2>
+<h2 id="initial-trial-and-error"><a href="#initial-trial-and-error">Initial trial and error</a></h2>
 <p>I started off with a free trial of Parallels Desktop, which at the time (2021) provided support for M1 Macs over VMWare, which is what I used on my previous laptop. After the trial got over, I was looking for a more permanent solution. VMWare did release a version of their app for M1 soon enough, but that too seemed buggy at times.</p>
 <p>Enter <a href="https://mac.getutm.app">UTM</a>, a free and open-source alternative to Parallels and VMWare for MacOS. Setting up the VM using it was a breeze due to the installation instructions as part of their documentation. I used a Kali Linux ARM VM on UTM for a long time, till I started noticing some core issues.</p>
-<h2 id="core-issues">Core issues <a href="#core-issues">#</a></h2>
+<h2 id="core-issues"><a href="#core-issues">Core issues</a></h2>
 <p>One of the them was not being able to run Linux x64 (x86-64) binaries. Oftentimes for Reverse Engineering challenges as part of CTFs, we were provided with an executable, which were created on and for the x64 architecture. Using virtualization tools (like Parallels and VMWare) meant that I could only set up an ARM VM on an ARM machine, so this stayed an issue regardless of the tool I used.</p>
 <p>The main solution was emulation, i.e., running a different architecture than the host system’s architecture. I tried emulation in two ways:</p>
 <ul>
@@ -129,7 +127,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </ul>
 <p>The other issue was that some software wouldn’t install due to certain dependencies not providing support for ARM machines (at least at the time).</p>
 <p>Additionally, I had some tools installed on the Mac since they worked better there, so working between two different GUIs was getting a little annoying, and the VM took up a lot of space because of the GUI. This struck an idea, which led to the current setup.</p>
-<h2 id="setup-overview">Setup Overview <a href="#setup-overview">#</a></h2>
+<h2 id="setup-overview"><a href="#setup-overview">Setup Overview</a></h2>
 <ol>
 <li>
 <p><a href="#terminal-only-vm">Terminal-only VM</a>: From the emulation attempts, I realized that what made emulated VMs really slow was the GUI, as Karton didn’t have any speed issues but the emulated VM did. I figured that having a GUI on the VM was not necessary, as most of my work was done in the terminal.</p>
@@ -141,7 +139,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <p><a href="#remote-access-via-ssh">Remote access via SSH</a>: With the GUI gone, the suggested settings for file and clipboard sharing between the host and virtual machine didn’t work. This was solved by accessing the VM using SSH and Port Forwarding as part of Emulated VLAN.</p>
 </li>
 </ol>
-<h2 id="terminal-only-vm">Terminal-only VM <a href="#terminal-only-vm">#</a></h2>
+<h2 id="terminal-only-vm"><a href="#terminal-only-vm">Terminal-only VM</a></h2>
 <p>This step requires downloading UTM and the 64-bit installer from the Kali Linux website. The setup for this VM is the same as a usual setup except for a few changes:</p>
 <ul>
 <li>
@@ -156,7 +154,7 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <li>Once the installation is complete, the VM reboots and you may see the installation screen again. To fix this, switch off the VM and open the Settings page. Under the Drives section, remove the installer Drive, which has the type <code>CD/DVD (ISO Image)</code>. The VM should boot fine from here.</li>
 </ul>
 <img src="/public/images/linux-vm-setup/utm-delete-installer.png">
-<h2 id="emulated-vlan">Emulated VLAN <a href="#emulated-vlan">#</a></h2>
+<h2 id="emulated-vlan"><a href="#emulated-vlan">Emulated VLAN</a></h2>
 <p>Emulated VLAN is one of the different networking modes on UTM, which are described here. The reason why this mode allows VPN connections to go through over the other modes is described by one of the UTM devs in a <a href="https://github.com/utmapp/UTM/issues/3238#issuecomment-959911107">GitHub issue</a>:</p>
 <blockquote>
 <p>Have you tried the emulated VLAN network mode? If any, that one would definitely go through the VPN since it’s emulated in userspace. The other modes use macOS Virtualization features that might not respect the host’s VPN settings.</p>
@@ -164,15 +162,15 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 <p>Open the settings page of the virtual machine, click on Network and change the network mode to Emulated VLAN.</p>
 <img src="/public/images/linux-vm-setup/emulated-vlan.png">
 <p>To be able to access this machine remotely, port forwarding needs to be set, which is covered in the next step.</p>
-<h2 id="remote-access-via-ssh">Remote access via SSH <a href="#remote-access-via-ssh">#</a></h2>
+<h2 id="remote-access-via-ssh"><a href="#remote-access-via-ssh">Remote access via SSH</a></h2>
 <p>With the Emulated VLAN mode, we’re now dealing with two separate networks - your local network containing the host machine (<code>192.168.0.X</code> range) and the Virtual LAN containing the VM (<code>10.0.2.X</code> range). To access services on the VM from the host machine, we need to map required ports of the VM to ports on the host machine.</p>
 <p>This technique is called port forwarding. One such service is <code>ssh</code> at port <code>22</code>, which we can use to access the machine on the host’s terminal.</p>
-<h3 id="port-forwarding">Port Forwarding <a href="#port-forwarding">#</a></h3>
+<h3 id="port-forwarding"><a href="#port-forwarding">Port Forwarding</a></h3>
 <p>After changing the network mode in the previous step, a new section called Port Forwarding should appear in the sidebar. Click on <code>Port Forwarding &gt; New</code>, and set a port forward from port <code>22</code> on the guest machine to port <code>2200</code> on the host machine. The IP address fields are left blank, so that the defaults are applied. <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup></p>
 <img src="/public/images/linux-vm-setup/port-forwarding-add.png">
 <p>You can add additional ports to transfer files between the host and VM or as ports to listen for incoming reverse shells. For example, I’ve added 3 additional ports - <code>1234</code>, <code>4444</code> and <code>8888</code>.</p>
 <img src="/public/images/linux-vm-setup/port-forwarding-ports.png">
-<h3 id="start-ssh-server">Start SSH server <a href="#start-ssh-server">#</a></h3>
+<h3 id="start-ssh-server"><a href="#start-ssh-server">Start SSH server</a></h3>
 <p>Save the settings and start up the VM. Once logged in, start the <code>ssh</code> server. If <code>ssh</code> is not installed, install it first.</p>
 <pre><code>$ sudo apt install ssh
 $ sudo service ssh start
@@ -184,7 +182,7 @@ $ sudo service ssh start
 <pre><code>$ ssh pjg1@127.0.0.1 -p 2200
 </code></pre>
 <p>Now that your VM is accessible on the host, copy and pasting text should be the same as always. The process to transfer files is a little longer.</p>
-<h3 id="file-transfer---host-to-vm">File Transfer - Host to VM <a href="#file-transfer---host-to-vm">#</a></h3>
+<h3 id="file-transfer---host-to-vm"><a href="#file-transfer---host-to-vm">File Transfer - Host to VM</a></h3>
 <p>First, start a server using Python on the host machine.</p>
 <pre><code>$ python3 -m http.server
 Serving HTTP on :: port 8000 (http://[::]:8000/) ...
@@ -192,7 +190,7 @@ Serving HTTP on :: port 8000 (http://[::]:8000/) ...
 <p>Then on the virtual machine, retrieve the file of choice using <code>wget</code> and the IP address of the host machine, generally seen in the <code>en0</code> interface.</p>
 <pre><code>$ wget http://&lt;ip_address&gt;:8000/&lt;file_path&gt;
 </code></pre>
-<h3 id="file-transfer---vm-to-host">File Transfer - VM to Host <a href="#file-transfer---vm-to-host">#</a></h3>
+<h3 id="file-transfer---vm-to-host"><a href="#file-transfer---vm-to-host">File Transfer - VM to Host</a></h3>
 <p>First, start a server using Python on the virtual machine, using any of the port forwarded ports.</p>
 <pre><code>$ python3 -m http.server 8888
 Serving HTTP on :: port 8888 (http://[::]:8888/) ...

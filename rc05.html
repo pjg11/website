@@ -43,8 +43,6 @@ h1, h2, h3 { line-height: 1.2; letter-spacing: -0.1px; }
 h1 { font-size: 170%; padding: 0 1rem; margin-bottom: 0; }
 h2 { font-size: 110%; margin: 0 -1.25rem; margin-top: 1rem; padding: 0.35rem 2.25rem; border-bottom: 1px solid;}
 h3 { font-size: 100%;  margin-bottom: 0; padding: 0 1rem; }
-h2 a, h3 a { visibility: hidden; }
-h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
@@ -89,9 +87,10 @@ body { background-color: #dbdbdd }
 h1, h2, h3 { color: #202020 }
 code, kbd, blockquote, details { background-color: #cfcfd1 }
 blockquote code, details code { background: #c5c5c7; }
-a:link, a:visited { color: #00d; }
+a { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
 a code { background-color: #d0d0df; }
 body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
@@ -117,17 +116,17 @@ body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </header>
 <main>
 <h1>RC05: Creating and hosting a CTF challenge in two days</h1>
-<p id="postinfo"><time>2023-10-11</time> | <a href="recurse">recurse</a></p>
+<p><time datetime="2023-10-11">2023-10-11</time></p>
 <p>I've <a href="https://writeups-pjg1.netlify.app">played quite a few CTF challenges</a>, but hadn't attempted to create and host one before. With the announcement of Impossible Stuff Day at RC last week <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>, it seemed like a good opportunity to finally give it a shot.</p>
 <p>This post covers details of the challenge and the underlying infrastructure. The source files are up on <a href="https://github.com/pjg11/quack-ctf-challenge">pjg11/quack-ctf-challenge</a> if you'd like to try it out yourself!</p>
-<h2 id="the-initial-plan">The initial plan <a href="#the-initial-plan">#</a></h2>
+<h2 id="the-initial-plan"><a href="#the-initial-plan">The initial plan</a></h2>
 <p>My aim was to host one (1) challenge, with interaction via <code>ssh</code> or <code>nc</code>, as a web-based challenge would take more time to set up.</p>
 <p>For challenge ideas, I was inspired by <a href="https://ctftime.org/task/25620">Wordle Bash</a>, a challenge I attempted while playing NahamCon CTF this year. I found it tricky to solve, but liked the game-like nature of the challenge.</p>
 <p>The target audience were fellow Recursers - some with CTF experience but a big majority of people being possibly new to them. Having an easy challenge made sense here, allowing me to focus more on the setup.</p>
 <p>Looking for existing CTF setups brings up mentions of open-source frameworks like <a href="https://ctfd.io">CTFd</a>. This seemed overkill for my case, so I decided to host the challenge from one (1) Docker container on a server - a DigitalOcean droplet with a 25GB SSD and 1GB RAM.</p>
 <p>The challenge would be accessible over SSH, but on a different port than 22 as that is the droplet's SSH port.</p>
 <p>The container acts as a sandboxed environment - the user is restricted to the container's filesystem and can't access the server's files <sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup>.</p>
-<h2 id="a-test-dockerfile">A test Dockerfile <a href="#a-test-dockerfile">#</a></h2>
+<h2 id="a-test-dockerfile"><a href="#a-test-dockerfile">A test Dockerfile</a></h2>
 <p>When looking for Dockerfiles of other CTF challenges, I came across a video - <a href="https://www.youtube.com/watch?v=gSoNSgzp5Yo">BASH ALIAS CTF Challenge built w/ Docker</a> by John Hammond, a cybersecurity content creator and also the author of Wordle Bash.</p>
 <p>He used <a href="https://github.com/rastasheep/ubuntu-sshd"><code>ubuntu-sshd</code></a> as the base image. The image hadn't been updated for recent Ubuntu versions, so I took the code from one of the Dockerfiles and used that as my starting point.</p>
 <pre><code class="language-Dockerfile">FROM ubuntu:latest
@@ -159,7 +158,7 @@ root@ubuntu:~# ssh -p 20000 localhost
 user@858a1c9b2658:~$ 
 </code></pre>
 <p>SSH by default logs into a shell session, however I wanted to run the challenge file at login instead. I couldn't find how to do so, which lead me to change the setup entirely, as I was short on time.</p>
-<h2 id="sshd--xinetd"><code>sshd</code> → <code>xinetd</code> <a href="#sshd--xinetd">#</a></h2>
+<h2 id="sshd--xinetd"><a href="#sshd--xinetd"><code>sshd</code> → <code>xinetd</code></a></h2>
 <p>I came across another CTF challenge - <a href="https://github.com/JohnHammond/misfortune-ctf-challenge">misfortune</a>, also written by John Hammond. This challenge used <code>xinetd</code> instead of <code>sshd</code> to run the challenge, and users can access the challenge over <code>nc</code> or netcat.</p>
 <p>I wanted to test this out with the Wordle Bash source code, so the following changes were made:</p>
 <pre><code class="language-Dockerfile">FROM ubuntu:latest
@@ -245,7 +244,7 @@ read name
 echo Hello $name
 </code></pre>
 <p>This meant my plans for the challenge had to change, and I couldn't use <code>gum</code> for input as I initially hoped <sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote" rel="footnote">3</a></sup>. At this point, Impossible Stuff Day was coming to an end, so I decided to work on the challenge aspect the next day.</p>
-<h2 id="building-quack">Building QUACK <a href="#building-quack">#</a></h2>
+<h2 id="building-quack"><a href="#building-quack">Building QUACK</a></h2>
 <p>Once the initial plan for the challenge failed, I started to think about it more seriously. I looked to challenges I'd played before, particularly these two:</p>
 <ul>
 <li><a href="https://github.com/pjg11/CTF-Writeups/blob/main/2022-NahamCon-CTF/Prisoner.md">Prisoner</a> from NahamCon CTF 2022</li>
@@ -371,7 +370,7 @@ ___( O)&gt;
 <pre><code>root@ubuntu:~# echo "CTF{th4nks_f0r_p14y1ng}" &gt; flag.txt
 </code></pre>
 <p>I made the changes to the Dockerfile and other files, and once again, I faced the <code>EOF when reading a line</code> I saw earlier. I found myself at a dead end, so I gave up on this setup, and finally went back to using SSH.</p>
-<h2 id="xinetd--sshd"><code>xinetd</code> → <code>sshd</code> <a href="#xinetd--sshd">#</a></h2>
+<h2 id="xinetd--sshd"><a href="#xinetd--sshd"><code>xinetd</code> → <code>sshd</code></a></h2>
 <p>The only thing stopping me from using <code>sshd</code> earlier was not knowing a way to run a script at login, which I <a href="https://askubuntu.com/a/397696">finally figured</a>. With that sorted, I got rid of <code>challenge.xinetd</code> and <code>entrypoint.sh</code>, and made the final set of changes to the Dockerfile:</p>
 <p><code>python3</code> got added to the installation, as the challenge file is a Python script. The base image changed from Ubuntu to Debian for a smaller image size.</p>
 <pre><code class="language-Dockerfile">FROM debian:latest
@@ -401,7 +400,7 @@ RUN chmod 444 /home/user/.secret/flag.txt &amp;& \
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 </code></pre>
-<h2 id="finishing-touches">Finishing touches <a href="#finishing-touches">#</a></h2>
+<h2 id="finishing-touches"><a href="#finishing-touches">Finishing touches</a></h2>
 <p>As I was testing and running containers multiple times throughout the process, I created a script to automate it.</p>
 <pre><code>#!/bin/sh
 set -ex
@@ -451,7 +450,7 @@ flag.txt? Thanks!
 </code></pre>
 <p>The challenge is accessible at <code>ssh -p 9999 user@&lt;IP&gt;</code>, the password is <code>pass</code>.</p>
 </blockquote>
-<h2 id="running-the-challenge">Running the challenge <a href="#running-the-challenge">#</a></h2>
+<h2 id="running-the-challenge"><a href="#running-the-challenge">Running the challenge</a></h2>
 <p>For the 5 hours the challenge was live, I received a total of 6 flag submissions! (For context, this was posted this later in the day on a Friday without much prior notice, so not bad at all!)</p>
 <p>The way to submit was to message me the flag directly. Not the most sophisticated setup, but it worked, and I got some positive feedback too:</p>
 <blockquote>
@@ -462,14 +461,14 @@ flag.txt? Thanks!
 </ul>
 </blockquote>
 <p>The only thing I really found missing was some form of logging, which I made an attempt at while writing this post.</p>
-<h2 id="logging">Logging <a href="#logging">#</a></h2>
+<h2 id="logging"><a href="#logging">Logging</a></h2>
 <p>I was looking to log two things - the number of challenge attempts and the number of solves. Nothing too fancy, just everything in one log file would also work.</p>
-<h3 id="challenge-attempts">Challenge attempts <a href="#challenge-attempts">#</a></h3>
+<h3 id="challenge-attempts"><a href="#challenge-attempts">Challenge attempts</a></h3>
 <p>SSH logs to <code>/var/auth/auth.log</code> by default. However, that I wasn't seeing any log file when I ran my setup. At the time, I missed a crucial detail - my container was set to read-only, so the log file wasn't being created.</p>
 <p>To solve this, I added the <code>-e</code> flag to the Dockerfile command, which prints the logs to <code>stderr</code> instead of a file:</p>
 <pre><code class="language-Dockerfile">CMD ["/usr/bin/sshd", "-e", "-D"]
 </code></pre>
-<h3 id="challenge-solves">Challenge solves <a href="#challenge-solves">#</a></h3>
+<h3 id="challenge-solves"><a href="#challenge-solves">Challenge solves</a></h3>
 <p>I started thinking of a backup to reliably track submissions, in case someone solved it but forgot to send me a message. I figured logging the number of times the file was accessed could be a potential solution.</p>
 <p>I came across a <a href="https://stackoverflow.com/a/56774750">StackOverflow answer</a> for the same, which used <code>inotifywait</code> to watch at the flag file, and performs commands when the file is opened. I looked up the <code>man</code> page and changed the syntax according to what I was looking for.</p>
 <pre><code>inotifywait -e open .secret/flag.txt -m --format "[%T] %w %e" --timefmt "%F %T"
@@ -489,13 +488,13 @@ RUN chmod 551 /entrypoint.sh
 CMD ["/entrypoint.sh"]
 </code></pre>
 <p>This doesn't account for multiple flag reads by the same user, but some manual filtering of the logs could solve the issue in my case.</p>
-<h3 id="accessing-logs">Accessing logs <a href="#accessing-logs">#</a></h3>
+<h3 id="accessing-logs"><a href="#accessing-logs">Accessing logs</a></h3>
 <p>The logs are accessible using the <code>docker logs</code> command:</p>
 <pre><code>root@ubuntu:~# docker logs &lt;containerid&gt;
 </code></pre>
 <p>During the challenge, appending the <code>-f</code> file to command shows log entries as they appear. Once the challenge is over and I've stopped the container, I can redirect the output of the command (without <code>-f</code>) to a file.</p>
 <p>This would contain a combination of SSH logs and the file access logs, which I could filter out using tools like <code>grep</code>.</p>
-<h2 id="conclusion">Conclusion <a href="#conclusion">#</a></h2>
+<h2 id="conclusion"><a href="#conclusion">Conclusion</a></h2>
 <p>Given the timeframe of two days, I'm honestly surprised I was even able to do this much. I'm glad to be a part of a community like RC, that encourages people to try things they otherwise wouldn't.</p>
 <p>I hope you enjoyed reading this, and if you do try out the challenge, feel free to leave a comment with any feedback!</p>
 <h2>Footnotes</h2>
