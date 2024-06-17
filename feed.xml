@@ -3,10 +3,34 @@
 <generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator>
 <link href="https://pjg1.site/feed.xml" rel="self" type="application/atom+xml" />
 <link href="https://pjg1.site/" rel="alternate" type="text/html" />
-<updated>2024-06-10T22:41:06+00:00</updated>
+<updated>2024-06-17T21:30:25+00:00</updated>
 <id>https://pjg1.site/feed.xml</id>
 <title type="html">pjg1.site</title>
 <subtitle>Welcome to my space on the internet.</subtitle>
+<entry>
+<title type="html">W24 2024: Slow but steady progress</title>
+<link href="https://pjg1.site/weeknotes-24-2024" rel="alternate" type="text/html" title="W24 2024: Slow but steady progress" />
+<published>2024-06-17T00:00:00+00:00</published>
+<updated>2024-06-17T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-24-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-24-2024">
+<![CDATA[<h2 id="impossible-stuff-day">Impossible Stuff Day</h2>
+<p>Tuesday was <a href="/rc05#fn:1">Impossible Stuff Day</a> at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a>, so I took this as an opportunity to do something I'd been putting off for a while - cleaning the dust underneath the keys of my laptop by removing them.</p>
+<p>It took about half a day - I started at around 5PM and ended at 1:30AM (with breaks of course). There was A LOT of dust in there.</p>
+<p>My laptop was switched off the entire time, which meant I got lots of off-screen time aside from the occasional phone checks. I was TIRED by the time I was done, and the exhaustion continued into Wednesday as well.</p>
+<h2 id="completing-cool-project-idea">Completing cool project idea</h2>
+<p>I initially hoped to publish the code and write a post about it this week. However, getting the code to a publishable state took time as I basically ended up having to re-arrange and/or re-write parts of the code.</p>
+<p>I did manage to fix some buggy parts of the code in the process, which was nice. I started drafting a post yesterday, and it should be up sometime this week.</p>
+<h2 id="figuring-out-how-to-read-a-file-in-the-ext4-filesystem">Figuring out how to read a file in the ext4 filesystem</h2>
+<p>I was reading an article from my Reading List - <a href="https://fasterthanli.me/series/reading-files-the-hard-way/part-3">Reading files the hard way - Part 3</a>. I'd learnt about aspects of the ext4 filesystem from different articles, but didn't understand how they all connected together.</p>
+<p>The latter half of the post explains this step by step through Rust code. Simply reading along was getting a little boring, so I decided it to port the code to C as I read the post!</p>
+<p>I haven't completed the post yet, but I progressed enough to understand how it all works! Also somewhat figured how to read Rust code along the way, so that was a plus!</p>
+<h2 id="slow-progress-on-mission-revamp">Slow progress on mission revamp</h2>
+<p>I fell down a theme rabbit hole, and came out of it liking my original theme once again! There were some elements of the redesign I liked though, so I'm slowly adding those changes in.</p>
+<p>I didn't even get to the static site generator side of things, so I'll stick to my current setup for the meantime.</p>
+<h2 id="reflections">Reflections</h2>
+<p>I generally tend to figure out what to do as the week progresses. This works for most things, except ones that take more effort to get started or aren't as fun.</p>
+<p>As I have a bunch of those kind of tasks right now (writing a blog post, completing mission revamp, finishing up projects that are close to done), I'm going to try being more structured this week and see how that goes.</p>]]></content></entry>
 <entry>
 <title type="html">W23 2024: Ebb and flow</title>
 <link href="https://pjg1.site/weeknotes-23-2024" rel="alternate" type="text/html" title="W23 2024: Ebb and flow" />
@@ -1192,230 +1216,6 @@ $ ./checksum
 <ol>
 <li id="fn:1" role="doc-endnote">
 <p>Which one refers to which byte order is totally up to you :P&nbsp;<a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
-</li>
-</ol>
-</section>]]></content></entry>
-<entry>
-<title type="html">RC02: Extending filtering capabilities in Bubble Tea apps</title>
-<link href="https://pjg1.site/rc02" rel="alternate" type="text/html" title="RC02: Extending filtering capabilities in Bubble Tea apps" />
-<published>2023-09-11T00:00:00+00:00</published>
-<updated>2023-09-11T00:00:00+00:00</updated>
-<id>https://pjg1.site/rc02</id>
-<content type="html" xml:base="https://pjg1.site/rc02">
-<![CDATA[<p>In Week 1 of RC, I started building a todo app. It's built using <a href="https://github.com/charmbracelet/bubbletea">Bubble Tea</a>, a TUI framework written in Go.</p>
-<p>The app uses the <a href="https://github.com/charmbracelet/bubbles/#list">List component</a> as its base, which comes from Bubbles, a repo containing TUI components for Bubble Tea.</p>
-<p>One of the features it provides is filtering items. Filtering works by pressing the <kbd>/</kbd> key, followed by entering the text of choice. The filter value, i.e., what field to filter can be declared in the code.</p>
-<p>In the case of the <a href="https://github.com/charmbracelet/bubbletea/tree/master/examples/list-default">default list</a> (what I used for this app), it can be either the Title or the Description. I went ahead with the description, where I store the status of a task.</p>
-<p>The app takes the tasks from a plaintext file. Each task in the app can be written in one of these formats.</p>
-<pre><code>- Todo
-* Today
-/ Waiting
-X Done
-! Idea 
-&lt; Archive
-</code></pre>
-<p>The description stores textual versions of these symbols, and that's what used as the filter value.</p>
-<p>Since the filter values are limited, I wanted a way to access these filters faster. Rather than having to type <kbd>/today</kbd> for tasks tagged Today, I wanted to press <kbd>1</kbd>. Similarly, I wanted the key <kbd>2</kbd> for Todo, <kbd>3</kbd> for Waiting and so on.</p>
-<p>I set out to look for if there was a function that did this. The first place I checked was the Issues tab on GitHub to see if others had asked for something similar.</p>
-<p>While there is no built-in function to do this, there are pull requests that offer functions to be added to the source code. <a href="https://github.com/charmbracelet/bubbles/pull/335">This pull request</a> has been around for a while, but hasn't been merged to the main source code for some reason.</p>
-<h2 id="attempt-1-use-a-modified-local-bubbles-instance">Attempt #1: Use a modified, local Bubbles instance</h2>
-<p>I was impatient and really wanted to implement this feature in my app. So I cloned the entire Bubbles repository to my directory.</p>
-<p>I specifically cloned the user's fork, so I could use the newly created function, <code>SetFilterText()</code>. The code was located in the branch called <code>feat-prefilter-opt</code>.</p>
-<pre><code>$ git clone https://github.com/taigrr/bubbles
-$ cd bubbles &amp;& git checkout remotes/origin/feat-prefilter-opt
-</code></pre>
-<p>I implemented the core logic in my app's <code>Update()</code> function, which handles keypresses.</p>
-<pre><code>switch msg := msg.(type) {
-case tea.KeyMsg:
-    switch msg.String() {
-    case "1":
-        m.list.SetFilterText("today")
-    case "2":
-        m.list.SetFilterText("todo")
-    case "3":
-        m.list.SetFilterText("waiting")
-    case "4":
-        m.list.SetFilterText("done")
-    case "5":
-        m.list.SetFilterText("idea")
-    case "6":
-        m.list.SetFilterText("archive")
-    }
-}
-</code></pre>
-<p>Next, I needed to create keybindings for the keys above, so that they show up in the help section of the app.</p>
-<p>I created keybindings for the keys <kbd>1</kbd> - <kbd>6</kbd> and a combined key called <code>Section</code> using the following code:</p>
-<pre><code>type listKeyMap struct {
-    Section key.Binding
-    Today   key.Binding
-    Todo    key.Binding
-    Waiting key.Binding
-    Done    key.Binding
-    Idea    key.Binding
-    Archive key.Binding
-}
-
-func newListKeyMap() *listKeyMap {
-    return &amp;listKeyMap{
-        Section: key.NewBinding(
-            key.WithKeys("1-6"),
-            key.WithHelp("1-6", "section"),
-        ),
-        Today: key.NewBinding(
-            key.WithKeys("1"),
-            key.WithHelp("1", "today"),
-        ),
-        Todo: key.NewBinding(
-            key.WithKeys("2"),
-            key.WithHelp("2", "todo"),
-        ),
-        Waiting: key.NewBinding(
-            key.WithKeys("3"),
-            key.WithHelp("3", "waiting"),
-        ),
-        Done: key.NewBinding(
-            key.WithKeys("4"),
-            key.WithHelp("4", "done"),
-        ),
-        Idea: key.NewBinding(
-            key.WithKeys("5"),
-            key.WithHelp("5", "idea"),
-        ),
-        Archive: key.NewBinding(
-            key.WithKeys("6"),
-            key.WithHelp("6", "archive"),
-        ),
-    }
-}
-</code></pre>
-<p>The program has two help sections - a short help displayed below the app, and a full help that can be accessed by pressing the <kbd>?</kbd> key.</p>
-<p>The <code>Section</code> key is created for the short help, to avoid making the short help too long. Each of the individual section keys go in the full help. This code goes in the app's <code>newModel()</code> function, that builds the list.</p>
-<pre><code>list.AdditionalFullHelpKeys = func() []key.Binding {
-    return []key.Binding{
-        listKeys.Today,
-        listKeys.Todo,
-        listKeys.Waiting,
-        listKeys.Done,
-        listKeys.Idea,
-        listKeys.Archive,
-        listKeys.Edit,
-    }
-}
-list.AdditionalShortHelpKeys = func() []key.Binding {
-    return []key.Binding{
-        listKeys.Section,
-    }
-}
-
-return model{
-    list: list,
-    keys: listKeys,
-}
-</code></pre>
-<p>One last change I had to make was to add the following line to the <code>go.mod</code> file to use the local import.</p>
-<pre><code>replace github.com/charmbracelet/bubbles =&gt; ./bubbles
-</code></pre>
-<p>And...<a href="/public/images/rc02/todo.gif">it worked</a>!</p>
-<p>Now I could have stopped here. But having the entire Bubbles package as part of my repo made it unnecessarily bulky. There had to be another way, a way which didn't require a local copy.</p>
-<p>I tried adding <code>SetFilterText()</code> to my <code>main.go</code> file, but it accessed private variables and functions of the List component, which I couldn't access.</p>
-<h2 id="an-undocumented-workaround">An undocumented workaround</h2>
-<p>The same pull request also contains the following text:</p>
-<blockquote>
-<p>A workaround of using Program.Send works, but is limiting.</p>
-</blockquote>
-<p>I got curious as to what this hack was. From an <a href="https://github.com/charmbracelet/bubbletea/tree/master/examples/send-msg">example</a> provided by Bubble Tea, <code>Program.Send()</code> can be used to send messages from outside of the program.</p>
-<p>The term "workaround" suggests that there could be a way to send keypresses from within the program through this function.</p>
-<p>The pull request had no sample code to show how it works though, so I was left to figure it out on my own.</p>
-<p>I read through the documentation and tried to put something together, but thanks to the combination of working with a new language (Go) and a new code structure, I couldn't get it to work.</p>
-<h2 id="recursers-to-the-rescue">Recursers to the rescue</h2>
-<p>Around the same time, <a href="https://the.scapegoat.dev">Manuel</a>, a Recurse alum, shared progress on his project, that also used Bubble Tea! <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup> I reached out to him for help, and we decided to figure this out together in a pairing session.</p>
-<p>A few days later, we got on call, and actually got it to work. He did most of the figuring out, so here's my attempt of explaining the concept by showing how I implemented it in the app.</p>
-<h2 id="proof-of-concept">Proof of concept</h2>
-<p>Let's start with the documentation for <code>Program.Send</code>, which contains the function declaration:</p>
-<pre><code>func (p *Program) Send(msg Msg)
-</code></pre>
-<p>It takes an input of type <code>Msg</code>, which is the message to be sent. I need a way to send keys to the program. For this, there is a type of <code>Msg</code> called <code>KeyMsg</code>.</p>
-<pre><code>type KeyMsg Key
-
-type Key struct {
-    Type  KeyType
-    Runes []rune
-    Alt   bool
-}
-</code></pre>
-<p><code>KeyMsg</code> is of type <code>Key</code> which requires one or two parameters:</p>
-<ul>
-<li><code>Type</code> which is the type of key, which could be one of the constant values defined <a href="https://pkg.go.dev/github.com/charmbracelet/bubbletea#KeyType">here</a>. If the type is set to <code>KeyRunes</code>, then the next parameter is required.</li>
-<li><code>Runes</code> is an array of the type <code>rune</code>, a Go type that stores characters as 32-bit integers. This can be used to send keys not described in the constant values above or multiple keys at once.</li>
-</ul>
-<p>Putting together the learnings from the pairing session and the docs, here's the syntax for sending a key press via <code>Program.Send()</code>:</p>
-<pre><code>p.Send(tea.KeyMsg(tea.Key{Type: tea.CtrlC}))
-p.Send(tea.KeyMsg(tea.Key{Type: tea.KeyRunes, Runes: []rune("q")}))
-</code></pre>
-<p>Both examples cause the program to quit. The first example sends the key <kbd>Ctrl+C</kbd>, while the second sends the <kbd>Q</kbd> key using the rune syntax.</p>
-<p>Having this figured out, I made my own function, called <code>SetFilter()</code></p>
-<h2 id="attempt-2-setfilter">Attempt #2: <code>SetFilter()</code></h2>
-<pre><code class="language-?linenos"><span style="float: left; text-align: right; padding-right: 1rem;">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12</span>/* Custom function to switch between the different categories. */
-func (m model) SetFilter(s string) {
-    go func() {
-        if m.list.IsFiltered() {
-            p.Send(tea.KeyMsg(tea.Key{Type: tea.KeyEsc}))
-        }
-        p.Send(tea.KeyMsg(tea.Key{Type: tea.KeyRunes, Runes: []rune{'/'}}))
-        p.Send(tea.KeyMsg(tea.Key{Type: tea.KeyRunes, Runes: []rune(s)}))
-        time.Sleep(2 * time.Millisecond)
-        p.Send(tea.KeyMsg(tea.Key{Type: tea.KeyEnter}))
-    }()
-}
-</code></pre>
-<p>Lines 7-10 are the core of this function:</p>
-<ul>
-<li>It starts by sending the <kbd>/</kbd> key, which enables filtering mode.</li>
-<li>Then the filter text is sent, stored in <code>s</code>.</li>
-<li>After a delay of 2 milliseconds (required to update the pagination), the <kbd>Enter</kbd> key is sent to apply the filter.</li>
-</ul>
-<p>Lines 4-6 check if a filter is currently set, in which case the <kbd>Esc</kbd> key is sent to reset the filter before switching to another one.</p>
-<p>Lastly, all the statements are wrapped in a goroutine. This is to ensure that neither of these commands can block the entire program.</p>
-<p>With the function complete, I changed the <code>Update()</code> function.</p>
-<pre><code>case "1":
-    m.SetFilter("today")
-case "2":
-    m.SetFilter("todo")
-case "3":
-    m.SetFilter("waiting")
-case "4":
-    m.SetFilter("done")
-case "5":
-    m.SetFilter("idea")
-case "6":
-    m.SetFilter("archive")
-</code></pre>
-<p>Lastly, I declared the Program <code>p</code> as a global variable, so that <code>SetFilter()</code> could access it.</p>
-<h2 id="limitations">Limitations</h2>
-<ol>
-<li>
-<p>The app can flicker sometimes when switching filters, due to the 2 millisecond delay in the function.</p>
-</li>
-<li>
-<p><a href="#attempt-1-use-a-modified-local-bubbles-instance">Attempt #1</a> displayed a "0 items found" screen when there were no items for a given filter. This happens due to the function setting a state called <code>FilterApplied</code>. The actual behavior for this case is different though (exits filter mode and displays all items) which is how <a href="#attempt-2-setfilter">Attempt #2</a> works. I prefer the first approach, but haven't found a way to implement it yet.</p>
-</li>
-</ol>
-<h2>Footnotes</h2>
-<section class="footnotes" role="doc-endnotes">
-<ol>
-<li id="fn:1" role="doc-endnote">
-<p>I came across his blog posts from Bearblog's <a href="http://bearblog.dev/discover">discovery feed</a>, and I had no idea he was an RC alum before joining. Never thought I'd actually get to meet him, so pairing with him was totally unexpected and a really cool experience!&nbsp;<a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
 </li>
 </ol>
 </section>]]></content></entry>
