@@ -48,7 +48,7 @@ h2:hover a, h3:hover a { visibility: visible; }
 blockquote { margin: 1rem 0; padding: 0.07rem 0; }
 
 details { padding: 0.75rem 1.25rem; }
-details summary, nav .active { font-weight: bold; text-decoration: none; }
+details summary, header .active { font-weight: bold; text-decoration: none; }
 
 table { margin: 1rem 0; border-collapse: collapse; width: 100%; }
 table pre { margin: 0; }
@@ -62,7 +62,7 @@ sup { line-height: 0; margin-left: -0.1rem; }
 
 hr { border-style: solid; border-top: 0; margin: 1.25rem -1.25rem; }
 
-nav { position: relative; display: flex; gap: 0.65rem; border-bottom: 1px solid; padding: 1rem 2.25rem 0.625rem 2.25rem; margin: 0 -1.25rem; }
+header { position: relative; border-bottom: 1px solid; padding: 1rem 2.25rem 0.625rem 2.25rem; margin: 0 -1.25rem; }
 aside { position: absolute; left: 99%; font-size: 85%; z-index: -1; }
 aside .toc { position: fixed; top: 3.75rem; max-width: 9.5rem; }
 aside .toc ul { margin: 0; padding: 0; list-style-type: none; }
@@ -70,11 +70,10 @@ aside .toc li { margin: 0.3rem 0; line-height: 1.25; }
 aside .toc a { text-decoration: none; }
 
 .links { display: flex; justify-content: space-between; border-top: 1px solid; padding: 0 1.25rem; margin: 1.25rem -1.25rem; margin-bottom: 0; }
-.button { width: 49%; text-align: center; padding: 0.625rem 2.5rem; }
-.button:first-of-type { border-right: 1px solid; }
+.links > a { width: 49%; text-align: center; padding: 0.625rem 2.5rem; border-right: 1px solid; }
+.links > a:last-of-type { border-right: 0; }
 
-footer { position: relative; margin: 0 -1.25rem; border-top: 1px solid }
-footer small { display: block; font-size: 85%; padding: 1rem 2.25rem; }
+footer { padding: 0.625rem 2.25rem 1rem 2.25rem; margin: 0 -1.25rem !important; border-top: 1px solid; border-bottom: 1px solid; text-align: center }
 
 .title { font-size: 190%; }
 .pw { white-space: pre-wrap; }
@@ -94,11 +93,13 @@ a:link, a:visited { color: #00d; }
 a:focus, a:active { color: #9c1f14; }
 a:hover, a:hover code { color: inherit; text-decoration: none; background: #c5c5c7; }
 a code { background-color: #d0d0df; }
-body, kbd, nav, h2, tr, hr, .links, footer, .button, .button:first-of-type { border-color: grey }
+body, kbd, header, h2, tr, hr, .links, footer, .links > a { border-color: grey }
 </style>
 </head>
 <body>
-<nav><a href="/">Home</a> <a href="/now">Now</a> <a href="/projects">Projects</a> <a href="/colophon">Colophon</a></nav>
+<header><a href="/">pjg1.site</a> / <strong>rc07</strong>
+<nav style="float: right;"><a href="/now">now</a> <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">rc?</a></nav>
+</header>
 <main>
 <h1>RC07: return statement;</h1>
 <p id="postinfo"><time>2023-11-04</time> | <a href="recurse">recurse</a></p>
@@ -198,8 +199,8 @@ body, kbd, nav, h2, tr, hr, .links, footer, .button, .button:first-of-type { bor
 </li>
 </ol>
 </section>
-<section class="links"><a class="button" href="mailto:comments@pjg1.site?subject=Re:%20RC07%3A%20return%20statement%3B">Comment via email</a> <a class="button" href="/feed.xml">RSS feed</a></section>
+<section class="links"><a href="mailto:comments@pjg1.site?subject=Re:%20RC07%3A%20return%20statement%3B">Comment via email</a> <a href="/feed.xml">RSS feed</a></section>
 </main>
-<footer><small>Want to become a better programmer? Join the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center!</a></small></footer>
+<footer class="links"><a id="rc-ring-prev" href="https://ring.recurse.com/prev?id=28">&lt;&lt;</a> <a id="rc-ring-home" data-rc-uuid="31ba89ab-ad76-4fea-a2d0-ef53d540cc81" href="https://ring.recurse.com/">Recurse Webring</a> <a id="rc-ring-next" href="https://ring.recurse.com/next?id=28">&gt;&gt;</a></footer>
 </body>
 </html>
