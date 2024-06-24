@@ -3,10 +3,39 @@
 <generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator>
 <link href="https://pjg1.site/feed.xml" rel="self" type="application/atom+xml" />
 <link href="https://pjg1.site/" rel="alternate" type="text/html" />
-<updated>2024-06-17T21:30:25+00:00</updated>
+<updated>2024-06-24T23:03:34+00:00</updated>
 <id>https://pjg1.site/feed.xml</id>
 <title type="html">pjg1.site</title>
 <subtitle>Welcome to my space on the internet.</subtitle>
+<entry>
+<title type="html">W25 2024: You win some, you lose some</title>
+<link href="https://pjg1.site/weeknotes-25-2024" rel="alternate" type="text/html" title="W25 2024: You win some, you lose some" />
+<published>2024-06-24T00:00:00+00:00</published>
+<updated>2024-06-24T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-25-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-25-2024">
+<![CDATA[<h2 id="smol-pr-victory">Smol PR victory</h2>
+<p>I submitted <a href="https://github.com/robinovitch61/wander/pull/138">a PR</a> for wander, which got merged! I came across a similar bug recently, so the fix in terms of code was simple.</p>
+<p>Understanding the codebase was the tougher part, which the project's maintainer (and fellow Recurser) very kindly walked me through in a chat.</p>
+<h2 id="blog-post-struggles">Blog post struggles</h2>
+<p>I thought publishing these weeknotes would make writing other posts easier. I was wrong.</p>
+<p>I don't feel like pushing through it either, I've sort of lost interest. Maybe having the code in a repo + a README is sufficient? Let's see.</p>
+<h2 id="ctf-adventures">CTF adventures</h2>
+<p>A group of Recursers decided to participate in <a href="https://capturetheflag.withgoogle.com">Google CTF</a> over the weekend! I hadn't played a CTF in a while, so my skills were rusty (they were basic to begin with). And Google CTF in particular is tough, where even the "easy" challenges are not that easy.</p>
+<p>I fell into a rabbit hole with one of the challenges, and that path wasn't helpful in solving it AT ALL :/</p>
+<p>Regardless, the rabbit hole was really interesting. I started looking into terminal escape sequences, a combination of characters that allow for functionality in the terminal - printing text in different colors being an example.</p>
+<p>I was particularly interested in terminal injection - using certain sequences in a way that lets me execute shell commands. Turns out that wasn't possible (the code was escaping the escape sequences), but I left with a better understanding of how it works.</p>
+<p>Here are some links I found helpful:</p>
+<ul>
+<li><a href="https://gpanders.com/blog/state-of-the-terminal/">State of the Terminal</a></li>
+<li><a href="https://invisible-island.net/xterm/ctlseqs/ctlseqs.html">XTerm Control Sequences</a></li>
+<li><a href="https://www.youtube.com/watch?v=3T2Al3jdY38&amp;pp=ygULU1RPSyBkZWZjb24%3D">Weaponizing Plaintext ANSI Escape Sequences as a Forensic Nightmare</a></li>
+<li><a href="https://www.youtube.com/watch?v=iIHw0KWgzAs&amp;pp=ygUeZGF2aWQgbGVhZGJldHRlciBibHVlIGhhdCAyMDIz">Houdini of the Terminal</a></li>
+</ul>
+<h2 id="reflections">Reflections</h2>
+<p>Did I work in a more structured way than usual? Not really, but I had one big win: I didn't fall down the "maintaining my website" rabbit hole! I decided on this earlier in the week, and I'm happy I'm stuck to it.</p>
+<p>I've also realized that there are times I'm learning things that don't feel useful in the moment, but help me in another situation.</p>
+<p>For example, the bug fix for wander was something I came across in one of my personal projects. I dropped that project mid-way, so it wasn't particularly useful there. However, having worked on that code helped me figure out the exact fix in this case, which was cool.</p>]]></content></entry>
 <entry>
 <title type="html">W24 2024: Slow but steady progress</title>
 <link href="https://pjg1.site/weeknotes-24-2024" rel="alternate" type="text/html" title="W24 2024: Slow but steady progress" />
@@ -993,230 +1022,4 @@ EOF
 <hr>
 <p>Thanks for tuning in to another episode of "things I didn't plan to work on"! It's interesting how I get more post ideas from side quests rather than the main ones 😅</p>
 <p>You can find all the above scripts (and more, whenever I make them) at <a href="https://github.com/pjg11/scripts">pjg11/scripts</a>.</p>]]></content></entry>
-<entry>
-<title type="html">RC03: The Curious Case of the Inconsistent Byte Order</title>
-<link href="https://pjg1.site/rc03" rel="alternate" type="text/html" title="RC03: The Curious Case of the Inconsistent Byte Order" />
-<published>2023-09-18T00:00:00+00:00</published>
-<updated>2023-09-18T00:00:00+00:00</updated>
-<id>https://pjg1.site/rc03</id>
-<content type="html" xml:base="https://pjg1.site/rc03">
-<![CDATA[<p>This week, I started working on building a <a href="https://github.com/pjg11/tcpip">TCP/IP stack from scratch in C</a>.</p>
-<p>Part of the IP implementation is calculating the checksum, which requires splitting the IP header into 16-bit chunks. I'll be using these hex bytes from an IP packet as an example</p>
-<pre><code>45 00 00 14 00 01 00 00 40 06 00 00 0a 00 02 0f d0 5e 75 2b
-</code></pre>
-<p>which should be converted into the following chunks</p>
-<pre><code>4500 0014 0001 0000 4006 0000 0a00 020f d05e 752b
-</code></pre>
-<p>Sounds simple, right? I thought so too, but not when C code is involved! Things didn't work as I expected them to, and I decided to start an investigation.</p>
-<h2 id="initial-assessment">Initial assessment</h2>
-<p>Here's the program I was working with. It first creates an IP packet, then displays the packet as 16-bit chunks.</p>
-<pre><code class="language-?linenos"><span style="float: left; text-align: right; padding-right: 1rem;">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45</span>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;arpa/inet.h&gt;
-
-struct ipv4 {
-    uint8_t     version_ihl;
-    uint8_t     tos;
-    uint16_t    len;
-    uint16_t    id;
-    uint16_t    frag_offset;
-    uint8_t     ttl;
-    uint8_t     proto;
-    uint16_t    checksum;
-    uint32_t    src;
-    uint32_t    dst;
-};
-
-int main(void) {
-    struct ipv4 * ip = calloc(1, sizeof(struct ipv4));
-    uint32_t saddr, daddr;
-    inet_pton(AF_INET, "10.0.2.15", &amp;saddr);
-    inet_pton(AF_INET, "208.94.117.43", &amp;daddr);
-
-    ip-&gt;version_ihl = 4 &lt;&lt; 4 | 5;
-    ip-&gt;tos = 0;
-    ip-&gt;len = 20;
-    ip-&gt;id = 1;
-    ip-&gt;frag_offset = 0;
-    ip-&gt;ttl = 6;
-    ip-&gt;proto = 6;
-    ip-&gt;checksum = 0;
-    ip-&gt;src = saddr;
-    ip-&gt;dst = daddr;
-
-    uint16_t *p = (uint16_t *) ip;
-    size_t count = sizeof(*ip);
-    
-    while (count &gt; 1)  {
-        printf("%.4x ", *p++);
-        count -= 2;
-    }
-    printf("\n");
-
-    return 0;
-}
-</code></pre>
-<p>And...that didn't go as I hoped.</p>
-<pre><code>$ gcc -o checksum checksum.c
-$ ./checksum
-0045 0014 0001 0000 0640 0000 000a 0f02 5ed0 2b75
-</code></pre>
-<p>Chunks 2, 3, 4 and 6 look correct, but the other chunks display individual bytes in the opposite order.</p>
-<h2 id="the-prime-suspect---byte-order">The prime suspect - Byte Order</h2>
-<p>I suspected this to have something to do with the byte order - the way in which our machines stores bytes.</p>
-<p>I explain these terms briefly in the following sections, but I would also recommend reading the <a href="https://beej.us/guide/bgnet/html/#byte-order">Byte Order section</a> from Beej's Guide to Network Programming, an excellent resource for low-level network stuff.</p>
-<p>I assigned all variables in the way I usually would, so I assumed that the machine would store and print all values in the same order.</p>
-<p>But seeing an inconsistent byte order in the output instead confused me, which made the investigation very interesting.</p>
-<h2 id="trial-and-error">Trial and error</h2>
-<p>I started with changing the printing section of the code to display individual bytes instead of chunks.</p>
-<pre><code>uint8_t *p = (uint8_t *) ip;
-size_t count = sizeof(*ip);
-
-while (count &gt; 1) {
-    printf("%.2x ", *p++);
-    count -= 1;     
-}
-
-printf("\n");
-</code></pre>
-<p>The output confused me even more.</p>
-<pre><code>$ gcc -o checksum checksum.c
-$ ./checksum
-45 00 14 00 01 00 00 00 40 06 00 00 0a 00 02 0f d0 5e 75 2b
-</code></pre>
-<p>This looks closer to the header at the start of the post, but bytes 3-6 are written in the wrong order. The correct order would be <code>00 14 00 01</code>.</p>
-<p>Additionally, the bytes are displayed in the exact opposite order of the chunks output. What? Why?</p>
-<p><em>*sigh*</em></p>
-<p>Let's put some questions in place to guide the investigation:</p>
-<ol>
-<li>Why are bytes in the chunks output reversed?</li>
-<li>Why does the bytes output have only some bytes printed in the opposite order?</li>
-</ol>
-<h2 id="getting-somewhere">Getting somewhere</h2>
-<p>The answer to the first question is an example I remembered, from the book <a href="https://nostarch.com/hacking2.htm">Hacking: The Art of Exploitation</a>. It prints the contents of a register in different ways in <code>gdb</code>. Here's a modified version of it:</p>
-<pre><code>(gdb) x/xh $eip
-0x8048384 &lt;main+16&gt;: 0x45c7
-(gdb) x/2xb $eip
-0x8048384 &lt;main+16&gt;: 0xc7 0x45
-</code></pre>
-<p>The second command is the individual byte representation of the first command, the same as my case. The book also explains why this happens - the byte order, my prime suspect.</p>
-<p>The little-endian order, which is the byte order of my machine (and most machines), stores bytes in the reverse order to what we think they would store.</p>
-<p>Keeping the above example in mind, it is common to think that the value <code>0x45c7</code> would be stored as the bytes <code>45 c7</code> in memory. But nope, my machine stores the value as <code>c7 45</code> instead, which is the output of the second command.</p>
-<p>If they were stored in the opposite order, they would have to be read in the opposite order too. So the bytes are read from right to left, and hence displayed in the reverse order when printed as a chunk.</p>
-<p>Okay, one question solved, one more to go!</p>
-<h2 id="the-case-gets-complicated">The case gets complicated</h2>
-<p>The second question was not as easy to answer.</p>
-<p>The bytes in question, bytes 3-6 of the header, correspond to the <code>len</code> and <code>id</code> fields of the IP header. Let's start with the declaration of these fields:</p>
-<pre><code>uint16_t    len;
-uint16_t    id;
-</code></pre>
-<p>They're both 16 bits or 2 bytes in size. Here's how they were assigned:</p>
-<pre><code>ip-&gt;len = 20;
-ip-&gt;id = 1;
-</code></pre>
-<p>As little-endian is the default byte order of the machine, it applies to these assignments too. So the value 20 is represented as hex bytes <code>14 00</code> in memory, while the value 1 corresponds to the hex bytes <code>01 00</code>.</p>
-<p>Now this is a problem, as network programs store and read data from left to right, like we do. That order is called the big-endian order.</p>
-<p>To solve this, we would need to switch the byte order from little to big-endian, which can be done with a function called <a href="https://beej.us/guide/bgnet/html/#htonsman"><code>htons()</code></a> or <code>h</code>ost <code>to</code> <code>n</code>etwork <code>s</code>hort. Host Byte Order in this case is little-endian, while Network Byte Order is always big-endian.</p>
-<p>This would solve the problem, but something doesn't feel right. Changing the byte order just for two fields doesn't make sense. <em>Why do the other values not require <code>htons()</code>?</em></p>
-<h2 id="mystery-solved">Mystery solved</h2>
-<p>It's something I struggled to figure even as I started typing this post, but I think I got it:</p>
-<ul>
-<li>
-<p>The fields <code>version_ihl</code>, <code>tos</code>, <code>ttl</code>, and <code>proto</code> are 8 bits or 1 byte in size. Byte order matters for values greater than a byte, which isn't the case here. So no <code>htons()</code> required.</p>
-</li>
-<li>
-<p>The <code>src</code> and <code>dst</code> fields (32 bits each) are in big-endian order already, thanks to <a href="https://beej.us/guide/bgnet/html/#inet_ntopman"><code>inet_pton()</code></a>. No <code>htons()</code> required here either.</p>
-</li>
-<li>
-<p>The <code>frag_offset</code> and <code>checksum</code> fields were a big reason behind the confusion. They're the same size as <code>len</code> and <code>id</code>, but were intialized to 0. As the bytes <code>00 00</code> are the same as <code>00 00</code> <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>, it looked like they displayed correctly. <code>htons()</code> would be required for these fields.</p>
-</li>
-</ul>
-<p>And now, it all makes sense. The byte order needs to be switched for all fields greater than a byte.</p>
-<h2 id="conclusion">Conclusion</h2>
-<p>Based on the above findings, I made the following changes, making the byte order consistent across the struct.</p>
-<pre><code>ip-&gt;version_ihl = 4 &lt;&lt; 4 | 5;
-ip-&gt;tos = 0;
-ip-&gt;len = htons(20);
-ip-&gt;id = htons(1);
-ip-&gt;frag_offset = htons(0);
-ip-&gt;ttl = 64;
-ip-&gt;proto = 6;
-ip-&gt;checksum = htons(0);
-ip-&gt;src = saddr;
-ip-&gt;dst = daddr;
-</code></pre>
-<p>With that set, the bytes print correctly!</p>
-<pre><code>$ gcc -o checksum checksum.c
-$ ./checksum
-45 00 00 14 00 01 00 00 40 06 00 00 0a 00 02 0f d0 5e 75 2b
-</code></pre>
-<p>I changed the printing section to display chunks again, and they look fine too.</p>
-<pre><code>$ gcc -o checksum checksum.c
-$ ./checksum
-0045 1400 0100 0000 0640 0000 000a 0f02 5ed0 2b75
-</code></pre>
-<p>I was wondering if this swapped order of chunks would affect the resulting checksum. According to <a href="https://www.rfc-editor.org/rfc/rfc1071#page-3">RFC 1071</a>, it doesn't:</p>
-<blockquote>
-<p>For example, assume a "little-endian" machine summing data that is stored in memory in network ("big-endian") order. Fetching each 16-bit word will swap bytes, resulting in the sum [4]; however, storing the result back into memory will swap the sum back into network byte order.</p>
-</blockquote>
-<p>Interesting! I didn't know little-endian byte order worked like this.</p>
-<p>With that, I declare this investigation complete. Detective Piya, signing off!</p>
-<hr>
-<p><strong>Update</strong>: Just as I was finishing up this post, I read through the <a href="https://beej.us/guide/bgnet/html/#byte-order">Byte Order section</a> in Beej's Guide, where I found this:</p>
-<blockquote>
-<p>A lot of times when you’re building packets or filling out data structures you’ll need to make sure your two- and four-byte numbers are in Network Byte Order.</p>
-</blockquote>
-<p>Oh well, the solution was here all along. Regardless, I enjoyed sharpening my debugging skills by figuring things out step by step (and making this post, too!).</p>
-<h2>Footnotes</h2>
-<section class="footnotes" role="doc-endnotes">
-<ol>
-<li id="fn:1" role="doc-endnote">
-<p>Which one refers to which byte order is totally up to you :P&nbsp;<a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
-</li>
-</ol>
-</section>]]></content></entry>
 </feed>
