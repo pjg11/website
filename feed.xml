@@ -3,10 +3,31 @@
 <generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator>
 <link href="https://pjg1.site/feed.xml" rel="self" type="application/atom+xml" />
 <link href="https://pjg1.site/" rel="alternate" type="text/html" />
-<updated>2024-06-24T23:03:34+00:00</updated>
+<updated>2024-07-09T01:35:53+00:00</updated>
 <id>https://pjg1.site/feed.xml</id>
 <title type="html">pjg1.site</title>
 <subtitle>Welcome to my space on the internet.</subtitle>
+<entry>
+<title type="html">W26-W27 2024: Very distracted</title>
+<link href="https://pjg1.site/weeknotes-26-27-2024" rel="alternate" type="text/html" title="W26-W27 2024: Very distracted" />
+<published>2024-07-08T00:00:00+00:00</published>
+<updated>2024-07-08T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-26-27-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-26-27-2024">
+<![CDATA[<p>Both these weeks were busy with work stuff, some changes in routine (aka me trying to keep up with a show I really like) and lots of procrastination, which meant little to no progress on personal projects.</p>
+<p>I've been trying to readjust my routine to start making progress, which hasn't been successful so far, so here's a short note summarizing the last two weeks.</p>
+<h2 id="making-progress-on-a-c-project">Making progress on a C project</h2>
+<p>I revisited a project I mentioned in a <a href="https://pjg1.site/weeknotes-24-2024#figuring-out-how-to-read-a-file-in-the-ext4-filesystem">previous weeknote</a> and attemtpted to port the rest of code in the post. It kind of works, but some cases don't, and debugging those cases is the next step.</p>
+<h2 id="starting-a-personal-wiki">Starting a personal wiki?</h2>
+<p>I was recently helping out refactor the internal wiki at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a>, and that inspired me to start my own. However, having separate wiki pages started to create confusion with the dev journal system, so I'm thinking on how to incorporate this with the journal itself.</p>
+<h2 id="lots-of-thinking">Lots of thinking</h2>
+<p>Since I was finding it tough to get started on something, I decided to spend time planning in the hopes that something would click. I'm in the process of breaking down projects into smaller, manageable tasks, and priortizing which ones to focus on.</p>
+<h2 id="browserengineering">browser.engineering</h2>
+<p>Riding the wave of the start of a new batch and new events at RC, I decided to join a study group working through the <a href="https://browser.engineering">Web Browser Engineering</a> book. I had this book saved in my "someday" list for a while, and this study group seemed like a good opportunity.</p>
+<p>I'm working through the Chapter 1 exercises, and it seems interesting so far. Not sure if I'll work through the entire book though.</p>
+<h2 id="reflections">Reflections</h2>
+<p>The new additions to my routine meant that my existing routine isn't working. This was also reflective in my dev journal, where I have very few notes from these two weeks.</p>
+<p>Attempts at readjusting my routine shall continue.</p>]]></content></entry>
 <entry>
 <title type="html">W25 2024: You win some, you lose some</title>
 <link href="https://pjg1.site/weeknotes-25-2024" rel="alternate" type="text/html" title="W25 2024: You win some, you lose some" />
@@ -902,124 +923,4 @@ CMD ["/entrypoint.sh"]
 </li>
 </ol>
 </section>]]></content></entry>
-<entry>
-<title type="html">RC04: Shell Scripting Adventures</title>
-<link href="https://pjg1.site/rc04" rel="alternate" type="text/html" title="RC04: Shell Scripting Adventures" />
-<published>2023-09-30T00:00:00+00:00</published>
-<updated>2023-09-30T00:00:00+00:00</updated>
-<id>https://pjg1.site/rc04</id>
-<content type="html" xml:base="https://pjg1.site/rc04">
-<![CDATA[<p>One of the things that helped me rediscover the joy of programming was making tiny shell scripts/functions for a specific purpose.</p>
-<p>As I started using the command line more often, these functions helped execute commands that I would otherwise have to type repeatedly. And that set off a chain reaction - the more functions I made, the more ideas I'd get.</p>
-<p>The first one I made was <a href="https://github.com/pjg11/scripts/tree/main/tzc"><code>tzc</code></a>, to convert time from another timezone to my local time. It was inspired by two things:</p>
-<ul>
-<li>The RC application process, where all the interview timings were displayed in EST, and I needed a way to convert timings quickly, and</li>
-<li><a href="https://lazybear.io/posts/cli-of-the-week-19/">CLI of the week #19</a>, a post that introduced me to the idea of tiny shell functions.</li>
-</ul>
-<p>Things I like about making tiny functions:</p>
-<ul>
-<li><a href="https://blubsblog.bearblog.dev/i-am-the-only-user/">I am the only user</a>, so I make them in a way that makes sense to me (bonus points if it makes sense to others too).</li>
-<li>It takes less time to go from idea to execution.</li>
-<li>It's a great learning opportunity, as I end up learning something new about shell scripting concepts or the thing I'm making the script for.</li>
-</ul>
-<p>I made a couple of functions while at RC - particularly over the last two weeks - which I'll share in this post.</p>
-<h2 id="note"><code>note</code></h2>
-<p>I came across <a href="https://github.com/cdkini/quicknote"><code>quicknote</code></a> recently, and really liked the way it was structured. It made it easier to capture notes and search them, so I made its <code>zsh</code> equivalent:</p>
-<pre><code>#!/bin/zsh
-note() (
-    dir=$HOME/notes
-    cd $dir
-        
-    case $1 in
-        "open")    shift ; micro $@ ;;
-        "ls")      fd . $dir --type file | cut -d'/' -f5- ;;
-        "grep")    rg $2 ;;
-        "rm")      shift ; rm $@ ;;
-        *)         _usage ; return ;;
-    esac
-)
-</code></pre>
-<p>A neat trick I learnt while making this is writing the function block in regular braces <code>()</code> - which runs commands in a subshell as opposed to curly braces <code>{}</code> - to prevent changing the directory of my current shell session.</p>
-<p>The full code with error handling and usage information can be found <a href="https://github.com/pjg11/scripts/blob/main/note">here</a>.</p>
-<h2 id="blog"><code>blog</code></h2>
-<p>This function is my take on a basic CLI content management system.</p>
-<pre><code>$ blog -h
-blog - commands to manage your Jekyll blog
-        
-Usage:
-  blog command [args]
-
-Options:
-  -h|--help                  Show this message and exit
-        
-Commands:
-  new filename               Create a new post
-  update commitmsg           Build and deploy changes to existing content
-  publish filename           Publish post now
-  publish filename time      Schedule post for a later time
-  preview                    View recent post/draft locally
-  preview all                View entire website locally
-</code></pre>
-<p>These commands have existed as a bunch of separate shell scripts and aliases. Some of them have featured on this blog - a <a href="/jekyll-blog-setup#publish-your-website#testing-the-script">publish script</a> and a post on <a href="/schedule-jekyll">scheduling</a>.</p>
-<p>The upgraded function code can be found <a href="https://github.com/pjg11/scripts/blob/main/blog">here</a>.</p>
-<h2 id="rlist"><code>rlist</code></h2>
-<p>I use Safari's Reading List to save links, and I wanted a way to manage them from the command line, particularly to view all links and delete a link once I'm done reading.</p>
-<pre><code>$ rlist -h
-rlist - Manage Safari's Reading List from the command line
-
-Usage:
-  rlist [options] command
-
-Options:
-  -h|--help    Show this message and exit
-
-Commands:
-  init         Extracts links and saves to $HOME/notes/rlist.tsv
-  search       Search all links and open chosen link in browser
-  delete       Delete chosen link from list
-</code></pre>
-<p>The Reading List is stored in <code>~/Library/Safari/Bookmarks.plist</code>, and the function uses a utility called <a href="https://www.marcosantadev.com/manage-plist-files-plistbuddy/"><code>PlistBuddy</code></a> to interact with the file.</p>
-<p>Here's a demo of the search command, that works like a fuzzy finder, along with the option to open the link in a browser.</p>
-<img src="/public/images/rc04/rlist.gif" alt="">
-<p>This is possibly the coolest script I've made yet, as it took a while to understand how <code>PlistBuddy</code> works, and using <a href="https://github.com/charmbracelet/gum"><code>gum</code></a> for the fancy formatting added to the coolness. 😎</p>
-<h2 id="mkfunc"><code>mkfunc</code></h2>
-<p>Lastly, a meta function whose naming is inspired by <code>mkdir</code>. It creates a file with starter code for a shell function when called.</p>
-<pre><code>#!/bin/zsh
-
-mkfunc() {
-
-    if [[ ( $# -eq 0 ) || ( "$*" =~ "-h" ) || ("$*" =~ "--help") ]] ; then
-            echo "Usage: mkfunc name"
-            return
-    fi
-
-    tee $HOME/.oh-my-zsh/functions/$1 &lt;&lt; 'EOF'
-#!/bin/zsh
-    
-func() {
-    
-    _usage() {
-        # Add help text here
-    }
-
-    if [[ ( $# -eq 0 ) || ( "$*" =~ "-h" ) || ( "$*" =~ "--help") ]] ; then
-        _usage
-        return
-    fi
-
-    # Remove this block if function contains no subcommands
-    case $1 in
-        # Add other cases here
-        *) echo "invalid option - $1" ; _usage ;;   
-    esac
-}
-EOF 
-    chmod u+x $1
-    $EDITOR $1
-}
-</code></pre>
-<p>This function contains simpler help text, as there are no additional commands. The heredoc delimiter <code>EOF</code> is wrapped with single quotes to prevent execution of the variables within the heredoc (<code>$*</code>, <code>$@</code>,<code>$1</code>).</p>
-<hr>
-<p>Thanks for tuning in to another episode of "things I didn't plan to work on"! It's interesting how I get more post ideas from side quests rather than the main ones 😅</p>
-<p>You can find all the above scripts (and more, whenever I make them) at <a href="https://github.com/pjg11/scripts">pjg11/scripts</a>.</p>]]></content></entry>
 </feed>
