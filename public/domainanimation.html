@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="color-scheme" content="dark light">
+<title>Domain Animation</title>
+<style>
+body {
+	font-family: monospace;
+	font-size:1.3rem
+}
+@keyframes text-to-dot {
+    20%  {content: "'s web"; opacity: 100%;}
+    65%  {content: "'s web"; opacity: 0%; display: none;}
+    66%  {content: "."; opacity: 0%; display: inline;}
+    75%,100% {content: '.'; opacity: 100%;}
+}
+@keyframes move-left {
+    0%,20% {left: 10ch}
+    60%,100% {left: 5ch}
+}
+span.animation {
+    position: relative;
+    font-weight: bold
+}
+span.site {
+    position: absolute;
+    animation-name: move-left;
+    animation-duration: 5s;
+    animation-delay: 0.5s;
+    animation-iteration-count: 3
+}
+span.text::before {
+    content: "'s web";
+    animation-name: text-to-dot;
+    animation-duration: 5s;
+    animation-delay: 0.5s;
+    animation-iteration-count: 3;
+    animation-fill-mode: forwards;
+    white-space: pre
+}
+</style>
+</head>
+<body>
+<span class="animation">pjg1<span class="text"></span><span class="site">site</span></span>
+</body>
+</html>

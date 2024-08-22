@@ -3,20 +3,21 @@
 <generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator>
 <link href="https://pjg1.site/feed.xml" rel="self" type="application/atom+xml" />
 <link href="https://pjg1.site/" rel="alternate" type="text/html" />
-<updated>2024-08-14T01:58:08+00:00</updated>
+<updated>2024-08-22T19:47:38+00:00</updated>
 <id>https://pjg1.site/feed.xml</id>
 <title type="html">pjg1.site</title>
-<subtitle>Welcome to my space on the internet.</subtitle>
+<subtitle></subtitle>
 <entry>
 <title type="html">W32 2024: Baby steps</title>
 <link href="https://pjg1.site/weeknotes-32-2024" rel="alternate" type="text/html" title="W32 2024: Baby steps" />
 <published>2024-08-13T00:00:00+00:00</published>
 <updated>2024-08-13T00:00:00+00:00</updated>
-<id>https://pjg1.site/weeknotes-32</id>
+<id>https://pjg1.site/weeknotes-32-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-32-2024">
-<![CDATA[<h2 id="structured-learning-baby-steps">Structured learning baby steps</h2>
-<p>After last week's note, I started thinking about the topics I wanted to learn more about. I was inspired by a fellow Recurser's <a href="https://ravi.fyi">Learning Sabbatical</a>, which had links to books and other useful resources.</p>
-<p>I initially thought of making a similar curriculum (and even made one), but decided to focus on one book after getting started. I found out about <a href="http://csapp.cs.cmu.edu">Computer Systems: A Programmer's Perspective</a> a year ago - a fellow Recurser was reading through the book and recommended it, and I paired on one of the labs. It's also listed in the Computer Architecture section of the <a href="https://teachyourselfcs.com">Teach Yourself Computer Science</a> website.</p>
+<![CDATA[
+<h2 id="structured-learning-baby-steps">Structured learning baby steps</h2>
+<p>After last week's note, I started thinking about the topics I wanted to learn more about. I was inspired by a fellow Recurser's <a href="https://ravi.fyi" target="_blank" rel="noopener">Learning Sabbatical</a>, which had links to books and other useful resources.</p>
+<p>I initially thought of making a similar curriculum (and even made one), but decided to focus on one book after getting started. I found out about <a href="http://csapp.cs.cmu.edu" target="_blank" rel="noopener">Computer Systems: A Programmer's Perspective</a> a year ago - a fellow Recurser was reading through the book and recommended it, and I paired on one of the labs. It's also listed in the Computer Architecture section of the <a href="https://teachyourselfcs.com" target="_blank" rel="noopener">Teach Yourself Computer Science</a> website.</p>
 <p>I read the introductory chapter, and I love the book. The language is easy to understand, and I'm finally making sense of terminology I've vaguely heard of but didn't understand properly.</p>
 <p>Reading the book in order has proved to be a bad idea in the past, so I'm trying a "choose your adventure" style of reading, where I decide the order of chapters as I go.</p>
 <p>I've currently reading a chapter about Linkers, and there's a lot to process. I would ideally like to solidify my knowledge by some combination of code + blog posts, so that's something to think about.</p>
@@ -28,7 +29,8 @@
 <p>One of the solutions is to connect an Ethernet cable directly and then install the driver...but my MacBook has no Ethernet port. I'd need to buy an adapter for that, so if anyone has any other ideas let me know!</p>
 <h2 id="tuntcp-on-hold-again">tuntcp: on hold (again)</h2>
 <p>This week was supposed to be my last week working on this, but most of my time was spent reading CS:APP, so this got pushed to the side. I revisited the project on the weekend, and had another breakthrough in terms of what the end result should look like. Despite this, I was struggling to write actual code.</p>
-<p>Since I am working on stuff I'm more excited about now, this is going on the back burner. I might come back to it whenever I find myself feeling stuck again.</p>]]></content></entry>
+<p>Since I am working on stuff I'm more excited about now, this is going on the back burner. I might come back to it whenever I find myself feeling stuck again.</p>
+]]></content></entry>
 <entry>
 <title type="html">W30-31 2024: More thinking, less doing</title>
 <link href="https://pjg1.site/weeknotes-30-31-2024" rel="alternate" type="text/html" title="W30-31 2024: More thinking, less doing" />
@@ -36,22 +38,25 @@
 <updated>2024-08-05T00:00:00+00:00</updated>
 <id>https://pjg1.site/weeknotes-30-31-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-30-31-2024">
-<![CDATA[<h2 id="jamming-to-songs-on-loop">Jamming to songs on loop</h2>
+<![CDATA[
+<h2 id="jamming-to-songs-on-loop">Jamming to songs on loop</h2>
 <p>There are phases where I don't actively jam to music, but rather just play it in the background while working. I was in this phase for a while, until I heard two new songs last week and now I can't stop jamming to them:</p>
 <ul>
-<li><a href="https://www.youtube.com/watch?v=azhwDQsYD8c&amp;pp=ygURcGl5YSBwaXlhIGNhbGxpbmc%3D">Piya Piya Calling</a> by Karpe, Kaifi Khalil and Amanda Delara feat. Quick Style - I've been following Quick Style for a while and have heard a song or two from Coke Studio Pakistan, but I never expected their collaboration to be a song with my name in the title. Such a feel good track.</li>
-<li><a href="https://www.youtube.com/watch?v=a3Ue-LN5B9U&amp;pp=ygUKYWFzYSBrb29kYQ%3D%3D">Aasa Kooda</a> by Sai Abhayankar and Sai Smriti - The chorus and hook step blows my mind every.single.time. The music video is also really beautifully filmed.</li>
+<li>
+<a href="https://www.youtube.com/watch?v=azhwDQsYD8c&amp;pp=ygURcGl5YSBwaXlhIGNhbGxpbmc%3D" target="_blank" rel="noopener">Piya Piya Calling</a> by Karpe, Kaifi Khalil and Amanda Delara feat. Quick Style - I've been following Quick Style for a while and have heard a song or two from Coke Studio Pakistan, but I never expected their collaboration to be a song with my name in the title. Such a feel good track.</li>
+<li>
+<a href="https://www.youtube.com/watch?v=a3Ue-LN5B9U&amp;pp=ygUKYWFzYSBrb29kYQ%3D%3D" target="_blank" rel="noopener">Aasa Kooda</a> by Sai Abhayankar and Sai Smriti - The chorus and hook step blows my mind every.single.time. The music video is also really beautifully filmed.</li>
 </ul>
 <p>I wanted to add these songs to my playlist, so I spent some time refactoring a script I wrote to download songs locally with their metadata. It was fun looking back at messy code from 2 years ago.</p>
 <h2 id="letting-go-of-tuntcp">Letting go of tuntcp</h2>
-<p>I think I got what I wanted out of <a href="https://github.com/pjg11/tuntcp">tuntcp</a> a long time back, but perfectionism kept coming in the way, so I kept adding/changing stuff and now I don't know where to stop.</p>
+<p>I think I got what I wanted out of <a href="https://github.com/pjg11/tuntcp" target="_blank" rel="noopener">tuntcp</a> a long time back, but perfectionism kept coming in the way, so I kept adding/changing stuff and now I don't know where to stop.</p>
 <p>Progress has been slow, and I'm loosing interest. This coming week is the last week I'll work on refactoring the code, after which I'll consider the project done.</p>
 <h2 id="reflecting-on-one-year-at-rc">Reflecting on one year at RC</h2>
-<p>I got accepted to the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a> in July last year, but my batch started on August 7th, which means its officially been a year since I joined!</p>
+<p>I got accepted to the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a> in July last year, but my batch started on August 7th, which means its officially been a year since I joined!</p>
 <p>The batch felt like the tip of the iceberg in terms of my capability as a programmer. However, I find myself only slightly lower from the tip a year later, unable to go deeper on one/a few topics.</p>
 <p>I worked on projects post-batch too, but those where chosen based on what I found fun in that moment, rather than learning things in a structured way. More on this later.</p>
 <p>A pleasant surprise came in the form of the opportunity to work as a part-time moderator. Helping maintain a community that has been a subtle support system for the past year feels good (so does having some source of income while I figure how to make this "making stuff online" thing work).</p>
-<p>To top it all off, my <a href="/rc07">end-of-batch statement</a> was added to the list of <a href="https://www.recurse.com/who">RC's Testimonials</a> recently, which felt really nice! This might be the first time my blog has been linked somewhere.</p>
+<p>To top it all off, my <a href="/rc07">end-of-batch statement</a> was added to the list of <a href="https://www.recurse.com/who" target="_blank" rel="noopener">RC's Testimonials</a> recently, which felt really nice! This might be the first time my blog has been linked somewhere.</p>
 <h2 id="planning-ahead">Planning ahead</h2>
 <p>The last few weeks were hectic, and with those commitments now over, I'm ready to focus on projects again. Reflecting on my time at RC got me thinking on how I can change my approach to learning. Here are some half-baked ideas to ponder over this week:</p>
 <ul>
@@ -59,7 +64,7 @@
 <p>I make a study curriculum for myself and follow it as much as I can. I've stayed away from structured learning for the longest time, but maybe I'm ready for it now?</p>
 </li>
 <li>
-<p>I try out the things Julia Evans wrote about during her <a href="https://jvns.ca/#recurse-center-2013">2013 batch at RC</a> as a starting point. I've hesitated to do this for two main reasons:</p>
+<p>I try out the things Julia Evans wrote about during her <a href="https://jvns.ca/#recurse-center-2013" target="_blank" rel="noopener">2013 batch at RC</a> as a starting point. I've hesitated to do this for two main reasons:</p>
 <ul>
 <li>
 <p>Someone already figured this stuff out 11 years ago, so I feel dumb figuring this stuff out 11 years later, even though the concepts are new to me. I know its a silly reason, which is why I'd like to get over this.</p>
@@ -73,9 +78,10 @@
 <p>Starting some kind of daily writing practice, where I attempt at writing some blog-post like every day privately. Ideas include trying to explain a concept or a passage of a book and writing setup guides for things I use commonly. Some of these might turn into actual blog posts someday.</p>
 </li>
 <li>
-<p>Have some <a href="https://www.recurse.com/manual#sub-sec-self-directives">finger work projects</a> to fall back on. Challenges like <a href="http://protohackers.com">Protohackers</a> help keep the programming momentum going as I'm presented with a set of requirements, and I only have to focus on the implementation.</p>
+<p>Have some <a href="https://www.recurse.com/manual#sub-sec-self-directives" target="_blank" rel="noopener">finger work projects</a> to fall back on. Challenges like <a href="http://protohackers.com" target="_blank" rel="noopener">Protohackers</a> help keep the programming momentum going as I'm presented with a set of requirements, and I only have to focus on the implementation.</p>
 </li>
-</ul>]]></content></entry>
+</ul>
+]]></content></entry>
 <entry>
 <title type="html">W28-29 2024: Setting priorities</title>
 <link href="https://pjg1.site/weeknotes-28-29-2024" rel="alternate" type="text/html" title="W28-29 2024: Setting priorities" />
@@ -83,24 +89,26 @@
 <updated>2024-07-22T00:00:00+00:00</updated>
 <id>https://pjg1.site/weeknotes-28-29-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-28-29-2024">
-<![CDATA[<h2 id="working-on-tuntcp">Working on tuntcp</h2>
-<p><a href="https://github.com/pjg11/tuntcp">tuntcp</a> is a project I started during my batch at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a>. It started off great, but I lost interest by the time the batch ended.</p>
+<![CDATA[
+<h2 id="working-on-tuntcp">Working on tuntcp</h2>
+<p><a href="https://github.com/pjg11/tuntcp" target="_blank" rel="noopener">tuntcp</a> is a project I started during my batch at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>. It started off great, but I lost interest by the time the batch ended.</p>
 <p>Since then, completing this project has been at the back of my mind. I tend to lose interest whenever I pick it up again - I either get too ambitious about what features to include, or get stuck on how to structure the code.</p>
 <p>I made some progress about 2 months ago, but the code was so hackily put together that I myself get confused if I look at it just a few days later.</p>
 <p>Over the last two weeks though, I think I made some sort of breakthrough. I've been working on this locally, so nothing to show publicly yet.</p>
 <h2 id="completed-raytracingweekend">Completed raytracingweekend</h2>
-<p><a href="https://github.com/pjg11/raytracingweekend">raytracingweekend</a> has been complete for a while, but I kept the README brief at the time in the hopes of writing a longer blog post about it.</p>
+<p><a href="https://github.com/pjg11/raytracingweekend" target="_blank" rel="noopener">raytracingweekend</a> has been complete for a while, but I kept the README brief at the time in the hopes of writing a longer blog post about it.</p>
 <p>The motivation to write a post never came, so I decided add some more details to the README and call it a day.</p>
 <p>I've been avoiding doing this for months. And when I finally started, it took me under an hour to complete. Fun</p>
 <h2 id="re-starting-protohackers">Re-starting Protohackers</h2>
 <p>I heard about Protohackers from a fellow Recurser, and attempted a few challenges at the start of this year. As happens with projects, I start them with full interest, but lose momentum at some point and leave it.</p>
 <p>A few weeks/months later the interest comes back, and I make an attempt to finish it with any new knowledge I've learnt since then.</p>
-<p>That happened this weekend with Protohackers. I started solving them in Go, and completed 3 challenges! The code is up <a href="https://github.com/pjg11/protohackers">here</a>.</p>
+<p>That happened this weekend with Protohackers. I started solving them in Go, and completed 3 challenges! The code is up <a href="https://github.com/pjg11/protohackers" target="_blank" rel="noopener">here</a>.</p>
 <h2 id="reflections">Reflections</h2>
 <p>Surprisingly, I made some pretty good prioritizing decisions over the last two weeks.</p>
 <p>Since my attention is currently divided by multiple commitments, I decided to work on/finish existing projects, as it's easier to get started and keep the momentum going.</p>
 <p>I joined a few RC study groups, but found myself skipping most of them. Rather than trying to fit them in, I chose to stop attending all of them except one, that I host.</p>
-<p>I also switched to posting a weeknote once every two weeks, to account for the slower pace for the meantime.</p>]]></content></entry>
+<p>I also switched to posting a weeknote once every two weeks, to account for the slower pace for the meantime.</p>
+]]></content></entry>
 <entry>
 <title type="html">W26-W27 2024: Very distracted</title>
 <link href="https://pjg1.site/weeknotes-26-27-2024" rel="alternate" type="text/html" title="W26-W27 2024: Very distracted" />
@@ -108,20 +116,22 @@
 <updated>2024-07-08T00:00:00+00:00</updated>
 <id>https://pjg1.site/weeknotes-26-27-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-26-27-2024">
-<![CDATA[<p>Both these weeks were busy with work stuff, some changes in routine (aka me trying to keep up with a show I really like) and lots of procrastination, which meant little to no progress on personal projects.</p>
+<![CDATA[
+<p>Both these weeks were busy with work stuff, some changes in routine (aka me trying to keep up with a show I really like) and lots of procrastination, which meant little to no progress on personal projects.</p>
 <p>I've been trying to readjust my routine to start making progress, which hasn't been successful so far, so here's a short note summarizing the last two weeks.</p>
 <h2 id="making-progress-on-a-c-project">Making progress on a C project</h2>
-<p>I revisited a project I mentioned in a <a href="https://pjg1.site/weeknotes-24-2024#figuring-out-how-to-read-a-file-in-the-ext4-filesystem">previous weeknote</a> and attemtpted to port the rest of code in the post. It kind of works, but some cases don't, and debugging those cases is the next step.</p>
+<p>I revisited a project I mentioned in a <a href="https://pjg1.site/weeknotes-24-2024#figuring-out-how-to-read-a-file-in-the-ext4-filesystem" target="_blank" rel="noopener">previous weeknote</a> and attemtpted to port the rest of code in the post. It kind of works, but some cases don't, and debugging those cases is the next step.</p>
 <h2 id="starting-a-personal-wiki">Starting a personal wiki?</h2>
-<p>I was recently helping out refactor the internal wiki at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a>, and that inspired me to start my own. However, having separate wiki pages started to create confusion with the dev journal system, so I'm thinking on how to incorporate this with the journal itself.</p>
+<p>I was recently helping out refactor the internal wiki at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>, and that inspired me to start my own. However, having separate wiki pages started to create confusion with the dev journal system, so I'm thinking on how to incorporate this with the journal itself.</p>
 <h2 id="lots-of-thinking">Lots of thinking</h2>
 <p>Since I was finding it tough to get started on something, I decided to spend time planning in the hopes that something would click. I'm in the process of breaking down projects into smaller, manageable tasks, and priortizing which ones to focus on.</p>
 <h2 id="browserengineering">browser.engineering</h2>
-<p>Riding the wave of the start of a new batch and new events at RC, I decided to join a study group working through the <a href="https://browser.engineering">Web Browser Engineering</a> book. I had this book saved in my "someday" list for a while, and this study group seemed like a good opportunity.</p>
+<p>Riding the wave of the start of a new batch and new events at RC, I decided to join a study group working through the <a href="https://browser.engineering" target="_blank" rel="noopener">Web Browser Engineering</a> book. I had this book saved in my "someday" list for a while, and this study group seemed like a good opportunity.</p>
 <p>I'm working through the Chapter 1 exercises, and it seems interesting so far. Not sure if I'll work through the entire book though.</p>
 <h2 id="reflections">Reflections</h2>
 <p>The new additions to my routine meant that my existing routine isn't working. This was also reflective in my dev journal, where I have very few notes from these two weeks.</p>
-<p>Attempts at readjusting my routine shall continue.</p>]]></content></entry>
+<p>Attempts at readjusting my routine shall continue.</p>
+]]></content></entry>
 <entry>
 <title type="html">W25 2024: You win some, you lose some</title>
 <link href="https://pjg1.site/weeknotes-25-2024" rel="alternate" type="text/html" title="W25 2024: You win some, you lose some" />
@@ -129,28 +139,30 @@
 <updated>2024-06-24T00:00:00+00:00</updated>
 <id>https://pjg1.site/weeknotes-25-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-25-2024">
-<![CDATA[<h2 id="smol-pr-victory">Smol PR victory</h2>
-<p>I submitted <a href="https://github.com/robinovitch61/wander/pull/138">a PR</a> for wander, which got merged! I came across a similar bug recently, so the fix in terms of code was simple.</p>
+<![CDATA[
+<h2 id="smol-pr-victory">Smol PR victory</h2>
+<p>I submitted <a href="https://github.com/robinovitch61/wander/pull/138" target="_blank" rel="noopener">a PR</a> for wander, which got merged! I came across a similar bug recently, so the fix in terms of code was simple.</p>
 <p>Understanding the codebase was the tougher part, which the project's maintainer (and fellow Recurser) very kindly walked me through in a chat.</p>
 <h2 id="blog-post-struggles">Blog post struggles</h2>
 <p>I thought publishing these weeknotes would make writing other posts easier. I was wrong.</p>
 <p>I don't feel like pushing through it either, I've sort of lost interest. Maybe having the code in a repo + a README is sufficient? Let's see.</p>
 <h2 id="ctf-adventures">CTF adventures</h2>
-<p>A group of Recursers decided to participate in <a href="https://capturetheflag.withgoogle.com">Google CTF</a> over the weekend! I hadn't played a CTF in a while, so my skills were rusty (they were basic to begin with). And Google CTF in particular is tough, where even the "easy" challenges are not that easy.</p>
+<p>A group of Recursers decided to participate in <a href="https://capturetheflag.withgoogle.com" target="_blank" rel="noopener">Google CTF</a> over the weekend! I hadn't played a CTF in a while, so my skills were rusty (they were basic to begin with). And Google CTF in particular is tough, where even the "easy" challenges are not that easy.</p>
 <p>I fell into a rabbit hole with one of the challenges, and that path wasn't helpful in solving it AT ALL :/</p>
 <p>Regardless, the rabbit hole was really interesting. I started looking into terminal escape sequences, a combination of characters that allow for functionality in the terminal - printing text in different colors being an example.</p>
 <p>I was particularly interested in terminal injection - using certain sequences in a way that lets me execute shell commands. Turns out that wasn't possible (the code was escaping the escape sequences), but I left with a better understanding of how it works.</p>
 <p>Here are some links I found helpful:</p>
 <ul>
-<li><a href="https://gpanders.com/blog/state-of-the-terminal/">State of the Terminal</a></li>
-<li><a href="https://invisible-island.net/xterm/ctlseqs/ctlseqs.html">XTerm Control Sequences</a></li>
-<li><a href="https://www.youtube.com/watch?v=3T2Al3jdY38&amp;pp=ygULU1RPSyBkZWZjb24%3D">Weaponizing Plaintext ANSI Escape Sequences as a Forensic Nightmare</a></li>
-<li><a href="https://www.youtube.com/watch?v=iIHw0KWgzAs&amp;pp=ygUeZGF2aWQgbGVhZGJldHRlciBibHVlIGhhdCAyMDIz">Houdini of the Terminal</a></li>
+<li><a href="https://gpanders.com/blog/state-of-the-terminal/" target="_blank" rel="noopener">State of the Terminal</a></li>
+<li><a href="https://invisible-island.net/xterm/ctlseqs/ctlseqs.html" target="_blank" rel="noopener">XTerm Control Sequences</a></li>
+<li><a href="https://www.youtube.com/watch?v=3T2Al3jdY38&amp;pp=ygULU1RPSyBkZWZjb24%3D" target="_blank" rel="noopener">Weaponizing Plaintext ANSI Escape Sequences as a Forensic Nightmare</a></li>
+<li><a href="https://www.youtube.com/watch?v=iIHw0KWgzAs&amp;pp=ygUeZGF2aWQgbGVhZGJldHRlciBibHVlIGhhdCAyMDIz" target="_blank" rel="noopener">Houdini of the Terminal</a></li>
 </ul>
 <h2 id="reflections">Reflections</h2>
 <p>Did I work in a more structured way than usual? Not really, but I had one big win: I didn't fall down the "maintaining my website" rabbit hole! I decided on this earlier in the week, and I'm happy I'm stuck to it.</p>
 <p>I've also realized that there are times I'm learning things that don't feel useful in the moment, but help me in another situation.</p>
-<p>For example, the bug fix for wander was something I came across in one of my personal projects. I dropped that project mid-way, so it wasn't particularly useful there. However, having worked on that code helped me figure out the exact fix in this case, which was cool.</p>]]></content></entry>
+<p>For example, the bug fix for wander was something I came across in one of my personal projects. I dropped that project mid-way, so it wasn't particularly useful there. However, having worked on that code helped me figure out the exact fix in this case, which was cool.</p>
+]]></content></entry>
 <entry>
 <title type="html">W24 2024: Slow but steady progress</title>
 <link href="https://pjg1.site/weeknotes-24-2024" rel="alternate" type="text/html" title="W24 2024: Slow but steady progress" />
@@ -158,15 +170,16 @@
 <updated>2024-06-17T00:00:00+00:00</updated>
 <id>https://pjg1.site/weeknotes-24-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-24-2024">
-<![CDATA[<h2 id="impossible-stuff-day">Impossible Stuff Day</h2>
-<p>Tuesday was <a href="/rc05#fn:1">Impossible Stuff Day</a> at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a>, so I took this as an opportunity to do something I'd been putting off for a while - cleaning the dust underneath the keys of my laptop by removing them.</p>
+<![CDATA[
+<h2 id="impossible-stuff-day">Impossible Stuff Day</h2>
+<p>Tuesday was <a href="/rc05#fn:1">Impossible Stuff Day</a> at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>, so I took this as an opportunity to do something I'd been putting off for a while - cleaning the dust underneath the keys of my laptop by removing them.</p>
 <p>It took about half a day - I started at around 5PM and ended at 1:30AM (with breaks of course). There was A LOT of dust in there.</p>
 <p>My laptop was switched off the entire time, which meant I got lots of off-screen time aside from the occasional phone checks. I was TIRED by the time I was done, and the exhaustion continued into Wednesday as well.</p>
 <h2 id="completing-cool-project-idea">Completing cool project idea</h2>
 <p>I initially hoped to publish the code and write a post about it this week. However, getting the code to a publishable state took time as I basically ended up having to re-arrange and/or re-write parts of the code.</p>
 <p>I did manage to fix some buggy parts of the code in the process, which was nice. I started drafting a post yesterday, and it should be up sometime this week.</p>
 <h2 id="figuring-out-how-to-read-a-file-in-the-ext4-filesystem">Figuring out how to read a file in the ext4 filesystem</h2>
-<p>I was reading an article from my Reading List - <a href="https://fasterthanli.me/series/reading-files-the-hard-way/part-3">Reading files the hard way - Part 3</a>. I'd learnt about aspects of the ext4 filesystem from different articles, but didn't understand how they all connected together.</p>
+<p>I was reading an article from my Reading List - <a href="https://fasterthanli.me/series/reading-files-the-hard-way/part-3" target="_blank" rel="noopener">Reading files the hard way - Part 3</a>. I'd learnt about aspects of the ext4 filesystem from different articles, but didn't understand how they all connected together.</p>
 <p>The latter half of the post explains this step by step through Rust code. Simply reading along was getting a little boring, so I decided it to port the code to C as I read the post!</p>
 <p>I haven't completed the post yet, but I progressed enough to understand how it all works! Also somewhat figured how to read Rust code along the way, so that was a plus!</p>
 <h2 id="slow-progress-on-mission-revamp">Slow progress on mission revamp</h2>
@@ -174,7 +187,8 @@
 <p>I didn't even get to the static site generator side of things, so I'll stick to my current setup for the meantime.</p>
 <h2 id="reflections">Reflections</h2>
 <p>I generally tend to figure out what to do as the week progresses. This works for most things, except ones that take more effort to get started or aren't as fun.</p>
-<p>As I have a bunch of those kind of tasks right now (writing a blog post, completing mission revamp, finishing up projects that are close to done), I'm going to try being more structured this week and see how that goes.</p>]]></content></entry>
+<p>As I have a bunch of those kind of tasks right now (writing a blog post, completing mission revamp, finishing up projects that are close to done), I'm going to try being more structured this week and see how that goes.</p>
+]]></content></entry>
 <entry>
 <title type="html">W23 2024: Ebb and flow</title>
 <link href="https://pjg1.site/weeknotes-23-2024" rel="alternate" type="text/html" title="W23 2024: Ebb and flow" />
@@ -182,22 +196,24 @@
 <updated>2024-06-10T00:00:00+00:00</updated>
 <id>https://pjg1.site/weeknotes-23-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-23-2024">
-<![CDATA[<p>Last week, I felt like I gained superpowers with regards to making progress. This week, the superpowers vanished, poof.</p>
+<![CDATA[
+<p>Last week, I felt like I gained superpowers with regards to making progress. This week, the superpowers vanished, poof.</p>
 <h2 id="mission-website-revamp">Mission website revamp</h2>
-<p>I decided to switch to another domain provider as my previous one was charging a higher price for renewal (happening a month from now). I initiated a domain transfer, which requires getting an <a href="https://en.wikipedia.org/wiki/Auth-Code">Auth Code</a>. It took 3 DAYS just to receive that.</p>
+<p>I decided to switch to another domain provider as my previous one was charging a higher price for renewal (happening a month from now). I initiated a domain transfer, which requires getting an <a href="https://en.wikipedia.org/wiki/Auth-Code" target="_blank" rel="noopener">Auth Code</a>. It took 3 DAYS just to receive that.</p>
 <p>I had a solid mental plan for this revamp, and this delay derailed that plan. This waiting period somehow forced me into waiting mode - I started avoiding other projects, even ones that weren't related to the website. If I somehow got started on something, I couldn't make progress and gave up.</p>
 <p>I received the Auth Code on Friday and proceeded with the transfer, which should complete sometime in the coming week! With this the waiting mode faded away, and I picked up pace over the weekend.</p>
-<p>I moved the hosting of this site from Netlify to <a href="https://github.com/pjg11/website">GitHub Pages</a>, and have been experimenting with a different theme + static site generator.</p>
+<p>I moved the hosting of this site from Netlify to <a href="https://github.com/pjg11/website" target="_blank" rel="noopener">GitHub Pages</a>, and have been experimenting with a different theme + static site generator.</p>
 <h2 id="a-cool-project-idea">A cool project idea?</h2>
 <p>For some reason, my attention went to my Reading List this weekend. I have some pretty cool articles saved there, that I've either half-read or not touched at all.</p>
 <p>I was thinking of ways how I could make the process more enjoyable, and I was reminded of times I used to annotate and write notes in the margins of textbooks in school.</p>
-<p>Bringing that feeling online sounded like fun, and I started a <a href="https://web.hypothes.is">hypothes.is</a> account to do so.</p>
+<p>Bringing that feeling online sounded like fun, and I started a <a href="https://web.hypothes.is" target="_blank" rel="noopener">hypothes.is</a> account to do so.</p>
 <p>Hypothesis works really well, however it didn't match the exact experience of writing notes in the margins. This spawned off a tiny project, which I'll write about in a separate post. I do have some reflections about it to share here though.</p>
 <p>Working on this project was a different experience than other stuff I've written. I was coding mainly in JavaScript (a language I don't use very often) and I wasn't too clear on the final result of the project. This sounds like the perfect recipe for failure - I change the scope too many times and eventually give up - and I was close.</p>
-<p>However, I managed to take a step back, decide on a set of features, and posted a demo within the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a> community as a checkpoint. RC has been a supportive place to share stuff in an incomplete or not polished state, and I'd eventually like to get more comfortable doing so here on this blog.</p>
+<p>However, I managed to take a step back, decide on a set of features, and posted a demo within the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a> community as a checkpoint. RC has been a supportive place to share stuff in an incomplete or not polished state, and I'd eventually like to get more comfortable doing so here on this blog.</p>
 <h2 id="reflections">Reflections</h2>
 <p>As I'm writing this, I'm realizing this was actually a pretty standard week, but it felt a lot worse because I kept comparing with how the previous week went. I did do things, just not in the way I expected. And that's okay.</p>
-<p>On the other hand, managing to pull myself out of the "give up" stage of a project is not something I would usually do, so maybe I still have some superpowers left?</p>]]></content></entry>
+<p>On the other hand, managing to pull myself out of the "give up" stage of a project is not something I would usually do, so maybe I still have some superpowers left?</p>
+]]></content></entry>
 <entry>
 <title type="html">W22 2024: Starting weeknotes</title>
 <link href="https://pjg1.site/weeknotes-22-2024" rel="alternate" type="text/html" title="W22 2024: Starting weeknotes" />
@@ -205,13 +221,14 @@
 <updated>2024-06-03T00:00:00+00:00</updated>
 <id>https://pjg1.site/weeknotes-22-2024</id>
 <content type="html" xml:base="https://pjg1.site/weeknotes-22-2024">
-<![CDATA[<p>I've been making progress on multiple personal projects lately, so I'm using that momentum to re-establish my blogging habit by sharing weekly updates here.</p>
+<![CDATA[
+<p>I've been making progress on multiple personal projects lately, so I'm using that momentum to re-establish my blogging habit by sharing weekly updates here.</p>
 <h2 id="gossip-glomers">Gossip Glomers</h2>
-<p>I've been writing more Go code lately, and there has coincidentally been interest around Go-related projects from folks at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a">Recurse Center</a>. I heard some gossip (pun totally intended) about Recursers working on <a href="https://fly.io/dist-sys">Gossip Glomers</a>, a series of distributed systems challenges.</p>
-<p>I joined while they were a few challenges in, but my lack of familiarity with the concepts meant I couldn't contribute much, so I caught up on previous challenges over the rest of the week, <a href="https://github.com/pjg11/gossip-glomers">code here</a>.</p>
+<p>I've been writing more Go code lately, and there has coincidentally been interest around Go-related projects from folks at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>. I heard some gossip (pun totally intended) about Recursers working on <a href="https://fly.io/dist-sys" target="_blank" rel="noopener">Gossip Glomers</a>, a series of distributed systems challenges.</p>
+<p>I joined while they were a few challenges in, but my lack of familiarity with the concepts meant I couldn't contribute much, so I caught up on previous challenges over the rest of the week, <a href="https://github.com/pjg11/gossip-glomers" target="_blank" rel="noopener">code here</a>.</p>
 <p>I liked the challenges I solved so far, looking forward to further group programming sessions!</p>
 <h2 id="virtual-rc-cli">Virtual RC CLI</h2>
-<p>A project I started working on two weeks ago (also in Go) was to build a CLI tool for <a href="https://www.recurse.com/virtual-rc">Virtual RC</a>, the online representation of RC's physical space. This week, I worked on one of the main features I was interested in using their API.</p>
+<p>A project I started working on two weeks ago (also in Go) was to build a CLI tool for <a href="https://www.recurse.com/virtual-rc" target="_blank" rel="noopener">Virtual RC</a>, the online representation of RC's physical space. This week, I worked on one of the main features I was interested in using their API.</p>
 <p>The API is built with ActionCable, and the workflow looks something like this:</p>
 <ul>
 <li>Connect to WebSocket endpoint</li>
@@ -230,9 +247,10 @@
 <p>This is still very much in-progress, I'll have more details to share next week.</p>
 <h2 id="reflections">Reflections</h2>
 <p>I made progress on many different projects this week, which is a rarity, and it made me wonder where all this momentum came from.</p>
-<p>I think I can trace down to the combination of starting a <a href="https://stackoverflow.blog/2024/05/22/you-should-keep-a-developer-s-journal/">dev journal</a> about two weeks ago and good luck - finding the linked blog post at a time when it resonated with me the most.</p>
+<p>I think I can trace down to the combination of starting a <a href="https://stackoverflow.blog/2024/05/22/you-should-keep-a-developer-s-journal/" target="_blank" rel="noopener">dev journal</a> about two weeks ago and good luck - finding the linked blog post at a time when it resonated with me the most.</p>
 <p>Writing stuff down lead to more ideas, and writing those ideas down made it more likely that I'd give them a shot instead of getting overwhelmed and giving up. This is the positive feedback loop I needed, as I'm more open to trying out new ideas than I've been in a very long time.</p>
-<p>For example, I've been writing and posting checkins in the Recurse Center community for months, but I wouldn't have considered posting them publicly earlier. But here I am now, doing exactly that in the form of these weeknotes.</p>]]></content></entry>
+<p>For example, I've been writing and posting checkins in the Recurse Center community for months, but I wouldn't have considered posting them publicly earlier. But here I am now, doing exactly that in the form of these weeknotes.</p>
+]]></content></entry>
 <entry>
 <title type="html">Minified versions of fonts</title>
 <link href="https://pjg1.site/minfonts" rel="alternate" type="text/html" title="Minified versions of fonts" />
@@ -240,66 +258,63 @@
 <updated>2024-03-30T00:00:00+00:00</updated>
 <id>https://pjg1.site/minfonts</id>
 <content type="html" xml:base="https://pjg1.site/minfonts">
-<![CDATA[<p>While looking for custom fonts for this website, I came across <a href="https://github.com/joelesko/minlo-font/tree/main">Minlo</a>, a minified version of the Apple system font Menlo.</p>
+<![CDATA[
+<p>While looking for custom fonts for this website, I came across <a href="https://github.com/joelesko/minlo-font/tree/main" target="_blank" rel="noopener">Minlo</a>, a minified version of the Apple system font Menlo.</p>
 <p>I first thought it was made smaller by some cool compression technique. While that is true (converting to WOFF2 leads to smaller file sizes), I found that it even contains lesser characters (glyphs) than in a regular font file.</p>
 <p>As I'd been considering using custom fonts in my website, I wanted to make something like Minlo, but for other fonts.</p>
 <h2 id="manual-approach">Manual approach</h2>
-<p>The first idea I had was to manually remove glyphs I don't need using <a href="https://fontforge.org/en-US/">Font Forge</a>, a font editor.</p>
-<p>I found a post that describes the exact same steps I tried - <a href="https://barrd.dev/article/create-a-custom-font-with-only-the-glyphs-you-need/">Create a custom font with only the glyphs you need</a>. To summarize:</p>
+<p>The first idea I had was to manually remove glyphs I don't need using <a href="https://fontforge.org/en-US/" target="_blank" rel="noopener">Font Forge</a>, a font editor.</p>
+<p>I found a post that describes the exact same steps I tried - <a href="https://barrd.dev/article/create-a-custom-font-with-only-the-glyphs-you-need/" target="_blank" rel="noopener">Create a custom font with only the glyphs you need</a>. To summarize:</p>
 <ul>
 <li>Open a font file in FontForge</li>
 <li>Select glyphs you wish to remove and delete them</li>
 <li>Regenerate the font file</li>
 </ul>
-<p>The process is straight-forward but time-consuming. Font files can have lots of glyphs, specifically any combination of characters from this <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters">List of unicode characters</a>. There are also separate files for different weights, so the process became repetitive really quickly.</p>
+<p>The process is straight-forward but time-consuming. Font files can have lots of glyphs, specifically any combination of characters from this <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters" target="_blank" rel="noopener">List of unicode characters</a>. There are also separate files for different weights, so the process became repetitive really quickly.</p>
 <p>There had to be a way to do this programmatically, right?</p>
-<h2 id="meet-pyftsubset">Meet <code>pyftsubset</code></h2>
-<p>I found an answer to this in the most unexpected of places - the <a href="https://rsms.me/inter/#faq-subset">FAQ section of Inter</a>, a sans-serif font family.</p>
+<h2 id="meet-pyftsubset">Meet <code>pyftsubset</code>
+</h2>
+<p>I found an answer to this in the most unexpected of places - the <a href="https://rsms.me/inter/#faq-subset" target="_blank" rel="noopener">FAQ section of Inter</a>, a sans-serif font family.</p>
 <p>The tool is called <code>pyftsubset</code>, and since I'm looking for to create a file that contains a subset of the original set of glyphs, this sounds like the right one to go with!</p>
-<p>Looking at the <a href="https://fonttools.readthedocs.io/en/latest/subset/">documentation</a>, the tool is part of the <code>fonttools</code> Python package, which I installed using <code>pip</code>.</p>
-<pre><code>$ python3 -m pip install fonttools
+<p>Looking at the <a href="https://fonttools.readthedocs.io/en/latest/subset/" target="_blank" rel="noopener">documentation</a>, the tool is part of the <code>fonttools</code> Python package, which I installed using <code>pip</code>.</p>
+<pre><code class="language-console">$ python3 -m pip install fonttools
 $ pyftsubset -h
 usage: pyftsubset font-file [glyph...] [--option=value]...
-Try pyftsubset --help for more information.
-</code></pre>
+Try pyftsubset --help for more information.</code></pre>
 <p>Looking back at the docs, there are a couple of ways to provide which glyphs I want to keep. The easiest option seems to be using <code>--unicodes</code><sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>, that takes a list of the Unicode code points (<code>U+</code> followed by hexadecimal digits) representing each character.</p>
 <p>If you're familiar with ASCII, Unicode (more specifically UTF-8) is another encoding standard that contains more characters than ASCII, like symbols and characters from other languages.</p>
 <h3 id="demo-time">Demo time!</h3>
 <p>I created a subset file of the font Inter Regular, containing only uppercase and lowercase letters, digits and punctuation.</p>
-<pre><code>$ pyftsubset Inter-Regular.otf --unicodes=U+0020-007E \ 
+<pre><code class="language-console">$ pyftsubset Inter-Regular.otf --unicodes=U+0020-007E \ 
   --layout-features='' \ 
-  --passthrough-tables
-</code></pre>
-<p>The unicode range is from the <a href="https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)">Basic Latin unicode block</a>, the <code>--layout-features</code> flag is set to an empty string to remove all glyphs associated with <a href="https://rsms.me/inter/#features">OpenType features</a>, while <code>--passthrough-tables</code> skips over any sections of the file that the tool doesn't know what to do with.</p>
+  --passthrough-tables</code></pre>
+<p>The unicode range is from the <a href="https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)" target="_blank" rel="noopener">Basic Latin unicode block</a>, the <code>--layout-features</code> flag is set to an empty string to remove all glyphs associated with <a href="https://rsms.me/inter/#features" target="_blank" rel="noopener">OpenType features</a>, while <code>--passthrough-tables</code> skips over any sections of the file that the tool doesn't know what to do with.</p>
 <p>With this, the file size has reduced from 591KB to 12KB, a 97% decrease!</p>
-<pre><code>$ du -Ahs Inter-Regular.otf Inter-Regular.subset.otf
+<pre><code class="language-console">$ du -Ahs Inter-Regular.otf Inter-Regular.subset.otf
 591K    Inter-Regular.otf
- 12K    Inter-Regular.subset.otf
-</code></pre>
+ 12K    Inter-Regular.subset.otf</code></pre>
 <p>Converting the file to the WOFF2 format reduces the size further to 7.5KB!</p>
-<pre><code>$ pyftsubset Inter-Regular.otf --unicodes=U+0020-007E \ 
+<pre><code class="language-console">$ pyftsubset Inter-Regular.otf --unicodes=U+0020-007E \ 
   --layout-features='' \ 
   --passthrough-tables \ 
   --flavor=woff2
 
 $ du -Ahs Inter-Regular.otf Inter-Regular.subset.woff2
 591K    Inter-Regular.otf
-7.5K    Inter-Regular.subset.woff2
-</code></pre>
+7.5K    Inter-Regular.subset.woff2</code></pre>
 <p>This was pretty fun to experiment with, and after quite a lot of trial and error, I settled on a combination of Verdana for the text (same as before) and a custom subset of Menlo for code blocks.</p>
 <h2 id="font-trivia">Font trivia</h2>
 <p>While re-designing my blog, I found out more about the origins of Verdana and Menlo, and apparently they share common links to other fonts!</p>
-<p>Verdana was the basis for the design of <a href="https://en.wikipedia.org/wiki/Bitstream_Vera">Bitstream Vera Sans</a>. Bitstream Vera also has a monospaced font, which is what Menlo is based on.</p>
-<p>Another common link is the <a href="https://en.wikipedia.org/wiki/DejaVu_fonts">DejaVu font family</a>, an extension to the Bitstream Vera font family that adds support for more glyphs, which Menlo includes.</p>
+<p>Verdana was the basis for the design of <a href="https://en.wikipedia.org/wiki/Bitstream_Vera" target="_blank" rel="noopener">Bitstream Vera Sans</a>. Bitstream Vera also has a monospaced font, which is what Menlo is based on.</p>
+<p>Another common link is the <a href="https://en.wikipedia.org/wiki/DejaVu_fonts" target="_blank" rel="noopener">DejaVu font family</a>, an extension to the Bitstream Vera font family that adds support for more glyphs, which Menlo includes.</p>
 <p>This explains why the two work well together!</p>
-<h2>Footnotes</h2>
-<section class="footnotes" role="doc-endnotes">
-<ol>
+<h2 id="notes">Notes</h2>
+<ol class="footnotes" role="doc-endnotes">
 <li id="fn:1" role="doc-endnote">
-<p>I got confused for a bit on why the <code>unicodes</code> flag was displayed with one dash instead of two. This a bug in the docs, which has been discussed in <a href="https://github.com/fonttools/fonttools/issues/2900">fonttools#2900</a>.&nbsp;<a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
+<p>I got confused for a bit on why the <code>unicodes</code> flag was displayed with one dash instead of two. This a bug in the docs, which has been discussed in <a href="https://github.com/fonttools/fonttools/issues/2900" target="_blank" rel="noopener">fonttools#2900</a>. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
 </li>
 </ol>
-</section>]]></content></entry>
+]]></content></entry>
 <entry>
 <title type="html">Python type conversion cheatsheet</title>
 <link href="https://pjg1.site/python-type-cheatsheet" rel="alternate" type="text/html" title="Python type conversion cheatsheet" />
@@ -307,99 +322,88 @@ $ du -Ahs Inter-Regular.otf Inter-Regular.subset.woff2
 <updated>2024-02-11T00:00:00+00:00</updated>
 <id>https://pjg1.site/python-type-cheatsheet</id>
 <content type="html" xml:base="https://pjg1.site/python-type-cheatsheet">
-<![CDATA[<p>The built-in functions to convert between different types in Python is something I keep forgetting and have to look up each time. So I decided to make a cheatsheet for reference. Tested on version 3.11.7.</p>
+<![CDATA[
+<p>The built-in functions to convert between different types in Python is something I keep forgetting and have to look up each time. So I decided to make a cheatsheet for reference. Tested on version 3.11.7.</p>
 <h2 id="int--hex">int ↔ hex</h2>
-<p>There are two <a href="https://docs.python.org/3.11/library/functions.html">built-in functions</a> for this, <code>hex()</code> and <code>int()</code>.</p>
+<p>There are two <a href="https://docs.python.org/3.11/library/functions.html" target="_blank" rel="noopener">built-in functions</a> for this, <code>hex()</code> and <code>int()</code>.</p>
 <p><code>hex()</code> converts an integer (base 10) to a hexadecimal number (base 16). Hexadecimal numbers aren't a separate type in Python, so the resuting output is of type <code>str</code>.</p>
-<pre><code>&gt;&gt;&gt; hex(255)
-'0xff'
-</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; hex(255)
+'0xff'</code></pre>
 <p>For the other way round, <code>int()</code> is called with the base set to 16. The function accepts input with and without the <code>0x</code> prefix.</p>
-<pre><code>&gt;&gt;&gt; int('0xff', 16)
+<pre><code class="language-python">&gt;&gt;&gt; int('0xff', 16)
 255
 &gt;&gt;&gt; int('ff', 16)
-255
-</code></pre>
+255</code></pre>
 <p>Even typing the hex string with the <code>0x</code> prefix but without the quotes will output its integer representation.</p>
-<pre><code>&gt;&gt;&gt; 0xff
-255
-</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; 0xff
+255</code></pre>
 <h2 id="hex--bytes">hex ↔ bytes</h2>
-<p>The functions are part of the <a href="https://docs.python.org/3.11/library/stdtypes.html#bytes"><code>bytes</code></a> built-in type.</p>
+<p>The functions are part of the <a href="https://docs.python.org/3.11/library/stdtypes.html#bytes" target="_blank" rel="noopener"><code>bytes</code></a> built-in type.</p>
 <p><code>bytes.hex()</code> converts bytes to a hexadecimal string.</p>
-<pre><code>&gt;&gt;&gt; bytes.hex(b'hello')
-'68656c6c6f'
-</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; bytes.hex(b'hello')
+'68656c6c6f'</code></pre>
 <p><code>bytes.fromhex()</code> converts a hex string to its byte form. Unlike <code>int()</code>, this function only accepts input without the <code>0x</code> prefix.</p>
-<pre><code>&gt;&gt;&gt; bytes.fromhex('68656c6c6f')
+<pre><code class="language-python">&gt;&gt;&gt; bytes.fromhex('68656c6c6f')
 b'hello'
 &gt;&gt;&gt; bytes.fromhex('0x68656c6c6f')
 Traceback (most recent call last):
   File "&lt;stdin&gt;", line 1, in &lt;module&gt;
-ValueError: non-hexadecimal number found in fromhex() arg at position 1
-</code></pre>
+ValueError: non-hexadecimal number found in fromhex() arg at position 1</code></pre>
 <h2 id="int--bytes">int ↔ bytes</h2>
-<p>The <code>int</code> data type has <a href="https://docs.python.org/3.11/library/stdtypes.html#additional-methods-on-integer-types">functions</a> for converting to and from bytes.</p>
+<p>The <code>int</code> data type has <a href="https://docs.python.org/3.11/library/stdtypes.html#additional-methods-on-integer-types" target="_blank" rel="noopener">functions</a> for converting to and from bytes.</p>
 <p><code>int.to_bytes()</code> requires two parameters apart from the number itself.</p>
 <p>The first is the length of the resulting output, or the number of bytes. I can either specify a number, or use another function, <code>int.bit_length()</code> to calculate the number of bytes.</p>
-<pre><code>&gt;&gt;&gt; num = 5
+<pre><code class="language-python">&gt;&gt;&gt; num = 5
 &gt;&gt;&gt; bin(num)
 '0b101'
 &gt;&gt;&gt; int.bit_length(num)
 3
 &gt;&gt;&gt; nbytes = (int.bit_length(num) + 7) // 8
 &gt;&gt;&gt; nbytes
-1
-</code></pre>
+1</code></pre>
 <p>The next parameter is the byte order. When in doubt, default to big-endian.</p>
-<pre><code>&gt;&gt;&gt; int.to_bytes(num, (int.bit_length(num) + 7) // 8, 'big')
+<pre><code class="language-python">&gt;&gt;&gt; int.to_bytes(num, (int.bit_length(num) + 7) // 8, 'big')
 b'\x05'
 &gt;&gt;&gt; int.to_bytes(num, 2, 'big')
 b'\x00\x05'
 &gt;&gt;&gt; int.to_bytes(num, 2, 'little')
-b'\x05\x00'
-</code></pre>
+b'\x05\x00'</code></pre>
 <p>The function can also be written as <code>num.to_bytes(2, 'big')</code>, however I prefer the earlier notation as its more consistent with <code>int.from_bytes()</code>, the reverse function.</p>
-<pre><code>&gt;&gt;&gt; int.from_bytes(b'\x00\x05', 'big')
+<pre><code class="language-python">&gt;&gt;&gt; int.from_bytes(b'\x00\x05', 'big')
 5
 &gt;&gt;&gt; int.from_bytes(b'\x05\x00', 'little')
-5
-</code></pre>
+5</code></pre>
 <h2 id="str--bytes">str ↔ bytes</h2>
-<p>The process of translating human readable characters (string) to something computers can understand (bytes) is called encoding. Strings can be encoded using <a href="https://docs.python.org/3.11/library/stdtypes.html#str.encode"><code>str.encode()</code></a>. <code>utf-8</code> is the default encoding, however this can be changed.</p>
-<pre><code>&gt;&gt;&gt; str.encode('hello', 'utf-8')
+<p>The process of translating human readable characters (string) to something computers can understand (bytes) is called encoding. Strings can be encoded using <a href="https://docs.python.org/3.11/library/stdtypes.html#str.encode" target="_blank" rel="noopener"><code>str.encode()</code></a>. <code>utf-8</code> is the default encoding, however this can be changed.</p>
+<pre><code class="language-python">&gt;&gt;&gt; str.encode('hello', 'utf-8')
 b'hello'
 &gt;&gt;&gt; str.encode('hello', 'utf-16')
-b'\xff\xfeh\x00e\x00l\x00l\x00o\x00'
-</code></pre>
-<p>The reverse process, i.e., decoding (converting bytes to string) is done using <a href="https://docs.python.org/3.11/library/stdtypes.html#bytes.decode"><code>bytes.decode()</code></a>.</p>
-<pre><code>&gt;&gt;&gt; bytes.decode(b'hello', 'utf-8')
+b'\xff\xfeh\x00e\x00l\x00l\x00o\x00'</code></pre>
+<p>The reverse process, i.e., decoding (converting bytes to string) is done using <a href="https://docs.python.org/3.11/library/stdtypes.html#bytes.decode" target="_blank" rel="noopener"><code>bytes.decode()</code></a>.</p>
+<pre><code class="language-python">&gt;&gt;&gt; bytes.decode(b'hello', 'utf-8')
 'hello'
 &gt;&gt;&gt; bytes.decode(b'\xff\xfeh\x00e\x00l\x00l\x00o\x00', 'utf-16')
-'hello'
-</code></pre>
+'hello'</code></pre>
 <h2 id="int--str">int ↔ str</h2>
 <p>This is the one I have most confusion about, as the <code>int</code>s are one of two types:</p>
 <ul>
 <li>ASCII characters, either individual or appended together</li>
 <li>All characters of a string are added up as one single integer/long</li>
 </ul>
-<p>For ASCII characters, its two <a href="https://docs.python.org/3.11/library/functions.html">built-in functions</a> - <code>chr()</code> for number to character, and <code>ord()</code> for the opposite.</p>
-<pre><code>&gt;&gt;&gt; chr(65)
+<p>For ASCII characters, its two <a href="https://docs.python.org/3.11/library/functions.html" target="_blank" rel="noopener">built-in functions</a> - <code>chr()</code> for number to character, and <code>ord()</code> for the opposite.</p>
+<pre><code class="language-python">&gt;&gt;&gt; chr(65)
 'A'
 &gt;&gt;&gt; ord('A')
-65
-</code></pre>
+65</code></pre>
 <p>For longer ints, the process is the same as <a href="#int--bytes">int ↔ bytes</a>, with the additional step of encoding or decoding where needed.</p>
 <p>In the case of int to str, the resulting bytes are decoded.</p>
-<pre><code>&gt;&gt;&gt; num = 448378203247
+<pre><code class="language-python">&gt;&gt;&gt; num = 448378203247
 &gt;&gt;&gt; int.to_bytes(num, 5, 'big').decode('utf-8')
-'hello'
-</code></pre>
+'hello'</code></pre>
 <p>For the other way round, the string input is encoded before converting.</p>
-<pre><code>&gt;&gt;&gt; text = 'hello'
+<pre><code class="language-python">&gt;&gt;&gt; text = 'hello'
 &gt;&gt;&gt; int.from_bytes(text.encode('utf-8'), 'big')
-448378203247
-</code></pre>
-<p>The same holds true for <a href="#hex--bytes">hex ↔ bytes</a> as well.</p>]]></content></entry>
+448378203247</code></pre>
+<p>The same holds true for <a href="#hex--bytes">hex ↔ bytes</a> as well.</p>
+]]></content></entry>
 </feed>
