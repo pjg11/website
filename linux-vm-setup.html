@@ -9,7 +9,8 @@
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>Linux x64 VM on an M1 Macbook</title>
-<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+<style>
+body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
 #top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
 header,footer,h2,h3,pre{line-height:1.2}
 h1,h2,h3,b,strong{font-weight:600}
@@ -19,7 +20,7 @@ a:hover{text-decoration:none}
 code,kbd{font-size:87.5%}
 pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #b0b0b0;padding:0.2rem}
+th,td{border:1px solid #bbb;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
@@ -27,14 +28,15 @@ h1{margin:0;font-size:145%}
 h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #b0b0b0;border-bottom:0}
-iframe{width:100%;border:1px solid #b0b0b0}
+hr{border:1px solid #bbb;border-bottom:0}
+iframe{width:100%;border:1px solid #bbb}
 details>summary{cursor:pointer;font-weight:bold}
 details[open]>summary{padding-bottom: 0.5rem}
 span.b{font-weight:bold}
 #notes a:visited{color:#999}
 #notes span{display:block}
-@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
+@media(prefers-color-scheme:dark){body,#top{background:#000;color:#ddd}th,td,iframe,hr{border-color:#777}img.dim{filter:opacity(0.85)}}
+</style>
 </head>
 <body>
 <a id="top" href="#">&uarr; Top</a>
@@ -98,9 +100,9 @@ span.b{font-weight:bold}
 <p>With the Emulated VLAN mode, we’re now dealing with two separate networks - your local network containing the host machine (<code>192.168.0.X</code> range) and the Virtual LAN containing the VM (<code>10.0.2.X</code> range). To access services on the VM from the host machine, we need to map required ports of the VM to ports on the host machine.</p>
 <p>This technique is called port forwarding. One such service is <code>ssh</code> at port <code>22</code>, which we can use to access the machine on the host’s terminal.</p>
 <h3 id="port-forwarding">Port Forwarding</h3>
-<p>After changing the network mode in the previous step, a new section called Port Forwarding should appear in the sidebar. Click on the "New" button in Port Forwarding, and set forward port <code>22</code> on the guest machine to port <code>2200</code> on the host machine. The IP address fields are left blank, so that the defaults are applied.<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup></p>
+<p>After changing the network mode in the previous step, a new section called Port Forwarding should appear in the sidebar. Click on New button in the Port Forwarding section, and forward port <code>22</code> on the guest machine to port <code>2200</code> on the host machine. The IP address fields are left blank, so that the defaults are applied.<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup></p>
 <figure><a href="/public/images/linux-vm-setup/port-forwarding-add.png" target="_blank"><img src="/public/images/linux-vm-setup/port-forwarding-add.png" alt="A pop-up box appears after clicking on the New button. There are four text fields - Guest Address (left empty), Guest Port (set to 22), Host Address (left empty) and Host Port (set to 2200)." loading="lazy"></a></figure>
-<p>You can add additional ports to transfer files between the host and VM or as ports to listen for incoming reverse shells (I added 3 additional ports - <code>1234</code>, <code>4444</code> and <code>8888</code>).</p>
+<p>You can add additional ports to transfer files between the host and VM or as ports to listen for incoming reverse shells. I added 3 additional ports - <code>1234</code>, <code>4444</code> and <code>8888</code>).</p>
 <h3 id="start-ssh-server">Start SSH server</h3>
 <p>Save the settings and start up the VM. Once logged in, start the <code>ssh</code> server. If <code>ssh</code> is not installed, install it first.</p>
 <pre><code class="language-console">$ sudo apt install ssh
