@@ -4,46 +4,48 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="color-scheme" content="dark light">
-<meta property="og:url" content="https://pjg1.site/">
+<meta property="og:url" content="https://pjg1.site/why-blog">
 <meta property="og:site_name" content="pjg1.site">
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>Why Blog?</title>
-<style>body{font:1rem/1.15 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%}
-p,li{line-height:1.33}
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
 main{margin:1.5rem 0}
-a{color:inherit;text-underline-offset:0.1rem;text-decoration-color:grey}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
 a:hover{text-decoration:none}
-#notes a:visited{color:#777}
 code,kbd{font-size:87.5%}
-pre{overflow:auto;background:#eee;padding:0.6rem;line-height:1.15}
+pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #999;padding:0.2rem}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
 h1{margin:0;font-size:145%}
-h2{font-size:120%;margin-top:1.3rem}
+h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #999;border-bottom:0}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
 #notes span{display:block}
-iframe{width:100%;border:1px solid #999}
-details>summary,span.b{font-weight:bold}
-details[open]>summary{padding-bottom:0.5rem}
-@media(prefers-color-scheme:dark){body{background:#000;color:#ccc}th,td,hr{border-color:#555}pre{background:#1a1a1a}#notes a:visited{color:#999}img.dim{filter:invert() contrast(0.85) hue-rotate(180deg)}}
-</style>
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
 </head>
 <body>
+<a id="top" href="#">&uarr; Top</a>
 <header role="banner">
 <h1>Why Blog?</h1>
 <hr>
 <span>
 <a href="/">pjg1.site</a> &bullet;
 <time datetime="2023-06-09">June 09, 2023</time>
-
 </span></header>
-<main>
+<main role="main">
 <p>I've been trying to write a new post for a while, but keep coming up with ways to avoid it. In this very meta post, I list down the reasons of why I want to maintain a blog.</p>
 <h2 id="document-things-i-struggled-with">Document things I struggled with</h2>
 <p>If I had to go through multiple sources of information to get the hang of a concept, chances are that others learning the same thing might be going through a similar process<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>. By documenting what I struggled with, two things happen:</p>
@@ -98,15 +100,12 @@ details[open]>summary{padding-bottom:0.5rem}
 <li id="fn:1" role="doc-endnote">
 <p>Julia Evans shares similar thoughts in her post, <a href="https://jvns.ca/blog/2021/05/24/blog-about-what-you-ve-struggled-with/" target="_blank" rel="noopener">Blog about what you've struggled with</a>. It got me to start typing this post, so I'd recommend giving it a read if you've been finding it hard to either start or continue blogging.&nbsp;<a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
 </li>
-</ol>
-
-</main>
+</ol></main>
 <footer role="contentinfo">
 <hr>
 <span>
-<a href="mailto:comments@pjg1.site?subject=Re: Why%20Blog%3F">Comment via email</a> &bullet;
-<a href="/feed.xml">RSS feed</a> &bullet;
-<a href="#">↑ Top</a></span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20Why%20Blog%3F">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
 </footer>
 </body>
 </html>

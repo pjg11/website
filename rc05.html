@@ -4,37 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="color-scheme" content="dark light">
-<meta property="og:url" content="https://pjg1.site/">
+<meta property="og:url" content="https://pjg1.site/rc05">
 <meta property="og:site_name" content="pjg1.site">
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>RC05: Creating and hosting a CTF challenge in two days</title>
-<style>body{font:1rem/1.15 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%}
-p,li{line-height:1.33}
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
 main{margin:1.5rem 0}
-a{color:inherit;text-underline-offset:0.1rem;text-decoration-color:grey}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
 a:hover{text-decoration:none}
-#notes a:visited{color:#777}
 code,kbd{font-size:87.5%}
-pre{overflow:auto;background:#eee;padding:0.6rem;line-height:1.15}
+pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #999;padding:0.2rem}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
 h1{margin:0;font-size:145%}
-h2{font-size:120%;margin-top:1.3rem}
+h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #999;border-bottom:0}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
 #notes span{display:block}
-iframe{width:100%;border:1px solid #999}
-details>summary,span.b{font-weight:bold}
-details[open]>summary{padding-bottom:0.5rem}
-@media(prefers-color-scheme:dark){body{background:#000;color:#ccc}th,td,hr{border-color:#555}pre{background:#1a1a1a}#notes a:visited{color:#999}img.dim{filter:invert() contrast(0.85) hue-rotate(180deg)}}
-</style>
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
 </head>
 <body>
+<a id="top" href="#">&uarr; Top</a>
 <header role="banner">
 <h1>RC05: Creating and hosting a CTF challenge in two days</h1>
 <hr>
@@ -42,9 +45,8 @@ details[open]>summary{padding-bottom:0.5rem}
 <a href="/">pjg1.site</a> &bullet;
 <time datetime="2023-10-11">October 11, 2023</time>
 &bullet;
-<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a>
-</span></header>
-<main>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a></span></header>
+<main role="main">
 <p>I've <a href="https://writeups-pjg1.netlify.app" target="_blank" rel="noopener">played quite a few CTF challenges</a>, but hadn't attempted to create and host one before. With the announcement of Impossible Stuff Day at RC last week<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>, it seemed like a good opportunity to finally give it a shot.</p>
 <p>This post covers details of the challenge and the underlying infrastructure. The source files are up on <a href="https://github.com/pjg11/quack-ctf-challenge" target="_blank" rel="noopener">pjg11/quack-ctf-challenge</a> if you'd like to try it out yourself!</p>
 <h2 id="the-initial-plan">The initial plan</h2>
@@ -282,41 +284,16 @@ EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]</code></pre>
 <h2 id="finishing-touches">Finishing touches</h2>
 <p>As I was testing and running containers multiple times throughout the process, I created a script to automate it.</p>
-<pre><code class="language-shell">#!/bin/sh
+<pre><code class="language-shell">#!/bin/bash
 set -ex
 
 docker build -t quack .
 docker run --pids-limit 100 --read-only -d -p 9999:22 quack</code></pre>
 <p>This builds and runs the container in read-only mode, preventing the user from making changes to the flag or any other file. The number of processes running at once have also been limited, to <a href="https://stackoverflow.com/questions/28237906/limit-number-of-processes-started-inside-docker-container" target="_blank" rel="noopener">prevent forkbombs</a>. This wouldn't be much of an issue in my case, but I had it there just in case.</p>
 <p>After multiple detours and changes, I tested the challenge setup, and it worked.</p>
-<pre><code class="language-console">root@ubuntu:~# ssh -p 9999 user@localhost
-user@localhost's password:
-
-A sleepy duck is blocking the way to my files.
-Can you wake it up (gently) and ask it for
-flag.txt? Thanks!
-    __
-___( -)&gt;
-\ &lt;_. )
- `---'   hjw
-
-&gt; quack
-&gt; hello
-&gt; ^D
-    __
-___( O)&gt;
-\ &lt;_. )
- `---'    hjw
-
-Traceback (most recent call last):
-  File "/home/user/quack.py", line 20, in &lt;module&gt;
-    input("&gt; ")
-EOFError
-&gt;&gt;&gt; import os
-&gt;&gt;&gt; os.system("cat .secret/flag.txt")
-CTF{th4nks_f0r_p14y1ng!}
-&gt;&gt;&gt; ^D
-Connection to localhost closed.</code></pre>
+<figure><a href="https://asciinema.org/a/674178" target="_blank"><img src="https://asciinema.org/a/674178.svg" alt="" loading="lazy"></a>
+<figcaption>Click to view on asciinema</figcaption>
+</figure>
 <p>After making sure it all works for the 100th time, I sent a message on our chat platform, in the style of a CTF challenge description:</p>
 <blockquote>
 <pre><code>QUACK
@@ -351,7 +328,7 @@ flag.txt? Thanks!</code></pre>
 <p>The command watches for the flag file to open, and prints output in the following format when the file is accessed:</p>
 <pre><code>[2023-10-11 13:30:00] .secret/flag.txt OPEN</code></pre>
 <p>It would run in the background, as the SSH server is running in the foreground. Since there are multiple shell commands to be executed at build time, using an entrypoint script, like in the <code>xinetd</code> setup makes more sense. This would run the <code>inotifywait</code> command as a background process and <code>sshd</code> as a server.</p>
-<pre><code class="language-shell">#!/bin/sh
+<pre><code class="language-shell">#!/bin/bash
 
 inotifywait -e open .secret/flag.txt -m --format "[%T] %w %e" --timefmt "%F %T" &
 /usr/sbin/sshd -D -e</code></pre>
@@ -379,15 +356,12 @@ CMD ["/entrypoint.sh"]</code></pre>
 <li id="fn:3" role="doc-endnote">
 <p>While writing this post, I happened to test Wordle Bash with the final SSH setup and it works just fine, probably an issue specific to <code>xinetd</code> then.&nbsp;<a href="#fnref:3" class="reversefootnote" role="doc-backlink">↩</a></p>
 </li>
-</ol>
-
-</main>
+</ol></main>
 <footer role="contentinfo">
 <hr>
 <span>
-<a href="mailto:comments@pjg1.site?subject=Re: RC05%3A%20Creating%20and%20hosting%20a%20CTF%20challenge%20in%20two%20days">Comment via email</a> &bullet;
-<a href="/feed.xml">RSS feed</a> &bullet;
-<a href="#">↑ Top</a></span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20RC05%3A%20Creating%20and%20hosting%20a%20CTF%20challenge%20in%20two%20days">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
 </footer>
 </body>
 </html>

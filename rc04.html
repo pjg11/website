@@ -4,37 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="color-scheme" content="dark light">
-<meta property="og:url" content="https://pjg1.site/">
+<meta property="og:url" content="https://pjg1.site/rc04">
 <meta property="og:site_name" content="pjg1.site">
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>RC04: Shell Scripting Adventures</title>
-<style>body{font:1rem/1.15 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%}
-p,li{line-height:1.33}
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
 main{margin:1.5rem 0}
-a{color:inherit;text-underline-offset:0.1rem;text-decoration-color:grey}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
 a:hover{text-decoration:none}
-#notes a:visited{color:#777}
 code,kbd{font-size:87.5%}
-pre{overflow:auto;background:#eee;padding:0.6rem;line-height:1.15}
+pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #999;padding:0.2rem}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
 h1{margin:0;font-size:145%}
-h2{font-size:120%;margin-top:1.3rem}
+h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #999;border-bottom:0}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
 #notes span{display:block}
-iframe{width:100%;border:1px solid #999}
-details>summary,span.b{font-weight:bold}
-details[open]>summary{padding-bottom:0.5rem}
-@media(prefers-color-scheme:dark){body{background:#000;color:#ccc}th,td,hr{border-color:#555}pre{background:#1a1a1a}#notes a:visited{color:#999}img.dim{filter:invert() contrast(0.85) hue-rotate(180deg)}}
-</style>
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
 </head>
 <body>
+<a id="top" href="#">&uarr; Top</a>
 <header role="banner">
 <h1>RC04: Shell Scripting Adventures</h1>
 <hr>
@@ -42,9 +45,8 @@ details[open]>summary{padding-bottom:0.5rem}
 <a href="/">pjg1.site</a> &bullet;
 <time datetime="2023-09-30">September 30, 2023</time>
 &bullet;
-<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a>
-</span></header>
-<main>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a></span></header>
+<main role="main">
 <p>One of the things that helped me rediscover the joy of programming was making tiny shell scripts/functions for a specific purpose.</p>
 <p>As I started using the command line more often, these functions helped execute commands that I would otherwise have to type repeatedly. And that set off a chain reaction - the more functions I made, the more ideas I'd get.</p>
 <p>The first one I made was <a href="https://github.com/pjg11/scripts/tree/main/tzc" target="_blank" rel="noopener"><code>tzc</code></a>, to convert time from another timezone to my local time. It was inspired by two things:</p>
@@ -113,7 +115,9 @@ Commands:
   delete       Delete chosen link from list</code></pre>
 <p>The Reading List is stored in <code>~/Library/Safari/Bookmarks.plist</code>, and the function uses a utility called <a href="https://www.marcosantadev.com/manage-plist-files-plistbuddy/" target="_blank" rel="noopener"><code>PlistBuddy</code></a> to interact with the file.</p>
 <p>Here's a demo of the search command, that works like a fuzzy finder, along with the option to open the link in a browser.</p>
-<figure><a href="/public/images/rc04/rlist.gif" target="_blank"><img src="/public/images/rc04/rlist.gif" alt="" loading="lazy"></a></figure>
+<figure><a href="https://asciinema.org/a/674173" target="_blank"><img src="https://asciinema.org/a/674173.svg" alt="Thumbnail of an asciinema recording of the rlist's searching functionality" loading="lazy"></a>
+<figcaption>Click to view on asciinema</figcaption>
+</figure>
 <p>This is possibly the coolest script I've made yet, as it took a while to understand how <code>PlistBuddy</code> works, and using <a href="https://github.com/charmbracelet/gum" target="_blank" rel="noopener"><code>gum</code></a> for the fancy formatting added to the coolness.</p>
 <h2 id="mkfunc"><code>mkfunc</code></h2>
 <p>Lastly, a meta function whose naming is inspired by <code>mkdir</code>. It creates a file with starter code for a shell function when called.</p>
@@ -146,22 +150,19 @@ func() {
         *) echo "invalid option - $1" ; _usage ;;   
     esac
 }
-EOF 
+EOF
     chmod u+x $1
     $EDITOR $1
 }</code></pre>
 <p>This function contains simpler help text, as there are no additional commands. The heredoc delimiter <code>EOF</code> is wrapped with single quotes to prevent execution of the variables within the heredoc (<code>$*</code>, <code>$@</code>,<code>$1</code>).</p>
 <hr>
 <p>Thanks for tuning in to another episode of "things I didn't plan to work on"! It's interesting how I get more post ideas from side quests rather than the main ones 😅</p>
-<p>You can find all the above scripts (and more, whenever I make them) at <a href="https://github.com/pjg11/scripts" target="_blank" rel="noopener">pjg11/scripts</a>.</p>
-
-</main>
+<p>You can find all the above scripts (and more, whenever I make them) at <a href="https://github.com/pjg11/scripts" target="_blank" rel="noopener">pjg11/scripts</a>.</p></main>
 <footer role="contentinfo">
 <hr>
 <span>
-<a href="mailto:comments@pjg1.site?subject=Re: RC04%3A%20Shell%20Scripting%20Adventures">Comment via email</a> &bullet;
-<a href="/feed.xml">RSS feed</a> &bullet;
-<a href="#">↑ Top</a></span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20RC04%3A%20Shell%20Scripting%20Adventures">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
 </footer>
 </body>
 </html>

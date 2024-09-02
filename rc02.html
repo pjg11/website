@@ -4,37 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="color-scheme" content="dark light">
-<meta property="og:url" content="https://pjg1.site/">
+<meta property="og:url" content="https://pjg1.site/rc02">
 <meta property="og:site_name" content="pjg1.site">
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>RC02: Extending filtering capabilities in Bubble Tea apps</title>
-<style>body{font:1rem/1.15 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%}
-p,li{line-height:1.33}
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
 main{margin:1.5rem 0}
-a{color:inherit;text-underline-offset:0.1rem;text-decoration-color:grey}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
 a:hover{text-decoration:none}
-#notes a:visited{color:#777}
 code,kbd{font-size:87.5%}
-pre{overflow:auto;background:#eee;padding:0.6rem;line-height:1.15}
+pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #999;padding:0.2rem}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
 h1{margin:0;font-size:145%}
-h2{font-size:120%;margin-top:1.3rem}
+h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #999;border-bottom:0}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
 #notes span{display:block}
-iframe{width:100%;border:1px solid #999}
-details>summary,span.b{font-weight:bold}
-details[open]>summary{padding-bottom:0.5rem}
-@media(prefers-color-scheme:dark){body{background:#000;color:#ccc}th,td,hr{border-color:#555}pre{background:#1a1a1a}#notes a:visited{color:#999}img.dim{filter:invert() contrast(0.85) hue-rotate(180deg)}}
-</style>
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
 </head>
 <body>
+<a id="top" href="#">&uarr; Top</a>
 <header role="banner">
 <h1>RC02: Extending filtering capabilities in Bubble Tea apps</h1>
 <hr>
@@ -42,9 +45,8 @@ details[open]>summary{padding-bottom:0.5rem}
 <a href="/">pjg1.site</a> &bullet;
 <time datetime="2023-09-11">September 11, 2023</time>
 &bullet;
-<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a>
-</span></header>
-<main>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a></span></header>
+<main role="main">
 <p>In Week 1 of RC, I started building a todo app. It's built using <a href="https://github.com/charmbracelet/bubbletea" target="_blank" rel="noopener">Bubble Tea</a>, a TUI framework written in Go.</p>
 <p>The app uses the <a href="https://github.com/charmbracelet/bubbles/#list" target="_blank" rel="noopener">List component</a> as its base, which comes from Bubbles, a repo containing TUI components for Bubble Tea.</p>
 <p>One of the features it provides is filtering items. Filtering works by pressing the <kbd>/</kbd> key, followed by entering the text of choice. The filter value, i.e., what field to filter can be declared in the code.</p>
@@ -66,7 +68,7 @@ X Done
 <pre><code class="language-console">$ git clone https://github.com/taigrr/bubbles
 $ cd bubbles &amp;& git checkout remotes/origin/feat-prefilter-opt</code></pre>
 <p>I implemented the core logic in my app's <code>Update()</code> function, which handles keypresses.</p>
-<pre><code class="language-golang">switch msg := msg.(type) {
+<pre><code class="language-go">switch msg := msg.(type) {
 case tea.KeyMsg:
     switch msg.String() {
     case "1":
@@ -129,7 +131,7 @@ func newListKeyMap() *listKeyMap {
 }</code></pre>
 <p>The program has two help sections - a short help displayed below the app, and a full help that can be accessed by pressing the <kbd>?</kbd> key.</p>
 <p>The <code>Section</code> key is created for the short help, to avoid making the short help too long. Each of the individual section keys go in the full help. This code goes in the app's <code>newModel()</code> function, that builds the list.</p>
-<pre><code class="language-golang">list.AdditionalFullHelpKeys = func() []key.Binding {
+<pre><code class="language-go">list.AdditionalFullHelpKeys = func() []key.Binding {
     return []key.Binding{
         listKeys.Today,
         listKeys.Todo,
@@ -152,7 +154,10 @@ return model{
 }</code></pre>
 <p>One last change I had to make was to add the following line to the <code>go.mod</code> file to use the local import.</p>
 <pre><code class="language-go">replace github.com/charmbracelet/bubbles =&gt; ./bubbles</code></pre>
-<p>And...<a href="/public/images/rc02/todo.gif">it worked</a>!</p>
+<p>And...it worked!</p>
+<figure><a href="https://asciinema.org/a/674186" target="_blank"><img src="https://asciinema.org/a/674186.svg" alt="Thumbnail of an asciinema recording of the todo application - showing the various filtering options and the help menu to show the keybindings" loading="lazy"></a>
+<figcaption>Click to view on asciinema</figcaption>
+</figure>
 <p>Now I could have stopped here. But having the entire Bubbles package as part of my repo made it unnecessarily bulky. There had to be another way, a way which didn't require a local copy.</p>
 <p>I tried adding <code>SetFilterText()</code> to my <code>main.go</code> file, but it accessed private variables and functions of the List component, which I couldn't access.</p>
 <h2 id="an-undocumented-workaround">An undocumented workaround</h2>
@@ -169,9 +174,9 @@ return model{
 <p>A few days later, we got on call, and actually got it to work. He did most of the figuring out, so here's my attempt of explaining the concept by showing how I implemented it in the app.</p>
 <h2 id="proof-of-concept">Proof of concept</h2>
 <p>Let's start with the documentation for <code>Program.Send</code>, which contains the function declaration:</p>
-<pre><code class="language-golang">func (p *Program) Send(msg Msg)</code></pre>
+<pre><code class="language-go">func (p *Program) Send(msg Msg)</code></pre>
 <p>It takes an input of type <code>Msg</code>, which is the message to be sent. I need a way to send keys to the program. For this, there is a type of <code>Msg</code> called <code>KeyMsg</code>.</p>
-<pre><code class="language-golang">type KeyMsg Key
+<pre><code class="language-go">type KeyMsg Key
 
 type Key struct {
     Type  KeyType
@@ -184,12 +189,12 @@ type Key struct {
 <li><code>Runes</code> is an array of the type <code>rune</code>, a Go type that stores characters as 32-bit integers. This can be used to send keys not described in the constant values above or multiple keys at once.</li>
 </ul>
 <p>Putting together the learnings from the pairing session and the docs, here's the syntax for sending a key press via <code>Program.Send()</code>:</p>
-<pre><code class="language-golang">p.Send(tea.KeyMsg(tea.Key{Type: tea.CtrlC}))
+<pre><code class="language-go">p.Send(tea.KeyMsg(tea.Key{Type: tea.CtrlC}))
 p.Send(tea.KeyMsg(tea.Key{Type: tea.KeyRunes, Runes: []rune("q")}))</code></pre>
 <p>Both examples cause the program to quit. The first example sends the key <kbd>Ctrl+C</kbd>, while the second sends the <kbd>Q</kbd> key using the rune syntax.</p>
 <p>Having this figured out, I made my own function, called <code>SetFilter()</code></p>
 <h2 id="attempt-2-setfilter">Attempt #2: <code>SetFilter()</code></h2>
-<pre><code class="language-golang">/* Custom function to switch between the different categories. */
+<pre><code class="language-go">/* Custom function to switch between the different categories. */
 func (m model) SetFilter(s string) {
     go func() {
         if m.list.IsFiltered() {
@@ -210,7 +215,7 @@ func (m model) SetFilter(s string) {
 <p>Lines 4-6 check if a filter is currently set, in which case the <kbd>Esc</kbd> key is sent to reset the filter before switching to another one.</p>
 <p>Lastly, all the statements are wrapped in a goroutine. This is to ensure that neither of these commands can block the entire program.</p>
 <p>With the function complete, I changed the <code>Update()</code> function.</p>
-<pre><code class="language-golang">case "1":
+<pre><code class="language-go">case "1":
     m.SetFilter("today")
 case "2":
     m.SetFilter("todo")
@@ -237,15 +242,12 @@ case "6":
 <li id="fn:1" role="doc-endnote">
 <p>I came across his blog posts from Bearblog's <a href="http://bearblog.dev/discover" target="_blank" rel="noopener">discovery feed</a>, and I had no idea he was an RC alum before joining. Never thought I'd actually get to meet him, so pairing with him was totally unexpected and a really cool experience!&nbsp;<a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
 </li>
-</ol>
-
-</main>
+</ol></main>
 <footer role="contentinfo">
 <hr>
 <span>
-<a href="mailto:comments@pjg1.site?subject=Re: RC02%3A%20Extending%20filtering%20capabilities%20in%20Bubble%20Tea%20apps">Comment via email</a> &bullet;
-<a href="/feed.xml">RSS feed</a> &bullet;
-<a href="#">↑ Top</a></span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20RC02%3A%20Extending%20filtering%20capabilities%20in%20Bubble%20Tea%20apps">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
 </footer>
 </body>
 </html>

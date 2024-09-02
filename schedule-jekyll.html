@@ -4,46 +4,48 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="color-scheme" content="dark light">
-<meta property="og:url" content="https://pjg1.site/">
+<meta property="og:url" content="https://pjg1.site/schedule-jekyll">
 <meta property="og:site_name" content="pjg1.site">
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>Schedule Posts in Jekyll</title>
-<style>body{font:1rem/1.15 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%}
-p,li{line-height:1.33}
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
 main{margin:1.5rem 0}
-a{color:inherit;text-underline-offset:0.1rem;text-decoration-color:grey}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
 a:hover{text-decoration:none}
-#notes a:visited{color:#777}
 code,kbd{font-size:87.5%}
-pre{overflow:auto;background:#eee;padding:0.6rem;line-height:1.15}
+pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #999;padding:0.2rem}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
 h1{margin:0;font-size:145%}
-h2{font-size:120%;margin-top:1.3rem}
+h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #999;border-bottom:0}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
 #notes span{display:block}
-iframe{width:100%;border:1px solid #999}
-details>summary,span.b{font-weight:bold}
-details[open]>summary{padding-bottom:0.5rem}
-@media(prefers-color-scheme:dark){body{background:#000;color:#ccc}th,td,hr{border-color:#555}pre{background:#1a1a1a}#notes a:visited{color:#999}img.dim{filter:invert() contrast(0.85) hue-rotate(180deg)}}
-</style>
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
 </head>
 <body>
+<a id="top" href="#">&uarr; Top</a>
 <header role="banner">
 <h1>Schedule Posts in Jekyll</h1>
 <hr>
 <span>
 <a href="/">pjg1.site</a> &bullet;
 <time datetime="2023-07-22">July 22, 2023</time>
-
 </span></header>
-<main>
+<main role="main">
 <p>My current blogging setup consists of me publishing a post shortly after I've finished typing and proofreading. While this is a straightforward and easy process, it also makes it easy for me to procrastinate on posts for days on end.</p>
 <p>As a way to introduce some form of accountability, I thought having the option to schedule a post in advance might be a good idea.</p>
 <p>My current publishing setup is a <code>bash</code> script, that builds the site files and deploys the build to Netlify. I started finding ways to automate the execution of this script at a later date.</p>
@@ -60,7 +62,7 @@ details[open]>summary{padding-bottom:0.5rem}
 <li>Go to <code>System Preferences &gt; Security and Privacy &gt; Privacy</code></li>
 <li>Scroll to the Full Disk Access section and click on the <code>+</code> symbol.</li>
 <li>Press <kbd>Cmd+Shift+G</kbd> and enter <code>/usr/libexec/atrun</code>.</li>
-<li>Select <code>atrun</code>, after which it should <a href="/public/images/schedule-jekyll/preferences.png" target="_blank">appear in the list</a>.</li>
+<li>Select <code>atrun</code>, after which it should <a href="/public/images/schedule-jekyll/preferences.png">appear in the list</a>.</li>
 </ol>
 <h2 id="creating-the-script">Creating the script</h2>
 <p>The script takes the following arguments:</p>
@@ -157,15 +159,12 @@ reattach-to-user-namespace osascript -e \
 <li id="fn:1" role="doc-endnote">
 <p>The closest thing to documentation I could find about this is <a href="https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard/blob/master/README.md" target="_blank" rel="noopener">this article</a> for a different tool.&nbsp;<a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
 </li>
-</ol>
-
-</main>
+</ol></main>
 <footer role="contentinfo">
 <hr>
 <span>
-<a href="mailto:comments@pjg1.site?subject=Re: Schedule%20Posts%20in%20Jekyll">Comment via email</a> &bullet;
-<a href="/feed.xml">RSS feed</a> &bullet;
-<a href="#">↑ Top</a></span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20Schedule%20Posts%20in%20Jekyll">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
 </footer>
 </body>
 </html>

@@ -4,51 +4,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="color-scheme" content="dark light">
-<meta property="og:url" content="https://pjg1.site/">
+<meta property="og:url" content="https://pjg1.site/weeknotes-30-31-2024">
 <meta property="og:site_name" content="pjg1.site">
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>W30-31 2024: More thinking, less doing</title>
-<style>body{font:1rem/1.15 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%}
-p,li{line-height:1.33}
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
 main{margin:1.5rem 0}
-a{color:inherit;text-underline-offset:0.1rem;text-decoration-color:grey}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
 a:hover{text-decoration:none}
-#notes a:visited{color:#777}
 code,kbd{font-size:87.5%}
-pre{overflow:auto;background:#eee;padding:0.6rem;line-height:1.15}
+pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #999;padding:0.2rem}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
 h1{margin:0;font-size:145%}
-h2{font-size:120%;margin-top:1.3rem}
+h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #999;border-bottom:0}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
 #notes span{display:block}
-iframe{width:100%;border:1px solid #999}
-details>summary,span.b{font-weight:bold}
-details[open]>summary{padding-bottom:0.5rem}
-@media(prefers-color-scheme:dark){body{background:#000;color:#ccc}th,td,hr{border-color:#555}pre{background:#1a1a1a}#notes a:visited{color:#999}img.dim{filter:invert() contrast(0.85) hue-rotate(180deg)}}
-</style>
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
 </head>
 <body>
+<a id="top" href="#">&uarr; Top</a>
 <header role="banner">
 <h1>W30-31 2024: More thinking, less doing</h1>
 <hr>
 <span>
 <a href="/">pjg1.site</a> &bullet;
 <time datetime="2024-08-05">August 05, 2024</time>
-
 </span></header>
-<main>
+<main role="main">
 <h2 id="jamming-to-songs-on-loop">Jamming to songs on loop</h2>
 <p>There are phases where I don't actively jam to music, but rather just play it in the background while working. I was in this phase for a while, until I heard two new songs last week and now I can't stop jamming to them:</p>
 <ul>
-<li><a href="https://www.youtube.com/watch?v=azhwDQsYD8c&amp;pp=ygURcGl5YSBwaXlhIGNhbGxpbmc%3D" target="_blank" rel="noopener">Piya Piya Calling</a> by Karpe, Kaifi Khalil and Amanda Delara feat. Quick Style - I've been following Quick Style for a while and have heard a song or two from Coke Studio Pakistan, but I never expected their collaboration to be a song with my name in the title. Such a feel good track.</li>
-<li><a href="https://www.youtube.com/watch?v=a3Ue-LN5B9U&amp;pp=ygUKYWFzYSBrb29kYQ%3D%3D" target="_blank" rel="noopener">Aasa Kooda</a> by Sai Abhayankar and Sai Smriti - The chorus and hook step blows my mind every.single.time. The music video is also really beautifully filmed.</li>
+<li>
+<p><a href="https://www.youtube.com/watch?v=azhwDQsYD8c&amp;pp=ygURcGl5YSBwaXlhIGNhbGxpbmc%3D" target="_blank" rel="noopener">Piya Piya Calling</a> by Karpe, Kaifi Khalil and Amanda Delara feat. Quick Style - I've been following Quick Style for a while and have heard a song or two from Coke Studio Pakistan, but I never expected their collaboration to be a song with my name in the title. Such a feel good track.</p>
+</li>
+<li>
+<p><a href="https://www.youtube.com/watch?v=a3Ue-LN5B9U&amp;pp=ygUKYWFzYSBrb29kYQ%3D%3D" target="_blank" rel="noopener">Aasa Kooda</a> by Sai Abhayankar and Sai Smriti - The chorus and hook step blows my mind every.single.time. The music video is also really beautifully filmed.</p>
+</li>
 </ul>
 <p>I wanted to add these songs to my playlist, so I spent some time refactoring a script I wrote to download songs locally with their metadata. It was fun looking back at messy code from 2 years ago.</p>
 <h2 id="letting-go-of-tuntcp">Letting go of tuntcp</h2>
@@ -83,15 +89,12 @@ details[open]>summary{padding-bottom:0.5rem}
 <li>
 <p>Have some <a href="https://www.recurse.com/manual#sub-sec-self-directives" target="_blank" rel="noopener">finger work projects</a> to fall back on. Challenges like <a href="http://protohackers.com" target="_blank" rel="noopener">Protohackers</a> help keep the programming momentum going as I'm presented with a set of requirements, and I only have to focus on the implementation.</p>
 </li>
-</ul>
-
-</main>
+</ul></main>
 <footer role="contentinfo">
 <hr>
 <span>
-<a href="mailto:comments@pjg1.site?subject=Re: W30-31%202024%3A%20More%20thinking%2C%20less%20doing">Comment via email</a> &bullet;
-<a href="/feed.xml">RSS feed</a> &bullet;
-<a href="#">↑ Top</a></span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20W30-31%202024%3A%20More%20thinking%2C%20less%20doing">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
 </footer>
 </body>
 </html>

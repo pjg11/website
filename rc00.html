@@ -4,37 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="color-scheme" content="dark light">
-<meta property="og:url" content="https://pjg1.site/">
+<meta property="og:url" content="https://pjg1.site/rc00">
 <meta property="og:site_name" content="pjg1.site">
 <meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
 <link rel="icon" href="/public/favicon.ico">
 <title>RC00: Interesting Python behavior</title>
-<style>body{font:1rem/1.15 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%}
-p,li{line-height:1.33}
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
 main{margin:1.5rem 0}
-a{color:inherit;text-underline-offset:0.1rem;text-decoration-color:grey}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
 a:hover{text-decoration:none}
-#notes a:visited{color:#777}
 code,kbd{font-size:87.5%}
-pre{overflow:auto;background:#eee;padding:0.6rem;line-height:1.15}
+pre{overflow:auto;padding:0.5rem 0}
 table{border-collapse:collapse;width:100%;text-align:left}
-th,td{border:1px solid #999;padding:0.2rem}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
 figure{margin:1rem 0}
 figcaption{text-align:center}
 img{height:auto;max-width:100%}
 h1{margin:0;font-size:145%}
-h2{font-size:120%;margin-top:1.3rem}
+h2{font-size:120%;margin-top:1.25rem}
 h3{font-size:100%}
 sup{line-height:0;margin-left:0.1rem}
-hr{border:1px solid #999;border-bottom:0}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
 #notes span{display:block}
-iframe{width:100%;border:1px solid #999}
-details>summary,span.b{font-weight:bold}
-details[open]>summary{padding-bottom:0.5rem}
-@media(prefers-color-scheme:dark){body{background:#000;color:#ccc}th,td,hr{border-color:#555}pre{background:#1a1a1a}#notes a:visited{color:#999}img.dim{filter:invert() contrast(0.85) hue-rotate(180deg)}}
-</style>
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
 </head>
 <body>
+<a id="top" href="#">&uarr; Top</a>
 <header role="banner">
 <h1>RC00: Interesting Python behavior</h1>
 <hr>
@@ -42,14 +45,13 @@ details[open]>summary{padding-bottom:0.5rem}
 <a href="/">pjg1.site</a> &bullet;
 <time datetime="2023-08-10">August 10, 2023</time>
 &bullet;
-<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a>
-</span></header>
-<main>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">RC?</a></span></header>
+<main role="main">
 <p>I attended a pair programming workshop as part of the orientation talks. After a brief introduction to pairing and how it works, the attendees were paired with each other to code <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" rel="noopener">Conway's Game of Life</a> within an hour.</p>
 <p>My pairing partner, <a href="https://msabin.github.io" target="_blank" rel="noopener">Manuel</a> and I decided to code in Python, the first step being to create a grid. For some reason, my mind came up with this line of code:</p>
 <pre><code class="language-python">grid=[['X']*10]*10</code></pre>
 <p>I don't recall seeing something like this before, so it came as a bit of a surprise. It seemed like a very neat trick and I was proud of myself. On running the code, it worked as intended, which was even more surprising.</p>
-<pre><code class="language-python">$ python3 gameoflife.py
+<pre><code class="language-console">$ python3 gameoflife.py
 [['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
 ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
 ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
@@ -79,7 +81,9 @@ grid[4][6] = 'O'</code></pre>
 <p>Instead of specific cells, entire columns were updated? Strange.</p>
 <p>The multiply sign raised some concerns. <em>Was it duplicating the same object instead of each row being a different object?</em></p>
 <p>Turns out, yes! However, I wasn't entirely convinced and needed some evidence to back this up. After the workshop I came across <a href="https://pythontutor.com/python-debugger.html" target="_blank" rel="noopener">Python Tutor</a>, a tool to visualize Python code, and decided to try it out.</p>
-<figure><a href="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&amp;cumulative=false&amp;curInstr=144&amp;heapPrimitives=nevernest&amp;mode=display&amp;origin=opt-frontend.js&amp;py=3&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" target="_blank"><img src="/public/images/rc00/viz1.png" alt="" class="dim" url="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&amp;cumulative=false&amp;curInstr=144&amp;heapPrimitives=nevernest&amp;mode=display&amp;origin=opt-frontend.js&amp;py=3&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" loading="lazy"></a></figure>
+<figure><a href="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&amp;cumulative=false&amp;curInstr=144&amp;heapPrimitives=nevernest&amp;mode=display&amp;origin=opt-frontend.js&amp;py=3&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" target="_blank"><img src="/public/images/rc00/viz1.png" alt="There are three blocks - a global frame with the variable name &quot;grid&quot;. The variable name points to block representing an array of index 10. Every index of the array points to a third block - an array of index 10 with the string &quot;X&quot; written for each index." class="dim" loading="lazy"></a>
+<figcaption>Click to view on Python Tutor</figcaption>
+</figure>
 <p>The intended scenario would be to see 11 different arrays - the <code>grid</code> array, and 10 arrays containing 10 X's each. However, here we see 2 arrays - <code>grid</code> and one array with 10 X's, which I'll call <code>row</code> from now on.</p>
 <p>Each index of <code>grid</code> points to <code>row</code>. So <code>grid[0] == grid[1] ... == grid[9]</code>. Any changes to <code>row</code> will reflect a change in <code>grid[n]</code>, <code>n</code> being 0-9 in this case. Evidence found!</p>
 <p>We can also see this in action using <code>id()</code> within Python, which prints out the memory address of an object.</p>
@@ -106,7 +110,9 @@ for i in range(10):
 # List comprehension
 grid=[['X' for _ in range(10)] for _ in range(10)]</code></pre>
 <p>The visualization for either of these approaches looks completely different from the earlier approach.</p>
-<figure><a href="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&amp;cumulative=false&amp;curInstr=144&amp;heapPrimitives=nevernest&amp;mode=display&amp;origin=opt-frontend.js&amp;py=3&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" target="_blank"><img src="/public/images/rc00/viz2.png" alt="" class="dim" url="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&amp;cumulative=false&amp;curInstr=144&amp;heapPrimitives=nevernest&amp;mode=display&amp;origin=opt-frontend.js&amp;py=3&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" loading="lazy"></a></figure>
+<figure><a href="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&amp;cumulative=false&amp;curInstr=144&amp;heapPrimitives=nevernest&amp;mode=display&amp;origin=opt-frontend.js&amp;py=3&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" target="_blank"><img src="/public/images/rc00/viz2.png" alt="There are a total of tweleve blocks - a global frame with the variable name &quot;grid&quot;. The variable name points to block representing an array of index 10. Each index of the array points to a separate block - an array of index 10 with the string &quot;X&quot; written for each index." class="dim" loading="lazy"></a>
+<figcaption>Click to view on Python Tutor</figcaption>
+</figure>
 <p>Instead of one <code>row</code>, there are now 10 <code>row</code>s. Changes to one <code>row</code> won't affect the other <code>row</code>s, which is the intended behavior.</p>
 <p>In Python, <code>id()</code> returns different addresses for each <code>row</code>, further confirming that they're different objects.</p>
 <pre><code class="language-python">&gt;&gt;&gt; grid=[['X' for _ in range(10)] for _ in range(10)]
@@ -125,15 +131,12 @@ grid=[['X' for _ in range(10)] for _ in range(10)]</code></pre>
 4312977664</code></pre>
 <p><a href="#fnref:1" class="reversefootnote" role="doc-backlink">↩</a></p>
 </li>
-</ol>
-
-</main>
+</ol></main>
 <footer role="contentinfo">
 <hr>
 <span>
-<a href="mailto:comments@pjg1.site?subject=Re: RC00%3A%20Interesting%20Python%20behavior">Comment via email</a> &bullet;
-<a href="/feed.xml">RSS feed</a> &bullet;
-<a href="#">↑ Top</a></span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20RC00%3A%20Interesting%20Python%20behavior">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
 </footer>
 </body>
 </html>

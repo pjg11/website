@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="color-scheme" content="dark light">
+<meta property="og:url" content="https://pjg1.site/hanukkahofdata">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<title>Hanukkah of Data</title>
+<style>body{font:1rem/1.35 system-ui,sans-serif;margin:auto;max-width:40rem;padding:3%;color:#222}
+#top{position:fixed;bottom:0.5rem;right:0.5rem;padding:0.35rem 0.5rem;background:#fff}
+header,footer,h2,h3,pre{line-height:1.2}
+h1,h2,h3,b,strong{font-weight:600}
+main{margin:1.5rem 0}
+a{color:inherit;text-decoration-color:#999;text-underline-offset:0.15rem}
+a:hover{text-decoration:none}
+code,kbd{font-size:87.5%}
+pre{overflow:auto;padding:0.5rem 0}
+table{border-collapse:collapse;width:100%;text-align:left}
+th,td{border:1px solid #b0b0b0;padding:0.2rem}
+figure{margin:1rem 0}
+figcaption{text-align:center}
+img{height:auto;max-width:100%}
+h1{margin:0;font-size:145%}
+h2{font-size:120%;margin-top:1.25rem}
+h3{font-size:100%}
+sup{line-height:0;margin-left:0.1rem}
+hr{border:1px solid #b0b0b0;border-bottom:0}
+iframe{width:100%;border:1px solid #b0b0b0}
+details>summary{cursor:pointer;font-weight:bold}
+details[open]>summary{padding-bottom: 0.5rem}
+span.b{font-weight:bold}
+#notes a:visited{color:#999}
+#notes span{display:block}
+@media(prefers-color-scheme: dark){body,#top{background:#000;color:#dadada}th,td,hr,iframe{border-color:#777}#notes a:visited{color:#999}img.dim{filter:opacity(0.85)}}</style>
+</head>
+<body>
+<a id="top" href="#">&uarr; Top</a>
+<header role="banner">
+<h1>Hanukkah of Data</h1>
+<hr>
+<span>
+<a href="/">pjg1.site</a> &bullet;
+<time datetime="2024-04-10">April 10, 2024</time>
+</span></header>
+<main role="main">
+<p><a href="https://hanukkah.bluebird.sh/5784/" target="_blank" rel="noopener">Hanukkah of Data</a> is a set of data puzzles based around a storyline, released in 2022. I found out about this a few months past its release, and recently solved them using SQLite.</p>
+<h2 id="0-noahs-market">0. Noah's Market</h2>
+<p>The story revolves around finding the missing rug of Noah, who's the owner of a store called Noah's Market in Manhattan. The dataset is a backup of the Noah's Market database, created by Alex in 2017. However, it is password protected.</p>
+<blockquote>
+<p>"Alex set up the backups to be password-protected. I can never remember the password itself, but it’s just the year in the Hebrew calendar when Alex set up the database."</p>
+</blockquote>
+<p>Some searching later, I found the password - 5777. With the dataset unlocked, I had a look at the tables and their schema.</p>
+<pre><code class="language-console">sqlite&gt; .open noahs.sqlite
+sqlite&gt; .schema
+CREATE TABLE products (sku text,desc text,wholesale_cost decimal(10,2),dims_cm array);
+CREATE TABLE customers (customerid integer,name text,address text,citystatezip text,birthdate text,phone text,timezone text,lat decimal(10,5),long decimal(10,5));
+CREATE TABLE orders (orderid text,customerid text,ordered timestamp,shipped timestamp,total decimal(10,2),items array);
+CREATE TABLE orders_items (orderid integer,sku text,qty integer,unit_price decimal(10,2));</code></pre>
+<p>I found myself having to join these tables pretty often, so I saved the output as a view for easy reference. I also learnt about <code>NATURAL JOIN</code> as a shorthand to <code>JOIN ON primarykey = foreignkey</code>, making the command shorter (and it also removes duplicate columns!)</p>
+<pre><code class="language-console">CREATE VIEW IF NOT EXISTS noahsrug AS
+SELECT * FROM customers
+NATURAL JOIN orders
+NATURAL JOIN orders_items
+NATURAL JOIN products;</code></pre>
+<p>The next set of puzzles have a similar structure - the description contains clues to a customer of Noah's Market who may have the rug, and submitting the customer's phone number solves the puzzle.</p>
+<h2 id="1-the-investigator">1. The Investigator</h2>
+<p>This person's phone number is the numeric representation of their last name. So each letter corresponds to the <a href="https://en.wikipedia.org/wiki/File:Telephone_keys.JPG#/media/File:Telephone_keys.JPG" target="_blank" rel="noopener">digits printed on the phone buttons</a> - "abc" to 2, "def" to 3, and so on.</p>
+<p>While the solution seemed easy conceptually, there's no existing SQLite function that maps characters to numbers, making this a lot harder than I expected. This led me to look into <a href="https://sqlite.org/loadext.html" target="_blank" rel="noopener">custom extensions</a>, and I used the <a href="https://www.sqlite.org/src/file/ext/misc/rot13.c" target="_blank" rel="noopener">rot13 extension</a> code as the basis for mine, <code>phonenum</code>.</p>
+<details>
+<summary><code>phonenum.c</code></summary>
+<pre><code class="language-c">#include "sqlite3ext.h"
+SQLITE_EXTENSION_INIT1
+#include &lt;assert.h&gt;
+#include &lt;ctype.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+static void phonenum(sqlite3_context *context, int argc, sqlite3_value **argv) {
+  assert(argc == 1);
+
+  if (sqlite3_value_type(argv[0]) == SQLITE_NULL)
+    return;
+
+  const unsigned char *in = sqlite3_value_text(argv[0]);
+  int len = sqlite3_value_bytes(argv[0]), i = 0;
+  unsigned char out[len];
+
+  for (; i &lt; len; i++) {
+    unsigned char c = tolower(in[i]);
+    switch (c) {
+    case 'a':
+    case 'b':
+    case 'c':
+      c = '2';
+      break;
+    case 'd':
+    case 'e':
+    case 'f':
+      c = '3';
+      break;
+    case 'g':
+    case 'h':
+    case 'i':
+      c = '4';
+      break;
+    case 'j':
+    case 'k':
+    case 'l':
+      c = '5';
+      break;
+    case 'm':
+    case 'n':
+    case 'o':
+      c = '6';
+      break;
+    case 'p':
+    case 'q':
+    case 'r':
+    case 's':
+      c = '7';
+      break;
+    case 't':
+    case 'u':
+    case 'v':
+      c = '8';
+      break;
+    case 'w':
+    case 'x':
+    case 'y':
+    case 'z':
+      c = '9';
+      break;
+    }
+    out[i] = c;
+  }
+  out[i] = 0;
+  sqlite3_result_text(context, (char *)out, i, SQLITE_TRANSIENT);
+}
+
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
+int sqlite3_phonenum_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi) {
+  int rc = SQLITE_OK;
+  SQLITE_EXTENSION_INIT2(pApi);
+  
+  (void)pzErrMsg; /* Unused parameter */
+  
+  if (rc == SQLITE_OK) { 
+    rc = sqlite3_create_function(db, "phonenum", 1, 
+                                SQLITE_UTF8 | SQLITE_INNOCUOUS | SQLITE_DETERMINISTIC,
+                                0, phonenum, 0, 0);
+  }
+  
+  return rc;
+}</code></pre></details>
+<p>A few hours of debugging later, I compiled the code as a shared object and loaded it in SQLite.</p>
+<pre><code class="language-console">sqlite&gt; .shell gcc -fPIC -I/opt/homebrew/opt/sqlite/include -shared -o phonenum phonenum.c
+sqlite&gt; .load phonenum</code></pre>
+<p>I used a combination of <code>substr()</code> and <code>instr()</code> to get the last name from the full name, before passing it to <code>phonenum()</code>.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM customers
+   ...&gt; WHERE phonenum(substr(name, instr(name, ' ') + 1)) == replace(phone, '-', '')
+   ...&gt; LIMIT 1;
+Sam Tannenbaum|826-636-2286</code></pre>
+<h2 id="2-the-contractor">2. The Contractor</h2>
+<p>Theis person's initials are 'JP' and they shopped from Noah's Market in 2017, while they were tasked with the cleaning of the rug. One of the purchased items mentioned were cleaning supplies, so I first looked for related items in the <code>products</code> database.</p>
+<pre><code class="language-console">sqlite&gt; SELECT sku, desc FROM products WHERE desc LIKE '%rug %';
+HOM2761|Rug Cleaner</code></pre>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE name LIKE 'J% P%'
+   ...&gt;   AND strftime('%Y', shipped) == '2017'
+   ...&gt;   AND desc == 'Rug Cleaner'
+   ...&gt; LIMIT 1;
+Joshua Peterson|332-274-4185</code></pre>
+<h2 id="3-the-neighbor">3. The Neighbor</h2>
+<p>The person lives in the the same neighborhood as the Contractor, and is a Cancer born in the Year of the Rabbit. First, I got the name of the neighborhood using the phone number I found earlier.</p>
+<pre><code class="language-console">sqlite&gt; SELECT citystatezip FROM customers WHERE phone == '332-274-4185';
+Jamaica, NY 11435</code></pre>
+<p>Then coming to the clues about the person's birthdate. The astrological sign, Cancer, gives us a range for the day and month (21 June – 22 July), while the Chinese zodiac, <a href="https://chinesenewyear.net/zodiac/rabbit/" target="_blank" rel="noopener">Rabbit</a>, gives a range for the birth year. I checked for the earliest and latest birth years in the dataset, to add all valid birth years in the <code>WHERE</code> clause.</p>
+<pre><code class="language-console">sqlite&gt; SELECT min(birthdate), max(birthdate) FROM customers;
+1935-01-29|2001-12-31</code></pre>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM customers
+   ...&gt; WHERE ((strftime('%d', birthdate) &gt;= '21'
+   ...&gt;         AND strftime('%m', birthdate) == '06')
+   ...&gt;        OR (strftime('%d', birthdate) &lt;= '22'
+   ...&gt;            AND strftime('%m', birthdate) == '07'))
+   ...&gt;   AND citystatezip == 'Jamaica, NY 11435'
+   ...&gt;   AND strftime('%Y', birthdate) IN ('1939', '1951', '1963', 
+   ...&gt;                                     '1975', '1987', '1999');
+Robert Morton|917-288-9635</code></pre>
+<h2 id="4-the-early-bird">4. The Early Bird</h2>
+<p>This person met The Neighbor at 5AM with pastries they just bought from Noah's. This means that the order happened somewhere close to 5AM. I filtered for pastry orders by checking if the <code>sku</code> starts with <code>BKY</code> for bakery items.</p>
+<p>The database also contains the <code>ordered</code> and <code>shipped</code> timestamps for each order. Since they were purchased from the store (as opposed to being ordered from home for example), the ordered and shipped time would be the same for this order.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE strftime('%H', shipped) == '04'
+   ...&gt;   AND sku LIKE 'BKY%'
+   ...&gt;   AND ordered == shipped
+   ...&gt; LIMIT 1;
+Renee Harmon|607-231-3605</code></pre>
+<h2 id="5-the-cat-lady">5. The Cat Lady</h2>
+<p>The Early Bird decided to give away the rug during their "Marie Kondo phase", which would be sometime after 2019. They gave it to a person from Staten Island, who was wearing a "Noah's Market" sweatshirt and owned 10 or 11 old cats.</p>
+<p>This means they purchased lots of cat food from Noah's. There are products for Adult and Senior cats, so I filtered for those, and searched for the person with the most cat related orders.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE citystatezip LIKE 'Staten Island%'
+   ...&gt;   AND desc REGEXP '.*(Adult|Senior) Cat.*'
+   ...&gt;   AND strftime('%Y', shipped) &gt;= 2019
+   ...&gt; GROUP BY name 
+   ...&gt; ORDER BY count(*) DESC
+   ...&gt; LIMIT 1;
+Nicole Wilson|631-507-6048</code></pre>
+<p>The sweatshirt clue turned out to be a red herring, which I did spend quite some time on. In hindsight, focusing on the puzzle's title would have helped save some time.</p>
+<p>The speedrun description of this puzzle didn't have the Staten Island clue, so I removed it and...the solution didn't work. After some attempts at trying different queries and nothing really working, I looked solutions online. Turns out, I misunderstood the phrase "most cat related orders".</p>
+<p>My solution finds the maximum number of orders...but doesn't consider the "quantity" of each order. Since the person owns 10 or 11 cats, they would buy 10 or 11 quantities of the same item! Knowing this made the solution much simpler than the original, and worked for both the original puzzle and the speedrun.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE desc REGEXP '.*(Adult|Senior) Cat.*'
+   ...&gt;   AND qty &gt;= 10
+   ...&gt; LIMIT 1;
+Nicole Wilson|631-507-6048</code></pre>
+<h2 id="6-the-bargain-hunter">6. The Bargain Hunter</h2>
+<p>I was stuck on this for a long time, and I ended up slightly peeking at another solution to get unstuck. The solution comes from this one line in the description:</p>
+<blockquote>
+<p>In fact I like to tease her that Noah actually loses money whenever she comes in the store.</p>
+</blockquote>
+<p>This line always felt relevant from the beginning, but I didn't know what to look for. Now that I was sure, I focused my attention on the columns in the database. Two of them stood out, <code>wholesale_cost</code> (the price Noah's bought the item for) and <code>unit_price</code> (the price Noah's sold the item for).</p>
+<p>If the unit price is lesser than the wholesale cost, that would mean a loss. The person having the maximum transactions resulting in loss would be The Bargain Hunter.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE unit_price &lt; wholesale_cost
+   ...&gt; GROUP BY name
+   ...&gt; ORDER BY count(*) DESC
+   ...&gt; LIMIT 1;
+Sherri Long|585-838-9161</code></pre>
+<h2 id="7-the-meet-cute">7. The Meet Cute</h2>
+<p>This person was at Noah's on the same day as the Bargain Hunter, and purchased the same item in a color that the Bargain Hunter wanted.</p>
+<p>There are no clues on what day this happened, so I started with finding color related items purchased by the Bargain Hunter. All products with color variations have the <code>sku</code> starting with <code>COL</code>. Ordered and shipped time will also be the same here.</p>
+<pre><code class="language-console">sqlite&gt; SELECT orderid, desc
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE sku LIKE 'COL%'
+   ...&gt;   AND name == 'Sherri Long'
+   ...&gt;   AND ordered == shipped;
+70503|Noah's Poster (azure)
+124821|Noah's Action Figure (green)</code></pre>
+<p>Using these queries, I checked for orders around the same time for the same item manually, by comparing the substring of the product names (without the color) and checking for the last 5 orders before the Bargain Hunter's order.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone, orderid
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE ordered == shipped
+   ...&gt;   AND desc LIKE 'Noah''s Poster%'
+   ...&gt;   AND orderid BETWEEN 70498 AND 70502;
+Carlos Myers|838-335-7157|70502</code></pre>
+<p>The first one returned an answer, and it happens to be the previous order ID! However, just to be sure I checked for the Action Figure query too, which returned no result.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone, shipped
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE ordered == shipped
+   ...&gt;   AND desc LIKE 'Noah''s Action Figure%';
+   ...&gt;   AND orderid BETWEEN 124816 AND 124820;</code></pre>
+<p>However, this solution didn't work for the speedrun for two reasons.</p>
+<ol>
+<li>
+<p>There are items apart from the ones starting with <code>COL</code> that have color variations. The format of the items is <code>Item name (color)</code>, so I changed the <code>WHERE</code> condition to look for a bracket in the description instead.</p>
+</li>
+<li>
+<p>The speedrun dataset returned more queries than the two I got here, so manually checking each order was time-consuming. I looked for a way to automate the checking, which I did using the <code>WITH</code> clause to save the initial orders as a temporary table. The table is then joined with <code>noahsrug</code>, and the <code>WHERE</code> conditions become <code>JOIN</code> conditions.</p>
+</li>
+</ol>
+<pre><code class="language-console">sqlite&gt; WITH a AS 
+   ...&gt;   (SELECT orderid, desc
+   ...&gt;    FROM noahsrug 
+   ...&gt;    WHERE desc LIKE '%(%' 
+   ...&gt;      AND name == 'Sherri Long'
+   ...&gt;      AND ordered == shipped)
+   ...&gt; SELECT b.name, b.phone
+   ...&gt; FROM a 
+   ...&gt; JOIN noahsrug AS b 
+   ...&gt;   ON substr(a.desc, 1, instr(a.desc, '(')) == substr(b.desc, 1, instr(b.desc, '(')) 
+   ...&gt;  AND b.orderid BETWEEN a.orderid - 5 AND a.orderid - 1;
+Carlos Myers|838-335-7157</code></pre>
+<h2 id="8-the-collector">8. The Collector</h2>
+<p>Ending on an easier note after some tough puzzle. This person has a set of all Noah's collectibles. These are items that contain "Noah's" in their name, or more precisely, the <code>sku</code> starts with <code>COL</code> - short for collectibles. Finding the person with the maximum collectibles purchases solves this puzzle.</p>
+<pre><code class="language-console">sqlite&gt; SELECT name, phone
+   ...&gt; FROM noahsrug
+   ...&gt; WHERE sku LIKE 'COL%'
+   ...&gt; GROUP BY name
+   ...&gt; ORDER BY count(*) DESC
+   ...&gt; LIMIT 1;
+James Smith|212-547-3518</code></pre>
+<h2 id="speedrun-mode">Speedrun Mode</h2>
+<p>Completing all the puzzles unlocks the speedrun mode, which lets you attempt the same puzzles with a different dataset and slightly different clues. I also got the idea of solving all puzzles at once while reading <a href="https://ellakaye.rbind.io/posts/2023-12-07_hanukkah-of-data-5784" target="_blank" rel="noopener">Ella Kaye's writeup</a> and wanted to do something similar for SQLite.</p>
+<p>I considered writing a Python script, but then remembered that I can execute multiple queries written in a SQL file from SQLite directly. That seemed about right, so I started by adding all of the solution queries to <code>noahs-speedrun.sql</code>.</p>
+<p>I saved each solution query to a temporary view, so that I could reference them in puzzles where information from a previous puzzle is required. Lastly, I added <code>SELECT</code> statements which display all of the solutions together.</p>
+<details>
+<summary><code>noahsrug-speedrun.sql</code></summary>
+<pre><code class="language-sql">.load phonenum
+.mode list
+.headers off
+
+CREATE VIEW IF NOT EXISTS noahsrug AS
+SELECT * FROM customers
+NATURAL JOIN orders
+NATURAL JOIN orders_items
+NATURAL JOIN products;
+
+CREATE TEMP VIEW investigator AS 
+SELECT phone
+FROM customers
+WHERE phonenum(substr(name, instr(name, ' ') + 1)) == replace(phone, '-', '')
+LIMIT 1;
+
+CREATE TEMP VIEW contractor AS
+SELECT phone, citystatezip
+FROM noahsrug
+WHERE name LIKE 'D% S%'
+  AND strftime('%Y', shipped) == '2017'
+  AND desc == 'Rug Cleaner'
+LIMIT 1;
+
+CREATE TEMP VIEW neighbor AS
+SELECT phone
+FROM customers
+WHERE ((strftime('%d', birthdate) &gt;= '23'
+        AND strftime('%m', birthdate) == '09')
+       OR (strftime('%d', birthdate) &lt;= '22'
+           AND strftime('%m', birthdate) == '10'))
+  AND citystatezip == (SELECT citystatezip FROM contractor)
+  AND strftime('%Y', birthdate) IN ('1943', '1955', '1967', 
+                                    '1979', '1991');
+
+CREATE TEMP VIEW earlybird AS
+SELECT phone 
+FROM noahsrug
+WHERE sku LIKE 'BKY%'
+  AND strftime('%H', shipped) == '04'
+  AND ordered == shipped 
+LIMIT 1;
+
+CREATE TEMP VIEW catlady AS
+SELECT phone
+FROM noahsrug
+WHERE desc REGEXP '.* (Adult|Senior) Cat.*'
+  AND qty &gt;= 10
+LIMIT 1;
+
+CREATE TEMP VIEW bargainhunter AS
+SELECT name, phone
+FROM noahsrug
+WHERE unit_price &lt; wholesale_cost
+GROUP BY name
+ORDER BY count(*) DESC
+LIMIT 1;
+
+CREATE TEMP VIEW meetcute AS
+WITH a AS 
+  (SELECT phone, desc, orderid 
+   FROM noahsrug 
+   WHERE desc LIKE '%(%' 
+     AND name == (SELECT name FROM bargainhunter)
+     AND ordered == shipped)
+SELECT b.name, b.phone
+FROM a
+JOIN noahsrug AS b
+  ON substr(a.desc, 1, instr(a.desc, '(')) == substr(b.desc, 1, instr(b.desc, '(')) 
+ AND b.orderid == a.orderid - 1;
+
+CREATE TEMP VIEW collector AS
+SELECT name, phone
+FROM noahsrug
+WHERE sku LIKE 'COL%'
+GROUP BY name
+ORDER BY count(*) DESC
+LIMIT 1;
+
+SELECT phone FROM investigator;
+SELECT phone FROM contractor;
+SELECT phone FROM neighbor;
+SELECT phone FROM earlybird;
+SELECT phone FROM catlady;
+SELECT phone FROM bargainhunter;
+SELECT phone FROM meetcute;
+SELECT phone FROM collector;</code></pre></details>
+<pre><code class="language-console">sqlite&gt; .open noahs-speedrun.sqlite
+sqlite&gt; .read noahsrug-speedrun.sql
+767-365-7269
+838-351-0370
+914-594-5535
+716-789-4433
+347-835-2358
+838-295-7143
+516-544-4187
+516-638-9966</code></pre></main>
+<footer role="contentinfo">
+<hr>
+<span>
+<a href="mailto:comments@pjg1.site?subject=Re:%20Hanukkah%20of%20Data">Comment via email</a> &bullet;
+<a href="/feed.xml">Subscribe to feed</a></span>
+</footer>
+</body>
+</html>
