@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>Creating A Blog with GitHub Pages and Jekyll</h1>
+<p><time datetime="2022-12-16">December 16, 2022</time>
+• <a class="tag" href="/tags#html">html</a>, <a class="tag" href="/tags#jekyll">jekyll</a></p>
+<p>I have written blogs before on existing web-based blogging platforms like Blogger and Tumblr, lots of them. For this website, I was looking for fewer features that I could fine-tune locally on my machine.</p>
+
+<p>Keeping this in mind, GitHub Pages with Jekyll seemed like the best option. I’ve documented the process step-by-step in the form of a setup post, hoping it might help those who are looking to setup their own website.</p>
+
+<h2 id="hosting---github-pages">Hosting - GitHub Pages</h2>
+
+<p><a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a> is a static site hosting service that takes HTML, CSS, and JavaScript files straight from a repository on GitHub, optionally runs the files through a build process, and publishes a website. Using GitHub Pages for hosting the website seemed ideal since I’m familiar with GitHub and already have repositories there.</p>
+
+<p>Start by creating a repository with the name <code>&lt;username&gt;.github.io</code>, replacing <code>&lt;username&gt;</code> with your GitHub username. Next, we move on to creating the files for the wesbite.</p>
+
+<h2 id="site-generator---jekyll">Site Generator - Jekyll</h2>
+
+<p>To create your website, you can do it from scratch by creating HTML and CSS files for each part of your website, or automate the process using a static site generator. The pages are pre-built before publishing, which leads to faster loading times and a lightweight website.</p>
+
+<p><a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> is one such site generator, which is the site generator used in GitHub Pages. It takes Markdown and HTML files and builds the website based on the layouts provided by the theme.</p>
+
+<h2 id="local-setup">Local Setup</h2>
+
+<p>Setting up Jekyll requires Ruby and Git to be installed on your machine. Git is usually installed by default, and the instructions for installing Ruby on different operating systems can be found <a href="https://jekyllrb.com/docs/installation/" target="_blank" rel="noopener">here</a>.</p>
+
+<blockquote>
+  <p><strong>Note:</strong> While installing Ruby on a Mac M1 machine, the build kept failing due to errors relating to OpenSSL. So if you’re facing a similar problem, adding the following environement variables before the install command should help.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">export </span><span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">"-L </span><span class="si">$(</span>brew <span class="nt">--prefix</span> capstone<span class="si">)</span><span class="s2">/lib"</span>
+<span class="gp">$</span><span class="w"> </span><span class="nb">export </span><span class="nv">CPPFLAGS</span><span class="o">=</span><span class="s2">"-I </span><span class="si">$(</span>brew <span class="nt">--prefix</span> capstone<span class="si">)</span><span class="s2">/include"</span>
+<span class="gp">$</span><span class="w"> </span><span class="nb">export </span><span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>brew <span class="nt">--prefix</span> openssl@1.1<span class="si">)</span><span class="s2">/lib/pkgconfig"</span></code></pre>
+</blockquote>
+
+<p>Once installation is complete, create your new website:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>jekyll new &lt;directory name&gt;</code></pre>
+
+<p>This provides a base theme to begin with, however you can modify it to your needs, which will be discussed in the next section. You can run the blog locally by typing:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>bundle <span class="nb">exec </span>jekyll serve <span class="nt">--watch</span></code></pre>
+
+<h2 id="theme---jekyllbear">Theme - jekyllBear</h2>
+
+<p>There are a couple of sites where you can find Jekyll themes, they are listed in the <a href="https://jekyllrb.com/docs/themes/" target="_blank" rel="noopener">Jekyll documentation</a>. After a lot of searching, I chose <a href="https://github.com/knhash/jekyllBear" target="_blank" rel="noopener">jekyllBear</a>, a theme based on <a href="https://bearblog.dev" target="_blank" rel="noopener">Bear Blog</a>, a writing-focused blogging platform. It has few but important features, making it easy to manage and also add/tweak stuff in the future.</p>
+
+<p>Using the <a href="https://github.com/knhash/jekyllBear#installation" target="_blank" rel="noopener">installation instructions</a>, I made changes to the required files in my website repository and added/modified files if required.</p>
+
+<p>Additionally, you can make changes to the theme itself like modifying the CSS, adding <a href="https://mcpride.github.io/posts/development/2018/03/06/syntax-highlighting-with-jekyll/" target="_blank" rel="noopener">syntax highlighting functionality</a> or adding <a href="https://jekyllrb.com/docs/plugins/installation/" target="_blank" rel="noopener">Jekyll plugins</a>.</p>
+
+<h2 id="add-content">Add content</h2>
+
+<p>The theme provides some basic files to add content to, for example an <code>index.md</code> file for the home page, an <code>about.md</code> for the about page, and a <code>_posts</code> directory where you can create blog posts.</p>
+
+<p>Create your first post by adding a file in the <code>_posts</code> directory with the following format: <code>year-month-date-posttitle.md</code>. You can use the sample posts that come with the theme to know what format to follow for the content.</p>
+
+<h2 id="publish-your-website">Publish your website</h2>
+
+<p>Now that you have your content and theme ready, it’s time to publish your site to GitHub Pages. Firstly, if your repository is not initialized as a <code>git</code> repository by this stage, enter the following commands:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>git init
+<span class="gp">$</span><span class="w"> </span>git remote add origin https://github.com/&lt;username&gt;/&lt;username&gt;.github.io.git</code></pre>
+
+<p>This initializes the repository and adds the URL of where to push the commits to, which is your website repository.</p>
+
+<p>Lastly, I wanted to publish only the files from the build of the site and not the source files. <a href="https://gist.github.com/cobyism/4730490" target="_blank" rel="noopener">This gist</a> explains on how to publish a subfolder to GitHub Pages. Based on it, I created a script to publish a post or update any part of the website.</p>
+
+<pre class="highlight"><code class="language-shell"><span class="c">#! /bin/bash</span>
+jekyll build
+git add <span class="nb">.</span>
+git commit <span class="nt">-m</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+git subtree push <span class="nt">--prefix</span> _site origin main</code></pre>
+
+<p><code>jekyll build</code> generates the website files and stores it in the <code>_site</code> directory. The files are added and a commit is made with a message of choice, entered as the first parameter when running the script (hence the <code>$1</code>). The <code>git subtree</code> command pushes the contents of the <code>_site</code> subfolder to GitHub.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">chmod</span> +x publish
+<span class="gp">$</span><span class="w"> </span>./publish <span class="s2">"Initial commit"</span></code></pre>
+
+<p>Once the script is run, you can see the files in your repository. Once the build is complete on GitHub (a green tick should appear next to the recent commit’s hash), the content will appear on <code>&lt;username&gt;.github.io</code>.</p>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

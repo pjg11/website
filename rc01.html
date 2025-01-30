@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>RC01: Some InconsistenC's</h1>
+<p><time datetime="2023-08-19">August 19, 2023</time>
+• <a class="tag" href="/tags#c">c</a>, <a class="tag" href="/tags#recurse">recurse</a></p>
+<blockquote>
+  <p><strong>Note:</strong> Commands preceeded with a <code>$</code> are Linux commands, while commands preeceded with <code>%</code> are macOS commands.</p>
+</blockquote>
+
+<p>I came across an older CTF writeup of mine - <a href="https://github.com/pjg11/CTF-Writeups/blob/main/2021-Space-Race/3-Space-Snacks.md#50-points-there-might-be-more-cake" target="_blank" rel="noopener">There might be more cake</a> from Hacky Holidays 2021. The solution for it was this C program:</p>
+
+<pre class="highlight"><code class="language-c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">generatePin</span><span class="p">()</span> <span class="p">{</span> 
+    <span class="n">srand</span><span class="p">(</span><span class="mi">1893497025</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">rand</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">generatePin</span><span class="p">());</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+
+<p>At the time, I tried running this on my machine (macOS) and received the wrong output.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">%</span><span class="w"> </span>gcc <span class="nt">-o</span> pin pin.c
+<span class="gp">%</span><span class="w"> </span>./pin
+<span class="go">444334282</span></code></pre>
+
+<p>One of my teammates happened to solve the challenge. Our programs were the same, but he solved it on a Linux machine.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>gcc <span class="nt">-o</span> pin pin.c
+<span class="gp">$</span><span class="w"> </span>./pin
+<span class="go">1376299761</span></code></pre>
+
+<p>Same code, different output? I think we attributed the issue to some differences in implementations on different operating systems, I’m not sure. Regardless, I left it there and didn’t look into it further.</p>
+
+<p>However, upon seeing the writeup recently, I got curious and decided to figure out why this happened, and if there was a way to get the correct output on macOS.</p>
+
+<h2 id="gcc-isnt-the-issue"><code>gcc</code> isn’t the issue</h2>
+
+<p>During the search process, I was shocked to find out that Apple actually executes <code>clang</code> whenever you type <code>gcc</code> in the terminal.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">%</span><span class="w"> </span>gcc
+<span class="go">clang: error: no input files
+</span><span class="gp">%</span><span class="w"> </span>gcc <span class="nt">--version</span>
+<span class="go">Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+Target: arm64-apple-darwin21.5.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin</span></code></pre>
+
+<p>Thinking that this was the issue, I installed <code>gcc</code> on my machine via Homebrew to have the same compiler on both operating systems.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">%</span><span class="w"> </span>brew <span class="nb">install </span>gcc</code></pre>
+
+<p>The Homebrew version of <code>gcc</code> contains the version number (<code>gcc-13</code> in this case), most likely to prevent conflict with the built-in <code>gcc</code> executable.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">%</span><span class="w"> </span>gcc-13 <span class="nt">--version</span>
+<span class="go">gcc-13 (Homebrew GCC 13.1.0) 13.1.0
+Copyright (C) 2023 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</span></code></pre>
+
+<p>I thought this would solve my issue, but nope, the output is the same.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">%</span><span class="w"> </span>gcc-13 <span class="nt">-o</span> pin pin.c
+<span class="gp">%</span><span class="w"> </span>./pin
+<span class="go">444334282</span></code></pre>
+
+<h2 id="the-libc-looks-different">The libc looks different</h2>
+
+<p>I was reading through a post from Julia Evans before starting RC - <a href="https://jvns.ca/blog/2023/08/03/behind--hello-world" target="_blank" rel="noopener">Behind Hello World on Linux</a> - which briefly mentions about libc, the C standard library. These lines stood out:</p>
+
+<blockquote>
+  <p>But there are different libc implementations, and sometimes they behave differently. The two main ones are glibc (GNU libc) and musl libc.</p>
+</blockquote>
+
+<p>The <code>srand()</code> and <code>rand()</code> functions come from this library, so maybe they’re implemented differently in macOS and Linux. This explains why the previous step to change my compiler didn’t work.</p>
+
+<p>My Linux VM uses glibc, which I can confirm by running <code>ldd</code> on the binary.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>ldd pin
+<span class="go">    linux-vdso.so.1 (0x00007ffcb23d4000)
+    libc.so.6 =&gt; /lib/x86_64-linux-gnu/libc.so.6 (0x00007fbc44b9f000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007fbc44d9b000)</span></code></pre>
+
+<p>This commands checks for the libraries that a binary needs to load at runtime. <code>libc.so.6</code> is the glibc file.</p>
+
+<p>For macOS, I used the command <code>otool -L</code> as suggested by Julia at the end of her post.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">%</span><span class="w"> </span>otool <span class="nt">-L</span> pin
+<span class="go">pin:
+    /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1311.100.3)</span></code></pre>
+
+<p>In macOS, libc is part of Apple’s system library, called <a href="https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/intro.3.html" target="_blank" rel="noopener">libSystem</a>. It seems to be Apple’s own implementation, as I found a link to the <a href="https://opensource.apple.com/source/Libc/" target="_blank" rel="noopener">libc source code</a> while searching.</p>
+
+<p>So different implementations mean there is no way I could get the same output on both Linux and Mac? That doesn’t seem right.</p>
+
+<h2 id="meet-srandom-and-random">Meet <code>srandom()</code> and <code>random()</code></h2>
+
+<p>I came across a pair of similar functions in my searches - <code>srandom()</code> and <code>random()</code>. In their <a href="https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/random.3.html" target="_blank" rel="noopener">man page</a> on macOS, they’re termed as the “better random number generator”</p>
+
+<pre class="highlight"><code class="language-">NAME
+    initstate, random, setstate, srandom, srandomdev – better random
+    number generator; routines for changing generators</code></pre>
+
+<p>I replaced the functions in my code on macOS, and now I get the correct output!</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">%</span><span class="w"> </span>gcc-13 <span class="nt">-o</span> pin pin.c
+<span class="gp">%</span><span class="w"> </span>./pin
+<span class="go">1376299761</span></code></pre>
+
+<p>So how is it better? According to the man page, while <code>rand()</code> and <code>random()</code> work in a similar way, certain implementations of <code>rand()</code> generate less random numbers:</p>
+
+<pre class="highlight"><code class="language-">The random() and srandom() functions have (almost) the same calling 
+sequence and initialization properties as the rand(3) and srand(3) 
+functions.  The difference is that rand(3) produces a much less 
+random sequence — infact, the low dozen bits generated by rand go 
+through a cyclic pattern.  All of the bits generated by random()
+are usable.  For example, ‘random()&amp;01’ will produce a random 
+binary value.</code></pre>
+
+<p><code>srandom()</code> and <code>random()</code> are also not part of the <a href="https://www.csse.uwa.edu.au/programming/ansic-library.html#stdlib" target="_blank" rel="noopener">C Standard</a>. They come from the <a href="https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/stdlib.h.html" target="_blank" rel="noopener">POSIX Standard</a>, which contains additional functions for C.</p>
+
+<p>Okay, so use <code>srandom()</code> instead of <code>srand()</code> and <code>random()</code> instead of <code>rand()</code> and problem solved, right? Technically yes, but I still had one more question.</p>
+
+<p>I went ahead and tested the newly found functions on Linux, and they return the correct output. While this is expected, why does <code>srand()/rand()</code> return the incorrect output <em>only</em> on macOS?</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center"><code>srand()/rand()</code></th>
+      <th style="text-align: center"><code>srandom()/random()</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>macOS</strong></td>
+      <td style="text-align: center">444334282</td>
+      <td style="text-align: center">1376299761</td>
+    </tr>
+    <tr>
+      <td><strong>Linux</strong></td>
+      <td style="text-align: center">1376299761</td>
+      <td style="text-align: center">1376299761</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>I think this is where the standards matter. Here’s a snippet of the man pages for <code>srand()/rand()</code> from both operating systems:</p>
+
+<div class="flex">
+<figure>
+
+<pre class="highlight"><code class="language-">STANDARDS
+  The rand() and srand()
+  functions conform to ISO/IEC
+  9899:1990 (“ISO C90”).</code></pre>
+
+    <figcaption><a href="https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/srand.3.html">macOS</a></figcaption>
+  </figure>
+<figure>
+
+<pre class="highlight"><code class="language-">STANDARDS
+  The functions rand() and 
+  srand() conform to SVr4, 
+  4.3BSD, C99, POSIX.1-2001.</code></pre>
+
+    <figcaption><a href="https://man7.org/linux/man-pages/man3/rand.3.html">Linux</a></figcaption>
+  </figure>
+</div>
+
+<p>Different standards likely mean different implementations, which explains the difference in output.</p>
+
+<p>The standard mentioned in the macOS code, ISO C90, is an older standard, so the implementation might be outdated, and hence is declared obsolete in the man pages. This isn’t the case for the Linux version though, which is interesting.</p>
+
+<p>The man pages also seem to have quite a few differences in both OS’s, the major one being that the macOS pages date back to the 1990s, while the Linux ones are from this year.</p>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

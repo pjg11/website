@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>RC00: Interesting Python behavior</h1>
+<p><time datetime="2023-08-10">August 10, 2023</time>
+• <a class="tag" href="/tags#python">python</a>, <a class="tag" href="/tags#recurse">recurse</a></p>
+<p>I attended a pair programming workshop as part of the orientation talks. After a brief introduction to pairing and how it works, the attendees were paired with each other to code <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" rel="noopener">Conway’s Game of Life</a> within an hour.</p>
+
+<p>My pairing partner, <a href="https://msabin.github.io" target="_blank" rel="noopener">Manuel</a> and I decided to code in Python, the first step being to create a grid. For some reason, my mind came up with this line of code:</p>
+
+<pre class="highlight"><code class="language-python"><span class="n">grid</span><span class="o">=</span><span class="p">[[</span><span class="sh">'</span><span class="s">X</span><span class="sh">'</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span></code></pre>
+
+<p>I don’t recall seeing something like this before, so it came as a bit of a surprise. It seemed like a very neat trick and I was proud of myself. On running the code, it worked as intended, which was even more surprising.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>python3 gameoflife.py
+<span class="go">[['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']]</span></code></pre>
+
+<p>The next stage was to set the initial state of the grid. This meant changing certain cells of the grid to another value, <code>O</code> in our case.</p>
+
+<pre class="highlight"><code class="language-python"><span class="n">grid</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">O</span><span class="sh">'</span>
+<span class="n">grid</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">O</span><span class="sh">'</span>
+<span class="n">grid</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">O</span><span class="sh">'</span></code></pre>
+
+<p>I was sure this was going to work, but this happened instead.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>python3 gameoflife.py
+<span class="go">[['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X'],
+['X', 'X', 'X', 'X', 'X', 'O', 'O', 'X', 'X', 'X']]</span></code></pre>
+
+<p>Instead of specific cells, entire columns were updated? Strange.</p>
+
+<p>The multiply sign raised some concerns. <em>Was it duplicating the same object instead of each row being a different object?</em></p>
+
+<p>Turns out, yes! However, I wasn’t entirely convinced and needed some evidence to back this up. After the workshop I came across <a href="https://pythontutor.com/python-debugger.html" target="_blank" rel="noopener">Python Tutor</a>, a tool to visualize Python code, and decided to try it out.</p>
+
+<figure>
+<a href="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&cumulative=false&curInstr=144&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false" target="_blank"><img src="/public/images/rc00/viz1.png" alt="There are three blocks - a global frame with the variable name &quot;grid&quot;. The variable name points to block representing an array of index 10. Every index of the array points to a third block - an array of index 10 with the string &quot;X&quot; written for each index." class="dim" loading="lazy" /></a>
+<figcaption>Click to view on Python Tutor</figcaption>
+</figure>
+<p>The intended scenario would be to see 11 different arrays - the <code>grid</code> array, and 10 arrays containing 10 X’s each. However, here we see 2 arrays - <code>grid</code> and one array with 10 X’s, which I’ll call <code>row</code> from now on.</p>
+
+<p>Each index of <code>grid</code> points to <code>row</code>. So <code>grid[0] == grid[1] ... == grid[9]</code>. Any changes to <code>row</code> will reflect a change in <code>grid[n]</code>, <code>n</code> being 0-9 in this case. Evidence found!</p>
+
+<p>We can also see this in action using <code>id()</code> within Python, which prints out the memory address of an object.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="p">[[</span><span class="sh">'</span><span class="s">X</span><span class="sh">'</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">4315577152
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">4315577152</span></code></pre>
+
+<p>The memory address for both <code>row</code>s is the same, indicating that they’re pointing to the same object<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>.</p>
+
+<p>How does this explain the two columns being changed? Here’s what happened:</p>
+<ul>
+  <li>The indexes we tried to change were <code>grid[5][5]</code>, <code>grid[4][5]</code> and <code>grid[4][6]</code>.</li>
+  <li><code>grid[4]</code> and <code>grid[5]</code> are pointing to <code>row</code>, so indexes 5 and 6 were changed in <code>row</code>.</li>
+  <li>As all indexes of <code>grid</code> point to <code>row</code>, printing <code>grid</code> basically prints <code>row</code> 10 times, giving the illusion of columns being changed.</li>
+</ul>
+
+<p>The solution to this is to create the grid a different way. Either a combination of two for-loops, or a list comprehension.</p>
+
+<pre class="highlight"><code class="language-python"><span class="c1"># For-loops
+</span><span class="n">grid</span><span class="o">=</span><span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">grid</span><span class="p">.</span><span class="nf">append</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="nf">append</span><span class="p">(</span><span class="sh">'</span><span class="s">X</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="c1"># List comprehension
+</span><span class="n">grid</span><span class="o">=</span><span class="p">[[</span><span class="sh">'</span><span class="s">X</span><span class="sh">'</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span></code></pre>
+
+<p>The visualization for either of these approaches looks completely different from the earlier approach.</p>
+
+<figure>
+<a href="https://pythontutor.com/render.html#code=grid%3D%5B%5B'X'%20for%20_%20in%20range%2810%29%5D%20for%20_%20in%20range%2810%29%5D&cumulative=false&curInstr=144&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false" target="_blank"><img src="/public/images/rc00/viz2.png" alt="There are a total of tweleve blocks - a global frame with the variable name &quot;grid&quot;. The variable name points to block representing an array of index 10. Each index of the array points to a separate block - an array of index 10 with the string &quot;X&quot; written for each index." class="dim" loading="lazy" /></a>
+<figcaption>Click to view on Python Tutor</figcaption>
+</figure>
+<p>Instead of one <code>row</code>, there are now 10 <code>row</code>s. Changes to one <code>row</code> won’t affect the other <code>row</code>s, which is the intended behavior.</p>
+
+<p>In Python, <code>id()</code> returns different addresses for each <code>row</code>, further confirming that they’re different objects.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="p">[[</span><span class="sh">'</span><span class="s">X</span><span class="sh">'</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">4315575040
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">4315559744</span></code></pre>
+<h2 id="notes">Notes</h2>
+  <ol class="footnotes" role="doc-endnotes">
+    <li id="fn:1" role="doc-endnote">
+      <p>This isn’t an issue specific to lists of lists, but applies to lists of other items as well, for example a dictionary:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">data</span> <span class="o">=</span> <span class="p">[{</span><span class="sh">'</span><span class="s">x</span><span class="sh">'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="sh">'</span><span class="s">y</span><span class="sh">'</span><span class="p">:</span><span class="mi">2</span><span class="p">}]</span><span class="o">*</span><span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">4312977664
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">4312977664</span></code></pre>
+      <p><a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

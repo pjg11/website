@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>Making sense of zsh history shell options</h1>
+<p><time datetime="2025-01-09">January 09, 2025</time>
+• <a class="tag" href="/tags#shell">shell</a></p>
+<p>I was refactoring my <code>.zshrc</code> recently, and found these existing options for managing the command history:</p>
+
+<pre class="highlight"><code class="language-shell">setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_IGNORE_SPACE</code></pre>
+
+<p>I think I copied these from somewhere whenever I last modified the file. But this time, I wanted to apply a more systematic approach to setting options, where I was sure I knew exactly what each option in the file was doing.</p>
+
+<p>I stared at these options for a bit, and thought to myself: <em>Some of these look similar to each other, and I don’t know how each one is different despite comments. And most importantly, do I even need all of these?</em></p>
+
+<p>For the purposes of this article, I’ll be dividing the options into categories:</p>
+
+<ul>
+  <li>Appending history - <code>SHARE_HISTORY</code>, <code>INC_APPEND_HISTORY</code></li>
+  <li>Managing duplicates - <code>HIST_IGNORE_DUPS</code>, <code>HIST_IGNORE_ALL_DUPS</code>, <code>HIST_SAVE_NO_DUPS</code></li>
+  <li><code>HIST_IGNORE_SPACE</code> makes sense right away, so I’ll add it to my config directly.</li>
+</ul>
+
+<h2 id="appending-history">Appending history</h2>
+
+<p>The default behavior for writing to the history file is to write all commands from a session in bulk at the end of the session. I’m looking for a way to append commands from different sessions as they’re entered to the history file, aka sharing the same file across sessions.</p>
+
+<p>The solution for this was simple, RTFM:</p>
+
+<blockquote>
+  <p><code>APPEND_HISTORY &lt;D&gt;</code> <br />
+If this is set, zsh sessions will append their history list to the history file, rather than replace it. Thus, multiple parallel zsh sessions will all have the new entries from their history lists added to the history file, in the order that they exit.</p>
+
+  <p><code>INC_APPEND_HISTORY</code> <br />
+This option works like <code>APPEND_HISTORY</code> except that new history lines are added to the <code>$HISTFILE</code> incrementally (as soon as they are entered), rather than waiting until the shell exits.</p>
+
+  <p><code>SHARE_HISTORY &lt;K&gt;</code> <br />
+This option both imports new commands from the history file, and also causes your typed commands to be appended to the history file (the latter is like specifying <code>INC_APPEND_HISTORY</code>, which should be turned off if this option is in effect).</p>
+</blockquote>
+
+<p>One of the first things that stood out was the fact that only one of these options needs to be set, <code>INC_APPEND_HISTORY</code> has the functionality of <code>APPEND_HISTORY</code> and part of <code>SHARE_HISTORY</code> works like <code>INC_APPEND_HISTORY</code>. <code>APPEND_HISTORY</code> didn’t do what I wanted, so it was up to me to decide of making a choice between the latter two.</p>
+
+<p>I’m primarily concered around writing commands to the file, so that they’re available in any sessions I start after it, not so much existing shell sessions (which <code>SHARE_HISTORY</code> does), so I chose <code>INC_APPEND_HISTORY</code> for now.</p>
+
+<p>Another option I found in the <code>man</code> page was <code>INC_APPEND_HISTORY_TIME</code>, which works like <code>INC_APPEND_HISTORY</code> but appends the commands to the file once they’ve completed, which I thought was cool.</p>
+
+<h2 id="managing-duplicates">Managing duplicates</h2>
+
+<p>The default behavior is to keep duplicates. I’m looking for a way to store only the most recent version of a command and delete all instances of it from the file, as the command is entered. Starting with the <code>man</code> page again:</p>
+
+<blockquote>
+  <p><code>HIST_IGNORE_ALL_DUPS</code> <br />
+If a new command line being added to the history list duplicates an older one, the older command is removed from the list (even if it is not the previous event).</p>
+
+  <p><code>HIST_IGNORE_DUPS (-h)</code> <br />
+Do not enter command lines into the history list if they are duplicates of the previous event.</p>
+
+  <p><code>HIST_SAVE_NO_DUPS</code> <br />
+When writing out the history file, older commands that duplicate newer ones are omitted.</p>
+</blockquote>
+
+<p><code>HIST_IGNORE_DUPS</code> is a subset of <code>HIST_IGNORE_ALL_DUPS</code>, and so the choice is between <code>HIST_SAVE_NO_DUPS</code> and <code>HIST_IGNORE_ALL_DUPS</code>.</p>
+
+<h3 id="hist_save_no_dups"><code>HIST_SAVE_NO_DUPS</code></h3>
+
+<p>Just going by the description and names, <code>HIST_SAVE_NO_DUPS</code> should have worked, but it didn’t:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>setopt HIST_SAVE_NO_DUPS
+<span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">setopt HIST_SAVE_NO_DUPS
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">tail -2 ~/.zsh_history
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="c"># it's saving duplicates :o</span></code></pre>
+
+<p>If I close the above session and view the file in a new session, it removes the duplicate <code>tail -2</code> command:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-5</span> ~/.zsh_history
+<span class="go">m ~/.zshrc
+source ~/.zshrc
+setopt HIST_SAVE_NO_DUPS
+tail -2 ~/.zsh_history
+tail -5 ~/.zsh_history</span></code></pre>
+
+<p>I’m probably misunderstanding how the option works. I thought “writing out the history file” meant each time the command got appended, now that I’ve set the appending to be that way. But it looks like the removal of duplicates happens only at the end of the session, irrespective of the append behavior.</p>
+
+<p>I looked at the zsh source code for evidence of this, and it turns out this option is only referenced in a function called <code>hend</code> in <a href="https://github.com/zsh-users/zsh/blob/263659acb73d0222e641dfd8d37e48e96582de02/Src/hist.c#L2951" target="_blank" rel="noopener">Src/hist.c</a>, indicating the end of history related operations. This seems like something that would run at the end of a shell session.</p>
+
+<h3 id="hist_ignore_all_dups"><code>HIST_IGNORE_ALL_DUPS</code></h3>
+
+<p>Setting this option seemed to work, sort of.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>setopt HIST_IGNORE_ALL_DUPS
+<span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">setopt HIST_IGNORE_ALL_DUPS
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">setopt HIST_IGNORE_ALL_DUPS
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="c"># that worked :D</span></code></pre>
+
+<p>While it avoided adding immediate repeated commands (like <code>HIST_IGNORE_DUPS</code>), it removed older instances only once the session was closed (like <code>HIST_SAVE_NO_DUPS</code>).</p>
+
+<p>Then I looked back at the man page, and noticed something I hadn’t noticed before: <code>HIST_SAVE_NO_DUPS</code> makes changes to the history “file”, whereas <code>HIST_IGNORE_ALL_DUPS</code> makes changes to the history “list”.</p>
+
+<p>How is a history “list” different from a history “file”? The history list stores commands for a particular shell session, before they’re written to the history file. Keeping in mind the default behavior for saving history, having a temporary list per session makes sense. However, it looks like this list is in use even when the append behavior is changed.</p>
+
+<p>To see how this option affects the list, we can view it using the <code>history</code> command:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>setopt HIST_IGNORE_ALL_DUPS
+<span class="gp">$</span><span class="w"> </span><span class="nb">echo </span>hello
+<span class="go">hello
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">echo </span>hello
+<span class="go">hello
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">history</span> <span class="nt">-2</span>
+<span class="go"> 1394  setopt HIST_IGNORE_ALL_DUPS
+ 1395  echo hello</span></code></pre>
+
+<p>Commands don’t repeat in the history list, and hence aren’t repeated in the history file too! To confirm that it works for all older instances of a command, I tried running a command that appears slightly early on in the list:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">history </span>0 | <span class="nb">grep</span> <span class="s1">'echo test'</span>
+<span class="go"> 1413  echo test
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">echo test</span>
+<span class="go">test
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">history </span>0 | <span class="nb">grep</span> <span class="s1">'echo test'</span>
+<span class="go"> 1428  echo test</span></code></pre>
+
+<p>The line number changed, which means that the older instance was removed from the history list. However, the history file still has the older duplicate:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">cat</span> ~/.zsh_history | <span class="nb">grep</span> <span class="s1">'^echo test$'</span>
+<span class="go">echo test
+echo test</span></code></pre>
+
+<p>This is due to the same reason as for why <code>HIST_SAVE_NO_DUPS</code> didn’t work - the removal of duplicates from the history file happens only once a shell session ends.</p>
+
+<p>In a nutshell, <code>HIST_IGNORE_ALL_DUPS</code> works like <code>HIST_SAVE_NO_DUPS</code> with the added functionality of removing dupes in the history list. While I expected a shell option to remove older dupes from the file as they were added, this option seems like a resonable alternative.</p>
+
+<h2 id="fin">Fin.</h2>
+
+<p>Phew, that was an unexpectedly long adventure! But my history config has now reduced from 6 lines that I wasn’t sure about, to 3 lines that I can confidently reason about!</p>
+
+<pre class="highlight"><code class="language-shell">setopt INC_APPEND_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE</code></pre>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>Schedule Posts in Jekyll</h1>
+<p><time datetime="2023-07-22">July 22, 2023</time>
+• <a class="tag" href="/tags#jekyll">jekyll</a>, <a class="tag" href="/tags#shell">shell</a></p>
+<p>My current blogging setup consists of me publishing a post shortly after I’ve finished typing and proofreading. While this is a straightforward and easy process, it also makes it easy for me to procrastinate on posts for days on end.</p>
+
+<p>As a way to introduce some form of accountability, I thought having the option to schedule a post in advance might be a good idea.</p>
+
+<p>My current publishing setup is a <code>bash</code> script, that builds the site files and deploys the build to Netlify. I started finding ways to automate the execution of this script at a later date.</p>
+
+<p>A cron job might be the first thing comes to mind, however I would like to introduce another tool that is just as useful.</p>
+
+<h2 id="say-hello-to-at">Say hello to <code>at</code></h2>
+
+<p>A cron job will run more than once at the schedule set by you - the same time every hour/day/week/month/year. However, I was looking for something more flexible.</p>
+
+<p>Maybe I feel like posting one article in one week, but two the next week. One week I may post on a Monday, the other week I may feel like posting on a Friday. This is where <a href="https://linux.die.net/man/1/at" target="_blank" rel="noopener"><code>at</code></a> comes in, a command line tool to execute a set of commands once, at the specified date and time.</p>
+
+<p>It is installed by default on both Linux and Mac, however, it requires additional steps to work on Mac.</p>
+
+<h3 id="setup-at-on-mac">Setup <code>at</code> on Mac</h3>
+<p><code>atrun</code>, the utility that executes <code>at</code> jobs, is disabled by default on Mac. Enable it with the following command:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>launchctl load <span class="nt">-w</span> /System/Library/LaunchDaemons/com.apple.atrun.plist</code></pre>
+
+<p>Additionally, <code>atrun</code> requires disk access to execute commands:</p>
+<ol>
+  <li>Go to <code>System Preferences &gt; Security and Privacy &gt; Privacy</code></li>
+  <li>Scroll to the Full Disk Access section and click on the <code>+</code> symbol.</li>
+  <li>Press <kbd>Cmd+Shift+G</kbd> and enter <code>/usr/libexec/atrun</code>.</li>
+  <li>Select <code>atrun</code>, after which it should <a href="/public/images/schedule-jekyll/preferences.png">appear in the list</a>.</li>
+</ol>
+
+<h2 id="creating-the-script">Creating the script</h2>
+
+<p>The script takes the following arguments:</p>
+
+<ul>
+  <li><code>$1</code> - the filename of the post to publish</li>
+  <li><code>$2</code> - post date and time, see <code>man at</code> for the list of valid formats</li>
+  <li><code>$3</code> - git commit message</li>
+</ul>
+
+<p>I maintain all draft posts in the <code>_drafts</code> directory, so the script adds the directory to the filename. Additionally, I use <code>sed</code> and <code>cut</code> to get the title of the post, which I’ll use later on.</p>
+
+<pre class="highlight"><code class="language-shell"><span class="nb">cd</span> ~/website
+<span class="nv">post</span><span class="o">=</span><span class="s2">"_drafts/</span><span class="nv">$1</span><span class="s2">"</span>
+<span class="nv">title</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">sed</span> <span class="s1">'3q;d'</span> <span class="nv">$post</span> | <span class="nb">cut</span> <span class="nt">-c</span> 8-<span class="si">)</span><span class="s2">"</span></code></pre>
+
+<p>The draft posts are undated, so this script adds the date and time to the post. Since the user input can vary in format, I use <code>date</code> to convert it to a standard format – <code>YYYY-MM-DD</code> for the date and <code>HH:MM:SS +00:00</code> for the time.</p>
+
+<pre class="highlight"><code class="language-shell"><span class="nb">date</span><span class="o">=</span><span class="si">$(</span><span class="nb">date</span> <span class="nt">-d</span> <span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span> +%F<span class="si">)</span>
+<span class="nv">pubtime</span><span class="o">=</span><span class="si">$(</span><span class="nb">date</span> <span class="nt">-d</span> <span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span> <span class="s2">"+%T %z"</span><span class="si">)</span></code></pre>
+
+<p><code>at</code> takes the set of commands in multiple ways. For this script, I’m using a <a href="https://phoenixnap.com/kb/bash-heredoc" target="_blank" rel="noopener">heredoc</a>, that sends multiple commands at once.</p>
+
+<pre class="highlight"><code class="language-shell">at <span class="nv">$2</span> <span class="o">&lt;&lt;-</span> <span class="no">EOF</span></code></pre>
+
+<p><code>at</code> is supplied with the time entered by the user, followed by the heredoc syntax.</p>
+
+<p>Any command entered after this statement is sent to <code>at</code>, till it encounters the delimiter, <code>EOF</code>. The hyphen is added to remove any tabs at the start of the line, which may be there if the heredoc is indented for readability.</p>
+
+<p>The first command is to add the post date to the post’s front matter, which I’ve done using <code>sed</code>. The line number can vary depending on how your front matter is formatted.</p>
+
+<pre class="highlight"><code class="language-shell"><span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"7 i date: </span><span class="nv">$date</span><span class="s2"> </span><span class="nv">$pubtime</span><span class="s2">"</span> <span class="nv">$post</span></code></pre>
+
+<p>The post date is also added to the filename, to match <a href="https://jekyllrb.com/docs/posts/#creating-posts" target="_blank" rel="noopener">Jekyll’s naming convention for posts</a>. Along with the filename change, the post is moved to the <code>_posts</code> directory, from where it will be published.</p>
+
+<pre class="highlight"><code class="language-shell"><span class="nb">mv</span> <span class="nv">$post</span> _posts/<span class="nv">$date</span>-<span class="nv">$1</span></code></pre>
+
+<p>Lastly, I add the commands from my current publishing script.</p>
+
+<pre class="highlight"><code class="language-shell"><span class="nb">rm</span> <span class="nt">-rf</span> _site
+git add <span class="nb">.</span>
+git commit <span class="nt">-m</span> <span class="s2">"</span><span class="nv">$3</span><span class="s2">"</span>
+bundle <span class="nb">exec </span>jekyll build
+netlify deploy <span class="nt">--prod</span> <span class="nt">--dir</span><span class="o">=</span>_site</code></pre>
+
+<p>I could add the delimiter, <code>EOF</code> at the end of the script and call it a day. But then I started to think of additional features to add.</p>
+
+<p>How would I know if the build was successful? Apart from checking the site after the scheduled time, was there a way I could receive a <em>notification</em>?</p>
+
+<h2 id="implementing-notifications">Implementing notifications</h2>
+
+<p>I initially thought that this would be a very complex process. I was totally wrong, as both Linux and Mac have command line tools that make creating a notification easy peezy lemon squeezy (well, almost, as Mac seems to require extra steps once again)</p>
+
+<h3 id="linux">Linux</h3>
+<p>Notifications can be created using <a href="https://letsdebug.it/post/30-linux-desktop-notifications/#combine-notify-send-with-at" target="_blank" rel="noopener"><code>notify-send</code></a>. Add the following line followed by the delimiter and you’re good to go!</p>
+
+<pre class="highlight"><code class="language-shell">notify-send <span class="s2">"Published! The post, </span><span class="nv">$title</span><span class="s2">, is now live."</span>
+EOF</code></pre>
+
+<p>The first string is the title of the notification, and the second string is the message below the title.</p>
+
+<h3 id="mac">Mac</h3>
+<p>Creating a notification is very simple thanks to <a href="https://apple.stackexchange.com/a/238820" target="_blank" rel="noopener"><code>osascript</code></a>:</p>
+
+<pre class="highlight"><code class="language-shell">osascript <span class="nt">-e</span> <span class="se">\</span>
+<span class="s1">'display notification "The post, $title is now live." with title "Published!"'</span></code></pre>
+
+<p>Getting it to work with <code>at</code> is a whole different story.</p>
+
+<p>When I tried testing with a sample notification, there was no output. Turns out, <code>at</code> sends all output, success or failure to the local mail account, which can be accessed through the <code>mail</code> command line tool.</p>
+
+<p>Here’s the output from one of the mails:</p>
+
+<pre class="highlight"><code class="language-shell">2023-07-06 01:59:25.338 osascript[17789:286727] NSNotificationCenter connection invalid
+2023-07-06 01:59:25.338 osascript[17789:286727] Connection to notification center invalid. ServerConnectionFailure: 1 invalidated: 0
+2023-07-06 01:59:25.338 osascript[17789:286727] Connection to notification center invalid. ServerConnectionFailure: 1 invalidated: 0</code></pre>
+
+<p>After some searching, I figured the problem, but had trouble finding a solution for it. The issue is with <code>at</code> executing in a different namespace, one that does not have access to create notifications. A notification can be created in the user namespace, which is why I was able to create one easily from the command line.<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup></p>
+
+<p>I happened to find the solution from a <a href="https://github.com/julienXX/terminal-notifier/issues/144#issuecomment-311246686" target="_blank" rel="noopener">GitHub issue</a>, to use a tool called <code>reattach-to-user-namespace</code>.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>brew <span class="nb">install </span>reattach-to-user-namespace
+<span class="gp">$</span><span class="w"> </span>reattach-to-user-namespace
+<span class="go">fatal: usage: reattach-to-user-namespace [-l] &lt;program&gt; [args...]
+
+    Reattach to the per-user bootstrap namespace in its "Background"
+    session then exec the program with args. If "-l" is given,
+    rewrite the program's argv[0] so that it starts with a '-'.</span></code></pre>
+
+<p>Using the mentioned format, I added the following line to the script, followed by the delimiter to complete the heredoc.</p>
+
+<pre class="highlight"><code class="language-shell">reattach-to-user-namespace osascript <span class="nt">-e</span> <span class="se">\</span>
+<span class="s1">'display notification "The post, $title is now live." with title "Published!"'</span>
+EOF</code></pre>
+
+<h2 id="testing-the-script">Testing the script</h2>
+
+<p>I’ve implemented the script as a shell function, <a href="https://github.com/pjg11/scripts/tree/main/schedule" target="_blank" rel="noopener"><code>schedule</code></a>. I’ve additionally added tab completion for the filename, which works with the <code>zsh</code> shell. However, these commands would work just as fine as a <a href="https://github.com/pjg11/scripts/tree/main/schedule/schedule.sh" target="_blank" rel="noopener">shell script</a>.</p>
+
+<p>Using this post as an example, I ran <code>schedule</code> to publish this post at 4pm UTC on July 22nd.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>schedule schedule-jekyll.md <span class="s2">"Jul 22 4pm"</span> <span class="s2">"new post: schedule posts in jekyll"</span>
+<span class="go">job 1 at Thu Jul 22 16:00:00 2023</span></code></pre>
+
+<blockquote>
+  <p><strong>Note:</strong> Your computer needs to be up and running at the specified date and time for <code>at</code> to work. So set the date and time accordingly.</p>
+</blockquote>
+
+<p>You can access the job’s script by typing using the <code>-c</code> option with the job number from the resulting output. It includes the default set of environment variables followed by the commands entered from the script.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>at <span class="nt">-c</span> job 1
+<span class="c">#!/bin/sh
+# atrun uid=501 gid=20
+...
+</span><span class="go">
+cd /Users/piya/website || {
+     echo 'Execution directory inaccessible' &gt;&amp;2
+     exit 1
+}
+OLDPWD=/Users/piya; export OLDPWD
+sed -i "7 i date: 2023-07-22 16:00:00 +0000" _drafts/schedule-jekyll.md
+mv _drafts/schedule-jekyll.md _posts/2023-07-22-schedule-jekyll.md
+rm -rf _site
+git add .
+git commit -m "new post: schedule posts in jekyll"
+bundle exec jekyll build
+netlify deploy --prod --dir=_site
+reattach-to-user-namespace osascript -e \
+'display notification "The post, Schedule Posts in Jekyll, is now live." with title "Published!"'</span></code></pre>
+
+<p>To delete a job before its executed, type <code>atrm job &lt;num&gt;</code>. You can also schedule multiple posts, and view the job queue using <code>atq</code>.</p>
+
+<p>If you’re seeing this post, that means the script worked :)</p>
+<h2 id="notes">Notes</h2>
+  <ol class="footnotes" role="doc-endnotes">
+    <li id="fn:1" role="doc-endnote">
+      <p>The closest thing to documentation I could find about this is <a href="https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard/blob/master/README.md" target="_blank" rel="noopener">this article</a> for a different tool. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

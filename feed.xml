@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" >
+<generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator>
+<link href="https://pjg1.site/feed.xml" rel="self" type="application/atom+xml" />
+<link href="https://pjg1.site/" rel="alternate" type="text/html" />
+<updated>2025-01-30T19:41:52+00:00</updated>
+<id>https://pjg1.site/feed.xml</id>
+<title type="html">pjg1.site</title>
+<subtitle></subtitle>
+<entry>
+<title type="html">Making sense of zsh history shell options</title>
+<link href="https://pjg1.site/zsh-history-opts" rel="alternate" type="text/html" title="Making sense of zsh history shell options" />
+<published>2025-01-09T00:00:00+00:00</published>
+<updated>2025-01-09T00:00:00+00:00</updated>
+<id>https://pjg1.site/zsh-history-opts</id>
+<content type="html" xml:base="https://pjg1.site/zsh-history-opts">
+<![CDATA[<p>I was refactoring my <code>.zshrc</code> recently, and found these existing options for managing the command history:</p>
+
+<pre class="highlight"><code class="language-shell">setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_IGNORE_SPACE</code></pre>
+
+<p>I think I copied these from somewhere whenever I last modified the file. But this time, I wanted to apply a more systematic approach to setting options, where I was sure I knew exactly what each option in the file was doing.</p>
+
+<p>I stared at these options for a bit, and thought to myself: <em>Some of these look similar to each other, and I don’t know how each one is different despite comments. And most importantly, do I even need all of these?</em></p>
+
+<p>For the purposes of this article, I’ll be dividing the options into categories:</p>
+
+<ul>
+  <li>Appending history - <code>SHARE_HISTORY</code>, <code>INC_APPEND_HISTORY</code></li>
+  <li>Managing duplicates - <code>HIST_IGNORE_DUPS</code>, <code>HIST_IGNORE_ALL_DUPS</code>, <code>HIST_SAVE_NO_DUPS</code></li>
+  <li><code>HIST_IGNORE_SPACE</code> makes sense right away, so I’ll add it to my config directly.</li>
+</ul>
+
+<h2 id="appending-history">Appending history</h2>
+
+<p>The default behavior for writing to the history file is to write all commands from a session in bulk at the end of the session. I’m looking for a way to append commands from different sessions as they’re entered to the history file, aka sharing the same file across sessions.</p>
+
+<p>The solution for this was simple, RTFM:</p>
+
+<blockquote>
+  <p><code>APPEND_HISTORY &lt;D&gt;</code> <br />
+If this is set, zsh sessions will append their history list to the history file, rather than replace it. Thus, multiple parallel zsh sessions will all have the new entries from their history lists added to the history file, in the order that they exit.</p>
+
+  <p><code>INC_APPEND_HISTORY</code> <br />
+This option works like <code>APPEND_HISTORY</code> except that new history lines are added to the <code>$HISTFILE</code> incrementally (as soon as they are entered), rather than waiting until the shell exits.</p>
+
+  <p><code>SHARE_HISTORY &lt;K&gt;</code> <br />
+This option both imports new commands from the history file, and also causes your typed commands to be appended to the history file (the latter is like specifying <code>INC_APPEND_HISTORY</code>, which should be turned off if this option is in effect).</p>
+</blockquote>
+
+<p>One of the first things that stood out was the fact that only one of these options needs to be set, <code>INC_APPEND_HISTORY</code> has the functionality of <code>APPEND_HISTORY</code> and part of <code>SHARE_HISTORY</code> works like <code>INC_APPEND_HISTORY</code>. <code>APPEND_HISTORY</code> didn’t do what I wanted, so it was up to me to decide of making a choice between the latter two.</p>
+
+<p>I’m primarily concered around writing commands to the file, so that they’re available in any sessions I start after it, not so much existing shell sessions (which <code>SHARE_HISTORY</code> does), so I chose <code>INC_APPEND_HISTORY</code> for now.</p>
+
+<p>Another option I found in the <code>man</code> page was <code>INC_APPEND_HISTORY_TIME</code>, which works like <code>INC_APPEND_HISTORY</code> but appends the commands to the file once they’ve completed, which I thought was cool.</p>
+
+<h2 id="managing-duplicates">Managing duplicates</h2>
+
+<p>The default behavior is to keep duplicates. I’m looking for a way to store only the most recent version of a command and delete all instances of it from the file, as the command is entered. Starting with the <code>man</code> page again:</p>
+
+<blockquote>
+  <p><code>HIST_IGNORE_ALL_DUPS</code> <br />
+If a new command line being added to the history list duplicates an older one, the older command is removed from the list (even if it is not the previous event).</p>
+
+  <p><code>HIST_IGNORE_DUPS (-h)</code> <br />
+Do not enter command lines into the history list if they are duplicates of the previous event.</p>
+
+  <p><code>HIST_SAVE_NO_DUPS</code> <br />
+When writing out the history file, older commands that duplicate newer ones are omitted.</p>
+</blockquote>
+
+<p><code>HIST_IGNORE_DUPS</code> is a subset of <code>HIST_IGNORE_ALL_DUPS</code>, and so the choice is between <code>HIST_SAVE_NO_DUPS</code> and <code>HIST_IGNORE_ALL_DUPS</code>.</p>
+
+<h3 id="hist_save_no_dups"><code>HIST_SAVE_NO_DUPS</code></h3>
+
+<p>Just going by the description and names, <code>HIST_SAVE_NO_DUPS</code> should have worked, but it didn’t:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>setopt HIST_SAVE_NO_DUPS
+<span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">setopt HIST_SAVE_NO_DUPS
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">tail -2 ~/.zsh_history
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="c"># it's saving duplicates :o</span></code></pre>
+
+<p>If I close the above session and view the file in a new session, it removes the duplicate <code>tail -2</code> command:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-5</span> ~/.zsh_history
+<span class="go">m ~/.zshrc
+source ~/.zshrc
+setopt HIST_SAVE_NO_DUPS
+tail -2 ~/.zsh_history
+tail -5 ~/.zsh_history</span></code></pre>
+
+<p>I’m probably misunderstanding how the option works. I thought “writing out the history file” meant each time the command got appended, now that I’ve set the appending to be that way. But it looks like the removal of duplicates happens only at the end of the session, irrespective of the append behavior.</p>
+
+<p>I looked at the zsh source code for evidence of this, and it turns out this option is only referenced in a function called <code>hend</code> in <a href="https://github.com/zsh-users/zsh/blob/263659acb73d0222e641dfd8d37e48e96582de02/Src/hist.c#L2951" target="_blank" rel="noopener">Src/hist.c</a>, indicating the end of history related operations. This seems like something that would run at the end of a shell session.</p>
+
+<h3 id="hist_ignore_all_dups"><code>HIST_IGNORE_ALL_DUPS</code></h3>
+
+<p>Setting this option seemed to work, sort of.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>setopt HIST_IGNORE_ALL_DUPS
+<span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">setopt HIST_IGNORE_ALL_DUPS
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">tail</span> <span class="nt">-2</span> ~/.zsh_history
+<span class="go">setopt HIST_IGNORE_ALL_DUPS
+tail -2 ~/.zsh_history
+</span><span class="gp">$</span><span class="w"> </span><span class="c"># that worked :D</span></code></pre>
+
+<p>While it avoided adding immediate repeated commands (like <code>HIST_IGNORE_DUPS</code>), it removed older instances only once the session was closed (like <code>HIST_SAVE_NO_DUPS</code>).</p>
+
+<p>Then I looked back at the man page, and noticed something I hadn’t noticed before: <code>HIST_SAVE_NO_DUPS</code> makes changes to the history “file”, whereas <code>HIST_IGNORE_ALL_DUPS</code> makes changes to the history “list”.</p>
+
+<p>How is a history “list” different from a history “file”? The history list stores commands for a particular shell session, before they’re written to the history file. Keeping in mind the default behavior for saving history, having a temporary list per session makes sense. However, it looks like this list is in use even when the append behavior is changed.</p>
+
+<p>To see how this option affects the list, we can view it using the <code>history</code> command:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>setopt HIST_IGNORE_ALL_DUPS
+<span class="gp">$</span><span class="w"> </span><span class="nb">echo </span>hello
+<span class="go">hello
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">echo </span>hello
+<span class="go">hello
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">history</span> <span class="nt">-2</span>
+<span class="go"> 1394  setopt HIST_IGNORE_ALL_DUPS
+ 1395  echo hello</span></code></pre>
+
+<p>Commands don’t repeat in the history list, and hence aren’t repeated in the history file too! To confirm that it works for all older instances of a command, I tried running a command that appears slightly early on in the list:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">history </span>0 | <span class="nb">grep</span> <span class="s1">'echo test'</span>
+<span class="go"> 1413  echo test
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">echo test</span>
+<span class="go">test
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">history </span>0 | <span class="nb">grep</span> <span class="s1">'echo test'</span>
+<span class="go"> 1428  echo test</span></code></pre>
+
+<p>The line number changed, which means that the older instance was removed from the history list. However, the history file still has the older duplicate:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">cat</span> ~/.zsh_history | <span class="nb">grep</span> <span class="s1">'^echo test$'</span>
+<span class="go">echo test
+echo test</span></code></pre>
+
+<p>This is due to the same reason as for why <code>HIST_SAVE_NO_DUPS</code> didn’t work - the removal of duplicates from the history file happens only once a shell session ends.</p>
+
+<p>In a nutshell, <code>HIST_IGNORE_ALL_DUPS</code> works like <code>HIST_SAVE_NO_DUPS</code> with the added functionality of removing dupes in the history list. While I expected a shell option to remove older dupes from the file as they were added, this option seems like a resonable alternative.</p>
+
+<h2 id="fin">Fin.</h2>
+
+<p>Phew, that was an unexpectedly long adventure! But my history config has now reduced from 6 lines that I wasn’t sure about, to 3 lines that I can confidently reason about!</p>
+
+<pre class="highlight"><code class="language-shell">setopt INC_APPEND_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE</code></pre>
+]]></content></entry>
+<entry>
+<title type="html">Re-thinking the way I manage personal projects</title>
+<link href="https://pjg1.site/personal-proj-mgmt" rel="alternate" type="text/html" title="Re-thinking the way I manage personal projects" />
+<published>2024-09-27T00:00:00+00:00</published>
+<updated>2024-09-27T00:00:00+00:00</updated>
+<id>https://pjg1.site/personal-proj-mgmt</id>
+<content type="html" xml:base="https://pjg1.site/personal-proj-mgmt">
+<![CDATA[<p>I have been trying a new way to keeping track of projects, and I went down a fun rabbit hole before settling on an approach, that I thought would be fun to share.</p>
+
+<h2 id="but-first-some-context">But first, some context</h2>
+
+<p>I’ve been maintaining a <a href="https://stackoverflow.blog/2024/05/22/you-should-keep-a-developer-s-journal/" target="_blank" rel="noopener">developer journal</a> for the past few months. I create a note each day and write down things I learnt as I’m working on them, or use it to break down and keep track of tasks when I’m stuck. If I’m working on multiple projects in the same day, they all go in the same daily note.</p>
+
+<p>Recently, I came across the concept of <a href="https://nesslabs.com/interstitial-journaling" target="_blank" rel="noopener">interstitial journaling</a>, where you write stuff throughout the day, but with a timestamp before each message. It seemed like a good idea as it gives me a better sense of how my day went, and was easy to incorporate with my then writing app of choice, <a href="http://logseq.com/" target="_blank" rel="noopener">Logseq</a>.</p>
+
+<p>While looking for Logseq plugins, I came across the following comment on a <a href="https://www.reddit.com/r/logseq/comments/tdysnj/comment/k0skrb8/?utm_source=share&amp;utm_medium=web3x&amp;utm_name=web3xcss&amp;utm_term=1&amp;utm_content=share_button" target="_blank" rel="noopener">Reddit thread</a>:</p>
+
+<blockquote>
+  <p>This is why I used personal IRC and Discord servers/channels for logging/journaling. Just start typing; all entries are automatically time-stamped, sorted, and cloud-backed.</p>
+</blockquote>
+
+<p>My mind was BLOWN. The idea of a chat platform as a means of logging personal projects made so much sense! I had basically been trying to recreate the feeling of chatting with myself, and I didn’t realize it until I read this comment.</p>
+
+<p>I had been coming across the idea of <a href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank" rel="noopener">self-hosting</a> while looking for project ideas and saw IRC mentioned there, so I looked into it. <strong>That’s where the idea clicked</strong>.</p>
+
+<h2 id="channels-as-project-logs">Channels as project logs</h2>
+
+<p>Trying out IRC felt like using something like Slack or Discord, but much more minimal. It is a text-based chat protocol based on the client-server model. There are servers that consist of one or more channels, and clients with which you can connect to and interact on channels by joining them.</p>
+
+<p>The <a href="https://weechat.org/about/screenshots/weechat/weechat_2010-02-22_hullap.png/" target="_blank" rel="noopener">interface</a> is also a minimal version of Slack or Discord, with a list of channels you’ve joined on the left and time-stamped messages from a channel in the center.</p>
+
+<p>Now how does this relate to project management, you ask?</p>
+
+<ul>
+  <li>Each channel represents one project I’m working on</li>
+  <li>When I want to log something specific to a project, I post a message in that channel</li>
+</ul>
+
+<p>This simple concept solves issues I’ve faced with the existing dev journal setup.</p>
+
+<p>When I revisit a project after a break (which I often do), that would require searching through older notes to figure out where I last left off. While the daily notes made things easier on a day-to-day basis, I often felt the lack of a overall view of a project.</p>
+
+<p>A channel helps with both time-tracking and project management:</p>
+
+<ul>
+  <li>The messages are time-stamped, so I know how my day went</li>
+  <li>The channel serves as the overall picture of my project - what I’ve done, what I need to do and where I last left off. Everything relating to a project is in one place.</li>
+  <li>The channels list in the side tells me at a glance which projects I’m working on, and lets me easily switch between them.</li>
+</ul>
+
+<p>This also helps in cases when I want to write a post about something I did over a long period of time - say weeks - and I forget details of what I did earlier.</p>
+
+<p>A chat interface encourages me to write smaller updates, so I end up with a reliable log of events, as opposed to me having logged only certain aspects and trying to remember other details while writing the post (extremely annoying, trust me). And <a href="https://pjg1.site/writing-is-thinking" target="_blank" rel="noopener">more writing leads to more thinking</a>, so I consider this approach a win!</p>
+
+<p>So I have the idea set, now comes the rabbit hole I went into while trying to look for ways to implement this.</p>
+
+<h2 id="finding-the-perfect-implementation">Finding the perfect implementation</h2>
+
+<h3 id="self-hosted-irc-server">Self-hosted IRC server</h3>
+
+<p>Since the idea came from IRC, my first idea was to use the self-hosted server I used to try IRC in the first place. I had setup <a href="http://unrealircd.org/" target="_blank" rel="noopener">UnrealIRCd</a> on my daily driver, and installed two IRC clients to try - <a href="https://www.codeux.com/textual/" target="_blank" rel="noopener">Textual</a> (a GUI) and <a href="http://irssi.org/" target="_blank" rel="noopener">irssi</a> (a TUI).</p>
+
+<p>It all worked fine, but I came across its limitations pretty quickly. It doesn’t support multi-line messages and making the chat persist across sessions required additional setup, which didn’t seem worth the effort.</p>
+
+<h3 id="self-hosted-zulip-server">Self-hosted Zulip server</h3>
+
+<p>A great open-source alternative to Slack/Discord is <a href="https://zulipchat.com/" target="_blank" rel="noopener">Zulip</a>, which is used as the primary chat platform at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>. I’m familiar with the interface and it has the concept of channels, which I can use to manage projects.</p>
+
+<p>After some trial and error, I was able to self-host an instance using their <a href="https://github.com/zulip/docker-zulip" target="_blank" rel="noopener">docker image</a>. It worked well, but it also felt overkill for some reason. I realized I wanted something that didn’t rely on the internet to function, but something that looked like a chat platform visually.</p>
+
+<h3 id="custom-built-tui">Custom-built TUI</h3>
+
+<p>I really like the <a href="https://github.com/charmbracelet/bubbletea" target="_blank" rel="noopener">Bubbletea framework</a> for TUIs, and had it in my “make something with this someday” list. This seemed like a good chance, and I even found some projects as inspiration!</p>
+
+<ul>
+  <li><a href="https://github.com/bashbunni/pjs" target="_blank" rel="noopener">pjs</a> follows the same concept of time-stamped project logging, but with a different implementation. It uses a SQLite DB to store notes, and each note is displayed separately as opposed to a chat interface.</li>
+  <li><a href="https://github.com/maaslalani/nap" target="_blank" rel="noopener">nap</a> is a code snippet manager that reads and displays plaintext files, and the layout is pretty close to what I had in mind.</li>
+</ul>
+
+<p>However, my feelings about TUIs are mixed - I find them really cool but don’t use them much for some reason. This made me hesitant from really giving the idea a fair chance. I feared I would spend all this effort making something, and lose interest while making it.</p>
+
+<p>This would have made for a great programming project though. Maybe someday.</p>
+
+<h3 id="existing-gui-apps">Existing GUI apps</h3>
+
+<p>I didn’t expect to find much here, but I ended up finding multiple apps.</p>
+
+<p>The one app I ended up trying was <a href="http://strflow.app/" target="_blank" rel="noopener">Strflow</a>, a macOS app. It provides a chat-like interface, where you can type messages with a subset of Markdown and the option to add tags. Each tag then becomes its own view, so you either see all messages at once or filter by a specific tag. While I would have preferred separate chats for each project, filtering by tags seemed fair enough.</p>
+
+<p>I tried Strflow for about a day, and it worked really well! It allowed me to import my existing notes (there’s an option to select an earlier date) and had a floating window shortcut, which displays a tinier version of the chat interface. It didn’t make me go “this is it” though.</p>
+
+<p>Somewhere, I was still craving on making my own implementation, so I finally settled on an idea involving good ‘ol plaintext files and Markdown.</p>
+
+<h2 id="current-setup">Current setup</h2>
+
+<p>I created a folder called <code>logs</code> which contains all of the project logs. Each project corresponds to one log file - <code>PROJNAME.md</code>, and follows this format:</p>
+
+<pre class="highlight"><code class="language-">#### 27 Sep 2024
+
+##### 16:54
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+##### 20:55
+Curabitur laoreet fermentum enim malesuada volutpat.
+
+Praesent semper non odio at vestibulum.
+
+...</code></pre>
+
+<p>I thought of choosing a shorter custom syntax, but if I ever want to export these logs as HTML, using existing syntax would make conversion and styling easier. I also don’t use <code>h4</code> and <code>h5</code> tags in my writing, so using them here makes it easy to parse individual messages if I ever need to do that.</p>
+
+<p>I added custom CSS set to my Markdown editor, <a href="https://typora.io/" target="_blank" rel="noopener">Typora</a>, to render the log files in a cool way. The above log file renders like so:</p>
+
+<blockquote class="log">
+  <h4 id="sep-2024">27 Sep 2024</h4>
+
+  <h5 id="section">16:54</h5>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+
+  <h5 id="section-1">20:55</h5>
+  <p>Curabitur laoreet fermentum enim malesuada volutpat.</p>
+
+  <p>Praesent semper non odio at vestibulum.</p>
+
+  <p>…</p>
+</blockquote>
+
+<p>Then there’s the shell script to automate the logging process (parts of the script are omitted):</p>
+
+<pre class="highlight"><code class="language-shell"><span class="nv">file</span><span class="o">=</span><span class="s2">"</span><span class="nv">$LOGDIR</span><span class="s2">/</span><span class="nv">$1</span><span class="s2">.md"</span>
+<span class="nb">shift
+
+</span><span class="k">if</span> <span class="o">[[</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nv">lastdate</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">grep</span> <span class="s1">'^#### '</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> | <span class="nb">tail</span> <span class="nt">-n1</span> | <span class="nb">cut</span> <span class="nt">-c5-</span> <span class="si">)</span><span class="s2">"</span>
+        <span class="nv">todate</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">date</span> <span class="s1">'+%b %d %Y'</span><span class="si">)</span><span class="s2">"</span>
+
+        <span class="nb">cat</span> <span class="o">&lt;&lt;-</span><span class="no">EndOfMessage</span><span class="sh"> &gt;&gt; "</span><span class="nv">$file</span><span class="sh">"
+                </span><span class="si">$(</span><span class="k">if</span> <span class="o">[[</span> <span class="s2">"</span><span class="nv">$lastdate</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"</span><span class="nv">$todate</span><span class="s2">"</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then </span><span class="nb">echo</span> <span class="s2">"#### </span><span class="nv">$todate</span><span class="s2">"</span><span class="p">;</span> <span class="k">fi</span><span class="si">)</span><span class="sh">
+                ##### </span><span class="si">$(</span><span class="nb">date</span> <span class="s1">'+%H:%M'</span><span class="si">)</span><span class="sh">
+                </span><span class="k">${</span><span class="p">@</span><span class="k">:-</span><span class="si">$(</span><span class="nv">$EDITOR</span> <span class="si">$(</span><span class="nb">mktemp</span><span class="si">))</span><span class="k">}</span><span class="sh">
+</span><span class="no">                EndOfMessage
+</span><span class="k">fi</span></code></pre>
+
+<p>If the file exists, it extracts the last date in a file, and compares it with the current date. If the dates are different (for instance posting a note past midnight), it inserts the date, followed by the timestamp.</p>
+
+<p>Line 11 is the content of the message. That cool bash syntax means “take the remaining command line arguments if not empty, otherwise open a temporary file using an editor and take its contents after the editor is closed instead”.</p>
+
+<h2 id="next-steps">Next steps</h2>
+
+<p>The interactivity of a chat interface is still missing - having a chat box that appears with a shortcut, or being able to post multiple messages in succession instead of calling the shell script everytime.</p>
+
+<p>I’m also starting to get interest in the TUI idea again, now that I recently learnt that my terminal emulator can <a href="https://iterm2.com/documentation-hotkey.html" target="_blank" rel="noopener">display terminal windows with a shortcut</a>, and they can be <strong>floating windows</strong>.</p>
+
+<p>I’m also thinking of a web-based approach, with a frontend that resembles IRC/Slack.</p>
+
+<p>Too many ideas in different directions, let’s see where this goes.</p>
+]]></content></entry>
+<entry>
+<title type="html">Installing Ubuntu on a 2017 MBP - Power management</title>
+<link href="https://pjg1.site/mbp-linux-power" rel="alternate" type="text/html" title="Installing Ubuntu on a 2017 MBP - Power management" />
+<published>2024-09-13T00:00:00+00:00</published>
+<updated>2024-09-13T00:00:00+00:00</updated>
+<id>https://pjg1.site/mbp-linux-power</id>
+<content type="html" xml:base="https://pjg1.site/mbp-linux-power">
+<![CDATA[<p>Continuing from the <a href="/mbp-linux-wifi">previous post</a>, there were two other issues I faced after installing Ubuntu:</p>
+<ul>
+  <li>The battery drained super quickly despite less usage</li>
+  <li>The laptop would get warm and remain warm even when the system was idle</li>
+</ul>
+
+<p>I didn’t get any warnings regarding battery life or heat issues from the family member I got the laptop from, neither was I using the laptop enough for it to be this warm or use this much power.</p>
+
+<p>Solving this wasn’t as straightforward as the fixing WiFi, becuase the searches didn’t lead to any one single solution. So I had to debug my way through this somehow.</p>
+
+<h2 id="finding-a-starting-point">Finding a starting point</h2>
+
+<p>I started by finding ways to see the temperature of my laptop, for which I found a package called <code>lm-sensors</code>. Before checking the temps, I ran <code>sensors-detect</code> and selected all of the default options.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>apt <span class="nb">install </span>lm-sensors
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>sensors-detect</code></pre>
+
+<p>When I ran <code>sensors</code> for the first time, there was too much output and it barely made sense. I spent some time deciphering the output, and then came the second problem - I didn’t know the ideal temperatures to know which ones were high.</p>
+
+<p>So I tried a different approach. I decided to capture the <code>sensors</code> output twice - once after boot, and one 30mins after that - and compare the two. In those 30mins, I tried to keep the system idle or used it minimally.</p>
+
+<p>This approach worked, as I saw a difference in <code>coretemp-isa-0000</code>, which shows the temperatures of the CPU cores:</p>
+
+<div class="flex">
+<figure>
+
+<pre class="highlight"><code class="language-">coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +45.0°C
+...</code></pre>
+
+    <figcaption>After boot</figcaption>
+  </figure>
+<figure>
+
+<pre class="highlight"><code class="language-">coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +55.0°C
+...</code></pre>
+
+    <figcaption>30mins after boot</figcaption>
+  </figure>
+</div>
+
+<p><code>Package id 0</code> refers to the temperature of the CPU as a whole, and there is a 10 degree increase in about 30mins, with little to no activity in that duration.</p>
+
+<p>I was off to search again, and I landed with two possible causes of this:</p>
+<ol>
+  <li>Some process is hogging CPU</li>
+  <li>Bad power management of Linux on Macs</li>
+</ol>
+
+<p>The first cause got eliminated pretty quickly, as <code>htop</code> didn’t show any process with a high CPU usage, and the CPU usage was also fairly low overall. Bad power management was a very common issue reported in online forums, and I knew my machine worked fine on macOS, so this seemed like a valid cause.</p>
+
+<p>One of the tools I came across to enable better power management was <code>powertop</code>, that displays the energy usage of a system and offers default settings for better power management. I enabled the defaults using the <code>--auto-tune</code> flag after installing.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>apt <span class="nb">install </span>powertop
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>powertop <span class="nt">--auto-tune</span></code></pre>
+
+<p>When <code>powertop</code> is run without any flags, it runs in a similar fashion to <code>top</code>, displaying the energy usage and other statistics that update in real time.</p>
+
+<pre class="highlight"><code class="language-">The battery reports a discharge rate of:  14.5  W
+The energy consumed was :  325  J
+The estimated remaining time is 2 hours, 6 minutes
+
+Summary: 123.1 wakeups/second,  0.0 GPU ops/seconds, 0.0 VFS ops/sec and 3.1% CPU use
+
+            Usage       Events/s    Category       Description
+        675.2 µs/s      46.6        Timer          tick_sched_timer
+          0.8 ms/s      21.0        Interrupt      [79] amdgpu
+...</code></pre>
+
+<p>Some things stood out here:</p>
+<ul>
+  <li>The battery discharge rate seemed high</li>
+  <li>As a result, the energy consumption was also high</li>
+  <li><code>amdgpu</code> was second highest in the energy usage list</li>
+</ul>
+
+<p>The appearance of <code>amdgpu</code> seemed something to look into further, and saw that there was an option to disable it all together. I wasn’t planning on doing any heavy-duty work on this machine, so it seemed like a reasonable solution if it would help reduce temperatures.</p>
+
+<p>I started following <a href="https://medium.com/codeflu/disabling-discrete-amd-graphics-card-in-linux-5d365738fc97" target="_blank" rel="noopener">this tutorial</a>, which first checks if you have two graphics on your system or not.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>lspci | <span class="nb">grep </span>VGA
+<span class="go">01:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Baffin [Radeon RX 460/560D / Pro 450/455/460/555/555X/560/560X] (rev ff)</span></code></pre>
+
+<p>I don’t see a second GPU, but <a href="https://support.apple.com/en-us/111947" target="_blank" rel="noopener">this machine</a> has two GPUs - an integrated GPU and a discrete/dedicated GPU.</p>
+
+<p>OH WAIT, I found the root cause - the iGPU didn’t get detected for whatever reason, and the dGPU is being used as the main graphics driver in its place. The dGPU uses a lot of power, which explains the the high energy usage in <code>powertop</code>, the quick battery drain and the laptop getting warm!</p>
+
+<p>Other people have also <a href="https://github.com/Dunedan/mbp-2016-linux/issues/6" target="_blank" rel="noopener">faced the same issue</a> and have documented solutions for it, which I followed along.</p>
+
+<h2 id="enabling-the-igpu">Enabling the iGPU</h2>
+
+<p>The iGPU is not detected thanks to the way Apple’s firmware works. If it recognizes that it’s booting an OS other than macOS, it will power down some of the hardware, the iGPU being one of them. Thanks Apple!</p>
+
+<p>The TL;DR solution to this is to make the firmware believe that it is booting macOS by running custom code before boot.</p>
+
+<h3 id="step-1-build-the-custom-efi-code">Step 1: Build the custom EFI code</h3>
+
+<p>The custom code is available in the <a href="https://github.com/0xbb/apple_set_os.efi" target="_blank" rel="noopener">apple_set_os.efi</a> repository. All I had to do was build the file.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>git clone https://github.com/0xbb/apple_set_os.efi
+<span class="gp">$</span><span class="w"> </span><span class="nb">cd </span>apple_set_os.efi
+<span class="gp">$</span><span class="w"> </span>make
+<span class="go">cc -I/usr/include/efi -I/usr/include/efi/x86_64 -DGNU_EFI_USE_MS_ABI -fPIC -fshort-wchar -ffreestanding -fno-stack-protector -maccumulate-outgoing-args -Wall -Dx86_64 -Werror -m64 -mno-red-zone   -c -o apple_set_os.o apple_set_os.c
+ld -T /usr/lib/elf_x86_64_efi.lds -Bsymbolic -shared -nostdlib -znocombreloc /usr/lib/crt0-efi-x86_64.o -o apple_set_os.so apple_set_os.o /usr/lib/gcc/x86_64-linux-gnu/11/libgcc.a \
+/usr/lib/libgnuefi.a
+objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel \
+        -j .rela -j .reloc -S --target=efi-app-x86_64 apple_set_os.so apple_set_os.efi
+rm apple_set_os.o apple_set_os.so</span></code></pre>
+
+<h3 id="step-2-move-the-code-to-the-boot-partition">Step 2: move the code to the boot partition</h3>
+
+<p>Next, the code needs to be in a location that is accessible during boot, aka the boot partition. I can put the code in <code>/boot/efi/EFI</code> directly too, but the instructions I was following put this in a sub-directory called <code>custom</code> instead.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo mkdir</span> /boot/efi/EFI/custom
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo cp </span>apple_set_os.efi /boot/efi/EFI/custom</code></pre>
+
+<h3 id="step-3-ask-grub-to-run-the-code-before-boot">Step 3: Ask GRUB to run the code before boot</h3>
+
+<p>Placing the code in the boot partition alone isn’t enough, I needed to add instructions to run the code before boot somewhere. That somewhere is the bootloader configuration, which in this case is GRUB. I added the following lines to a file created for users to add custom configurations: <code>/etc/grub.d/40_custom</code>:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">cat</span> <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh"> &gt;&gt; /etc/grub.d/40_custom
+</span><span class="go">search --no-floppy --set=root --file /EFI/custom/apple_set_os.efi
+chainloader /EFI/custom/apple_set_os.efi
+boot
+EOF</span></code></pre>
+
+<p>The GRUB menu display was disabled on my machine. To be able to debug any issues on boot, I made the following changes to <code>/etc/default/grub</code>:</p>
+
+<pre class="highlight"><code class="language-conf"><span class="c"># Comment the following line
+# GRUB_TIMEOUT_STYLE=hidden
+</span>
+<span class="c"># Change the timeout value
+</span><span class="n">GRUB_TIMEOUT</span>=<span class="m">10</span>
+
+<span class="c"># Uncomment the following lines
+</span><span class="n">GRUB_TERMINAL</span>=<span class="n">console</span>
+<span class="n">GRUB_GFXMODE</span>=<span class="m">640</span><span class="n">x480</span></code></pre>
+
+<p>Then I ran <code>sudo update-grub</code> to save the changes.</p>
+
+<h3 id="step-4-switch-to-using-the-igpu-on-boot">Step 4: Switch to using the iGPU on boot</h3>
+
+<p>This is done using a shell script called <a href="https://github.com/0xbb/gpu-switch" target="_blank" rel="noopener">gpu-switch</a> that writes the required values to an EFI variable to use the iGPU. The changes were applied on the next boot, so I rebooted the machine.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>git clone https://github.com/0xbb/gpu-switch
+<span class="gp">$</span><span class="w"> </span><span class="nb">cd </span>gpu-switch
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo</span> ./gpu-switch <span class="nt">-i</span>
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>reboot now</code></pre>
+
+<p>After rebooting, the iGPU now appears in the <code>lspci</code> output!</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>lspci | <span class="nb">grep </span>VGA
+<span class="go">00:02.0 VGA compatible controller: Intel Corporation HD Graphics 630 (rev 04)
+01:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Baffin [Radeon RX 460/560D / Pro 450/455/460/555/555X/560/560X] (rev ff)</span></code></pre>
+
+<h2 id="disable-dgpu">Disable dGPU</h2>
+
+<p>The dGPU continued to run and warm up the laptop despite the iGPU being detected, so I disabled it with the following commands:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">echo </span>OFF | <span class="nb">sudo tee</span> /sys/kernel/debug/vgaswitcheroo/switch
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>modprobe <span class="nt">-r</span> amdgpu</code></pre>
+
+<p>And slowly, my laptop started to cool down. I checked the output of <code>sensors</code> after a while, and the temperatures were MUCH lower than with the dGPU enabled:</p>
+
+<pre class="highlight"><code class="language-">coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +42.0°C
+...</code></pre>
+
+<p>The <code>powertop</code> output also reflected this:</p>
+
+<pre class="highlight"><code class="language-">The battery reports a discharge rate of 7.60 W
+The energy consumed was 151 J
+The estimated remaining time is 8 hours, 35 minutes
+
+Summary: 62.1 wakeups/second,  0.0 GPU ops/seconds, 0.0 VFS ops/sec and 0.7% CPU use
+
+            Usage       Events/s    Category       Description
+        100.0%                      Device         Audio codec hwC1D0: ATI
+        491.8 µs/s      27.3        Timer          tick_sched_timer
+...</code></pre>
+
+<p>The battery discharge rate and energy consumption values were lower, battery life became longer and <code>amgdpu</code> no longer appeared at the top of the list!</p>
+
+<p>Lastly, I created a systemd service to disable the dGPU on boot. Thanks to this, my machine remains cool throughout:</p>
+
+<pre class="highlight"><code class="language-systemd"><span class="c"># disable-dgpu.service</span>
+<span class="k">[Unit]</span>
+<span class="nt">Description</span><span class="p">=</span>Disable discrete GPU
+<span class="nt">Before</span><span class="p">=</span>display-manager.service
+
+<span class="k">[Service]</span>
+<span class="nt">Type</span><span class="p">=</span>oneshot
+<span class="nt">ExecStart</span><span class="p">=</span>/usr/sbin/modprobe amdgpu
+<span class="nt">ExecStart</span><span class="p">=</span>/bin/sh -c 'echo OFF &gt; /sys/kernel/debug/vgaswitcheroo/switch'
+<span class="nt">ExecStart</span><span class="p">=</span>/usr/sbin/modprobe -r amdgpu
+<span class="nt">RemainAfterExit</span><span class="p">=</span>yes
+<span class="nt">TimeoutSec</span><span class="p">=</span>0
+
+<span class="k">[Install]</span>
+<span class="nt">WantedBy</span><span class="p">=</span>multi-user.target</code></pre>
+
+<p>I remember being scared when I noticed these issues for the first time. I’d been used to things “just working” on macOS and Windows, and this was the opposite of that. Going from a feeling of fear to slowly gaining the courage to fix stuff has felt great. I think I’m less scared now.</p>
+]]></content></entry>
+<entry>
+<title type="html">Installing Ubuntu on a 2017 MBP - fixing WiFi troubles</title>
+<link href="https://pjg1.site/mbp-linux-wifi" rel="alternate" type="text/html" title="Installing Ubuntu on a 2017 MBP - fixing WiFi troubles" />
+<published>2024-09-09T00:00:00+00:00</published>
+<updated>2024-09-09T00:00:00+00:00</updated>
+<id>https://pjg1.site/mbp-linux-wifi</id>
+<content type="html" xml:base="https://pjg1.site/mbp-linux-wifi">
+<![CDATA[<p>I’d been curious on what it’s like to use Linux as the main OS, and wanted to upgrade from my <a href="/linux-vm-setup">Linux VM setup</a> for a while now. So when a family member was upgrading to a newer machine, I asked for their older machine - a <a href="https://support.apple.com/en-us/111947" target="_blank" rel="noopener">2017 MacBook Pro</a> - and decided to install Linux on it.</p>
+
+<p>I chose Ubuntu as that’s the distro I’m most comfortable with. After some initial research, I created a bootable installer using <a href="https://ubuntu.com/tutorials/create-a-usb-stick-on-macos#1-overview" target="_blank" rel="noopener">this guide</a> and proceeded with the install which went smoothly. Ubuntu also booted much faster compared to macOS on the same machine, so I was feeling good about this.</p>
+
+<p>The feel-good-ness went away fairly quickly, as I started to notice major problems - one of them being that the WiFi wouldn’t connect. I could see the list of networks, but it got stuck at the connecting stage after I entered the password. I failed to catch this during the installation process as I skipped the “Connect to WiFi” step.</p>
+
+<p>With the power of the search engine, I came to the conclusion that the WiFi driver was missing. The driver was available via <code>apt</code>, but I needed WiFi for <code>apt</code> to work. The solution I kept coming across was to get a direct connection via Ethernet and then install. Great idea, except my machine doesn’t have an Ethernet port.</p>
+
+<p><em>womp womp</em></p>
+
+<p>While I was sure I would need an Ethernet adapter and even planned on buying one, I wrote about this situation in <a href="/weeknotes-32-2024">a weeknote</a> in the slight hopes of finding an alternate solution. And I DID! A fellow Recurser reached out with links I hadn’t come across, and <a href="https://www.amirootyet.com/post/how-to-get-wifi-to-work-after#without-internet-connection" target="_blank" rel="noopener">one of them</a> provided the required driver as a ZIP file with installation instructions.</p>
+
+<p>And that’s when it clicked - I can download the required files on a machine that has WiFi and transfer them via USB. A very obvious idea in hindsight, I’m still wondering why I didn’t think of this earlier.</p>
+
+<p>While the file in the post didn’t work, I now knew what to search for, and then came across <a href="https://askubuntu.com/questions/730799/installing-firmware-b43-installer-offline/730813#730813" target="_blank" rel="noopener">this answer on askubuntu</a>. I downloaded the two files it suggests:</p>
+<ul>
+  <li>the driver itself - <code>broadcom-wl-5.100.138</code></li>
+  <li>a package called <code>b43-fwcutter</code> that extracts the firmware specific to the hardware on my system</li>
+</ul>
+
+<p>Once I transferred these files via USB, I ran the remaining steps, and had working WiFi!!!</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>dpkg <span class="nt">-i</span> b43-fwcutter_015-9_amd64.deb
+<span class="gp">$</span><span class="w"> </span><span class="nb">tar </span>xfvj broadcom-wl-5.100.138.tar.bz2
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>b43-fwcutter <span class="nt">-w</span> /lib/firmware broadcom-wl-5.100.138/linux/wl_apsta.o
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>modprobe b43</code></pre>
+
+<p><a href="https://askubuntu.com/questions/626642/how-to-install-broadcom-wireless-drivers-offline/1244412#1244412" target="_blank" rel="noopener">Another answer</a> in another thread suggested installing the package via <code>apt</code> once the WiFi works so future updates would be managed by <code>apt</code>, which I thought was a nice idea.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>apt <span class="nb">install </span>b43-firmware-installer</code></pre>
+
+<p>The WiFi signal appeared to be pretty weak in the top bar, however I didn’t face any issues while running <code>apt install</code>, interesting.</p>
+
+<p>So problem solved, right? Not reaally. When I logged into the machine a few days later, the WiFi stopped connecting once again.</p>
+
+<p>On further searching, I came across <a href="https://github.com/Dunedan/mbp-2016-linux" target="_blank" rel="noopener">mbp-2016-linux</a> - an absolute gem of a resource that mentions what works and doesn’t work on Linux for the 2016 and 2017 MacBook Pro’s. Particularly, the section about WiFi caught my eye:</p>
+
+<blockquote>
+  <p>The MacBook Pro models with Touch Bar come with a <code>Broadcom Limited BCM43602 802.11ac Wireless LAN SoC (rev 02)</code> which is also supported by <code>brcmfmac</code>, but has several issues rendering it unusable, caused by the available firmware.</p>
+</blockquote>
+
+<p>My machine has a Touch Bar, let me check what hardware I have:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>lspci <span class="nt">-nn</span> | <span class="nb">grep </span>Network
+<span class="go">03:00.0 Network controller [0280]: Broadcom Inc. and subsidiaries BCM43602 802.11ac Wireless Lan SoC [14e4:43ba] (rev 02)</span></code></pre>
+
+<p>Aaand it’s the same one. This was confusing since I got WiFi working earlier, that wasn’t a dream. So now I needed to figure out what apart from installing the drivers made it work.</p>
+
+<p>Then I remembered a command I ran in my initial attempt at fixing WiFi - copy-pasting commands without knowing what they do. It seemed relevant enough here for some reason, so I ran it again.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>iwconfig wlp3s0 txpower 10dBm</code></pre>
+
+<p>Reconnected the WiFi, and I had a working connection again! I tried figuring out what led to this confusion, and here’s what happened:</p>
+<ul>
+  <li>The drivers were still missing when I ran the command the first time, so it didn’t work on its own.</li>
+  <li>Once I had the correct driver, I forgot I ran this command and thought that the drivers alone made it work.</li>
+</ul>
+
+<p>This command is suggested as a workaround after installing the driver, and comes from this <a href="https://bugzilla.kernel.org/show_bug.cgi?id=193121" target="_blank" rel="noopener">bug report</a>. I’m not really sure why this works (if you do, let me know!), but it does explain why the WiFi signal appears weak after connecting.</p>
+
+<p>Based on replies in the report and issues on mbp-2016-linux, this isn’t a guaranteed fix but rather a “your mileage may vary” fix. I been using WiFi with this fix for a few weeks and haven’t faced any issues, so looks like it seemed to work fine in my case (yay!)</p>
+
+<p>Okay one last thing before I wrap up this post. This workaround isn’t a one-time fix, so I had to type the command and restart the WiFi on each boot to make it work. That got repetitive, so I recently created and enabled a <code>systemd</code> service to run these commands on boot.</p>
+
+<pre class="highlight"><code class="language-systemd"><span class="c"># mbp-linux-wifi.service</span>
+<span class="k">[Unit]</span>
+<span class="nt">Description</span><span class="p">=</span>Fixes to make WiFi work on a MBP running Linux
+<span class="nt">Requires</span><span class="p">=</span>network.target
+<span class="nt">After</span><span class="p">=</span>network.target
+
+<span class="k">[Service]</span>
+<span class="nt">Type</span><span class="p">=</span>oneshot
+<span class="nt">ExecStart</span><span class="p">=</span>/usr/sbin/iwconfig wlp3s0 txpower 10dBm
+<span class="nt">ExecStart</span><span class="p">=</span>/usr/bin/systemctl restart NetworkManager
+<span class="nt">RemainAfterExit</span><span class="p">=</span>yes
+<span class="nt">Restart</span><span class="p">=</span>on-failure
+<span class="nt">RestartSec</span><span class="p">=</span>5
+
+<span class="k">[Install]</span>
+<span class="nt">WantedBy</span><span class="p">=</span>multi-user.target</code></pre>
+
+<p>Earlier iterations of this service failed to run, since it would sometimes try to execute commands before the wireless interface (<code>wlp3s0</code>) is even detected. To solve this, I added the <code>Restart</code> and <code>RestartSec</code> parameters to retry after it fails, and now it connects shortly after booting.</p>
+]]></content></entry>
+<entry>
+<title type="html">W35 2024: Taking a break from weeknotes</title>
+<link href="https://pjg1.site/weeknotes-35-2024" rel="alternate" type="text/html" title="W35 2024: Taking a break from weeknotes" />
+<published>2024-09-02T00:00:00+00:00</published>
+<updated>2024-09-02T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-35-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-35-2024">
+<![CDATA[<h2 id="wifi-works-on-the-linux-machine">WiFi works on the Linux machine!</h2>
+
+<p>I figured out why the WiFi stopped working again, and went down quite an interesting rabbit hole. I’ve started working on a draft describing the situation (my first non-weeknote post after ages, eeeee), so I’ll save details for that post.</p>
+
+<p>One fun thing I did after WiFi started working was running an nginx server on my machine and accessing the default page from my daily driver. I’ve tried this on a server in the cloud before, but running it on machine and accessing it from another machine in the same network felt very cool.</p>
+
+<p>This homelab stuff makes me feel like a kid discovering things for the first time, and it feels awesome.</p>
+
+<h2 id="the-website-fixes-continue">The website fixes continue</h2>
+
+<p>After having pushed the initial version of the design, I still had some TODOs left, and even some feedback regarding the colors that I wanted to implement. Since the WiFi problem got solved quickly, I ended up spending the rest of my time on this. Some changes I made:</p>
+
+<ul>
+  <li>Changed CSS - increased contrast for dark mode and made the colors more consistent across modes.</li>
+  <li>Added an introduction line to the homepage</li>
+  <li>Replaced terminal GIFs with <a href="https://asciinema.org" target="_blank" rel="noopener">asciinema</a> recordings in posts</li>
+  <li>Moved <a href="/hanukkahofdata">Hanukkah of Data</a> from a standalone page to a post</li>
+  <li>Minor post edits</li>
+  <li>Added alt text to images</li>
+  <li>Realized that some images were probably not required while writing alt text, so deleted them</li>
+  <li>Added a <a href="/colophon">colophon</a> page</li>
+</ul>
+
+<h2 id="terminal-and-text-editor-themes-updated">Terminal and text editor themes updated</h2>
+
+<p>Inspired by the minimal design of my website, I updated the themes for my text editor (Sublime Text atm) and Terminal application (iTerm) to match. On Sublime, I’m using <a href="https://github.com/cowwabanga/sublime-almost-mono/tree/main" target="_blank" rel="noopener">sublime-almost-mono</a> while I went for a completely monochrome theme for iTerm. Only white text on a black background (or vice-versa for light mode), no colors.</p>
+
+<h2 id="changing-accountability-mechanisms">Changing accountability mechanisms</h2>
+
+<p>I’ve somehow managed to post weeknotes for about three months now - sometimes weekly, sometimes bi-weekly. I think it’s time to take a break from them though, as it’s no longer an effective accountability mechanism for me.</p>
+
+<p>I hoped that writing these would help me get more comfortable publishing on a regular basis, and that would translate into me writing more technical posts focused on a particular topic. While I did get comfortable publishing, I haven’t written any technical posts since I started these.</p>
+
+<p>Now that I’ve been able to generate ideas through other ways (identifying gaps in my knowledge and thinking of resources/projects to learn them), I would rather spend time working on those ideas and writing about them instead of weeknotes. It seems like a natural progression.</p>
+
+<p>Weeknotes are a great format though, and I’m glad I wrote them for as long as I did. I would encourage them to anyone who wants to write but is unsure what to write about, I’m likely going to restart these whenever I’m in a rut.</p>
+
+<p>My new accountability mechanism is something more direct - an accountability buddy! <a href="https://swagnik.netlify.app" target="_blank" rel="noopener">Swagnik</a> - a fellow Recurser - and I have started weekly meetings to reflect and discuss our plans for the week. The fact that I’m being held accountable by one single person instead of putting out a message on a chat platform or this blog is making a difference, and probably what I needed.</p>
+]]></content></entry>
+<entry>
+<title type="html">W33-34 2024: Minimal blog era</title>
+<link href="https://pjg1.site/weeknotes-33-34-2024" rel="alternate" type="text/html" title="W33-34 2024: Minimal blog era" />
+<published>2024-08-26T00:00:00+00:00</published>
+<updated>2024-08-26T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-33-34-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-33-34-2024">
+<![CDATA[<h2 id="farewell-old-theme-hello-new-theme">Farewell old theme, hello new theme!</h2>
+
+<p>I liked the theme prior to this (I somehow managed to stick with it for a year), but was craving for something simpler, one where I could focus on the writing rather than obsessing over the aesthetics of the site. The inspiration came mainly from two websites – <a href="http://derekkedziora.com" target="_blank" rel="noopener">Derek Kedziora’s website</a> for the layout and <a href="https://kevincox.ca" target="_blank" rel="noopener">Kevin Cox’s website</a> for the color scheme.</p>
+
+<p>This was also a good opportunity to simplify the structure of my site, since I started from scratch with a new directory and copied necessary files from the previous directory. I also got around to making some edits to older posts. Still have a combination of major and minor fixes to make, but I think I’ve reached a point where I can take a break and focus on posting for sometime.</p>
+
+<h2 id="progress-on-installing-linux-on-a-mac">Progress on installing Linux on a Mac</h2>
+
+<p>After publishing <a href="/weeknotes-32-2024">the last weeknote</a>, a fellow Recurser reached out with links on how I could install the WiFi driver without requiring an Ethernet connection. Those links were a good starting point, and I finally found a solution that worked!</p>
+
+<p>However, I’ve had issues with WiFi again the next few times I ran the machine. I didn’t come around to focusing on this much, so that’s on my list for the coming week. Might make a post about this once I get it working.</p>
+
+<h2 id="touching-grass">Touching grass</h2>
+
+<p>I’ve become a homebody since the last few years (thanks 2020), and I finally feel like I’m taking efforts towards going outside more. In the last two weeks, I’ve stepped out not once, not twice, but THRICE. Big achievement.</p>
+
+<h2 id="linkers-are-tough-to-understand">Linkers are tough to understand</h2>
+
+<p>I finally finished reading the chapter about Linkers from <a href="https://csapp.cs.cmu.edu" target="_blank" rel="noopener">CS:APP</a>, and oh my linkers are cool but hard to grasp. I like working on some sort of tiny project to solidify my learning, but I don’t have a strong project idea for linkers. So I’m just going to hope this knowledge comes to use when a linker error shows up.</p>
+
+<p>I’m also surprised how I didn’t really read physical books much during my time at uni, but I’m willingly reading one (and enjoying it) when there’s no academic pressure. Oh, the joys of self-learning.</p>
+
+<h2 id="learning-plan-is-evolving">Learning plan is evolving</h2>
+
+<p>I spent this weekend identifying specific concepts I always wanted to learn, and tried looking for project ideas that will help me learn them. I also looked out for resources that could provide the foundational knowledge.</p>
+
+<p>I’m scared, but also excited.</p>
+]]></content></entry>
+<entry>
+<title type="html">W32 2024: Baby steps</title>
+<link href="https://pjg1.site/weeknotes-32-2024" rel="alternate" type="text/html" title="W32 2024: Baby steps" />
+<published>2024-08-13T00:00:00+00:00</published>
+<updated>2024-08-13T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-32-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-32-2024">
+<![CDATA[<h2 id="structured-learning-baby-steps">Structured learning baby steps</h2>
+
+<p>After last week’s note, I started thinking about the topics I wanted to learn more about. I was inspired by a fellow Recurser’s <a href="https://ravi.fyi" target="_blank" rel="noopener">Learning Sabbatical</a>, which had links to books and other useful resources.</p>
+
+<p>I initially thought of making a similar curriculum (and even made one), but decided to focus on one book after getting started. I found out about <a href="http://csapp.cs.cmu.edu" target="_blank" rel="noopener">Computer Systems: A Programmer’s Perspective</a> a year ago - a fellow Recurser was reading through the book and recommended it, and I paired on one of the labs. It’s also listed in the Computer Architecture section of the <a href="https://teachyourselfcs.com" target="_blank" rel="noopener">Teach Yourself Computer Science</a> website.</p>
+
+<p>I read the introductory chapter, and I love the book. The language is easy to understand, and I’m finally making sense of terminology I’ve vaguely heard of but didn’t understand properly.</p>
+
+<p>Reading the book in order has proved to be a bad idea in the past, so I’m trying a “choose your adventure” style of reading, where I decide the order of chapters as I go.</p>
+
+<p>I’ve currently reading a chapter about Linkers, and there’s a lot to process. I would ideally like to solidify my knowledge by some combination of code + blog posts, so that’s something to think about.</p>
+
+<h2 id="attempt-at-installing-linux-on-a-mac">Attempt at installing Linux on a Mac</h2>
+
+<p>I’ve been curious on what it would be like to have Linux as the main OS on a machine, as I mostly use macOS and my usage of Linux is limited to Virtual Machine where I mainly use the CLI.</p>
+
+<p>I’ve also heard about the concept of a homelab and doing cool networking things with it (things like setting up a firewall or using the machine as a router), and figured it would be better to experiment on a dedicated machine if I have the chance.</p>
+
+<p>I recently got my hands on a 2017 MacBook Pro, and decided to install Ubuntu on it. The installation itself was pretty smooth…however I couldn’t connect to the WiFi after rebooting.</p>
+
+<p>Based on some initial searching, I think it didn’t install the WiFi driver, which might be causing this.</p>
+
+<p>One of the solutions is to connect an Ethernet cable directly and then install the driver…but my MacBook has no Ethernet port. I’d need to buy an adapter for that, so if anyone has any other ideas let me know!</p>
+
+<h2 id="tuntcp-on-hold-again">tuntcp: on hold (again)</h2>
+
+<p>This week was supposed to be my last week working on this, but most of my time was spent reading CS:APP, so this got pushed to the side. I revisited the project on the weekend, and had another breakthrough in terms of what the end result should look like. Despite this, I was struggling to write actual code.</p>
+
+<p>Since I am working on stuff I’m more excited about now, this is going on the back burner. I might come back to it whenever I find myself feeling stuck again.</p>
+]]></content></entry>
+<entry>
+<title type="html">W30-31 2024: More thinking, less doing</title>
+<link href="https://pjg1.site/weeknotes-30-31-2024" rel="alternate" type="text/html" title="W30-31 2024: More thinking, less doing" />
+<published>2024-08-05T00:00:00+00:00</published>
+<updated>2024-08-05T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-30-31-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-30-31-2024">
+<![CDATA[<h2 id="jamming-to-songs-on-loop">Jamming to songs on loop</h2>
+
+<p>There are phases where I don’t actively jam to music, but rather just play it in the background while working. I was in this phase for a while, until I heard two new songs last week and now I can’t stop jamming to them:</p>
+
+<ul>
+  <li>
+    <p><a href="https://www.youtube.com/watch?v=azhwDQsYD8c&amp;pp=ygURcGl5YSBwaXlhIGNhbGxpbmc%3D" target="_blank" rel="noopener">Piya Piya Calling</a> by Karpe, Kaifi Khalil and Amanda Delara feat. Quick Style - I’ve been following Quick Style for a while and have heard a song or two from Coke Studio Pakistan, but I never expected their collaboration to be a song with my name in the title. Such a feel good track.</p>
+  </li>
+  <li>
+    <p><a href="https://www.youtube.com/watch?v=a3Ue-LN5B9U&amp;pp=ygUKYWFzYSBrb29kYQ%3D%3D" target="_blank" rel="noopener">Aasa Kooda</a> by Sai Abhayankar and Sai Smriti - The chorus and hook step blows my mind every.single.time. The music video is also really beautifully filmed.</p>
+  </li>
+</ul>
+
+<p>I wanted to add these songs to my playlist, so I spent some time refactoring a script I wrote to download songs locally with their metadata. It was fun looking back at messy code from 2 years ago.</p>
+
+<h2 id="letting-go-of-tuntcp">Letting go of tuntcp</h2>
+
+<p>I think I got what I wanted out of <a href="https://github.com/pjg11/tuntcp" target="_blank" rel="noopener">tuntcp</a> a long time back, but perfectionism kept coming in the way, so I kept adding/changing stuff and now I don’t know where to stop.</p>
+
+<p>Progress has been slow, and I’m loosing interest. This coming week is the last week I’ll work on refactoring the code, after which I’ll consider the project done.</p>
+
+<h2 id="reflecting-on-one-year-at-rc">Reflecting on one year at RC</h2>
+
+<p>I got accepted to the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a> in July last year, but my batch started on August 7th, which means its officially been a year since I joined!</p>
+
+<p>The batch felt like the tip of the iceberg in terms of my capability as a programmer. However, I find myself only slightly lower from the tip a year later, unable to go deeper on one/a few topics.</p>
+
+<p>I worked on projects post-batch too, but those where chosen based on what I found fun in that moment, rather than learning things in a structured way. More on this later.</p>
+
+<p>A pleasant surprise came in the form of the opportunity to work as a part-time moderator. Helping maintain a community that has been a subtle support system for the past year feels good (so does having some source of income while I figure how to make this “making stuff online” thing work).</p>
+
+<p>To top it all off, my <a href="/rc07">end-of-batch statement</a> was added to the list of <a href="https://www.recurse.com/who" target="_blank" rel="noopener">RC’s Testimonials</a> recently, which felt really nice! This might be the first time my blog has been linked somewhere.</p>
+
+<h2 id="planning-ahead">Planning ahead</h2>
+
+<p>The last few weeks were hectic, and with those commitments now over, I’m ready to focus on projects again. Reflecting on my time at RC got me thinking on how I can change my approach to learning. Here are some half-baked ideas to ponder over this week:</p>
+
+<ul>
+  <li>
+    <p>I make a study curriculum for myself and follow it as much as I can. I’ve stayed away from structured learning for the longest time, but maybe I’m ready for it now?</p>
+  </li>
+  <li>
+    <p>I try out the things Julia Evans wrote about during her <a href="https://jvns.ca/#recurse-center-2013" target="_blank" rel="noopener">2013 batch at RC</a> as a starting point. I’ve hesitated to do this for two main reasons:</p>
+
+    <ul>
+      <li>
+        <p>Someone already figured this stuff out 11 years ago, so I feel dumb figuring this stuff out 11 years later, even though the concepts are new to me. I know its a silly reason, which is why I’d like to get over this.</p>
+      </li>
+      <li>
+        <p>If I end up writing about it, I fear my posts will end up looking like clones of hers, particularly if I don’t have anything new to add.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Starting some kind of daily writing practice, where I attempt at writing some blog-post like every day privately. Ideas include trying to explain a concept or a passage of a book and writing setup guides for things I use commonly. Some of these might turn into actual blog posts someday.</p>
+  </li>
+  <li>
+    <p>Have some <a href="https://www.recurse.com/manual#sub-sec-self-directives" target="_blank" rel="noopener">finger work projects</a> to fall back on. Challenges like <a href="http://protohackers.com" target="_blank" rel="noopener">Protohackers</a> help keep the programming momentum going as I’m presented with a set of requirements, and I only have to focus on the implementation.</p>
+  </li>
+</ul>
+]]></content></entry>
+<entry>
+<title type="html">W28-29 2024: Setting priorities</title>
+<link href="https://pjg1.site/weeknotes-28-29-2024" rel="alternate" type="text/html" title="W28-29 2024: Setting priorities" />
+<published>2024-07-22T00:00:00+00:00</published>
+<updated>2024-07-22T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-28-29-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-28-29-2024">
+<![CDATA[<h2 id="working-on-tuntcp">Working on tuntcp</h2>
+
+<p><a href="https://github.com/pjg11/tuntcp" target="_blank" rel="noopener">tuntcp</a> is a project I started during my batch at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>. It started off great, but I lost interest by the time the batch ended.</p>
+
+<p>Since then, completing this project has been at the back of my mind. I tend to lose interest whenever I pick it up again - I either get too ambitious about what features to include, or get stuck on how to structure the code.</p>
+
+<p>I made some progress about 2 months ago, but the code was so hackily put together that I myself get confused if I look at it just a few days later.</p>
+
+<p>Over the last two weeks though, I think I made some sort of breakthrough. I’ve been working on this locally, so nothing to show publicly yet.</p>
+
+<h2 id="completed-raytracingweekend">Completed raytracingweekend</h2>
+
+<p><a href="https://github.com/pjg11/raytracingweekend" target="_blank" rel="noopener">raytracingweekend</a> has been complete for a while, but I kept the README brief at the time in the hopes of writing a longer blog post about it.</p>
+
+<p>The motivation to write a post never came, so I decided add some more details to the README and call it a day.</p>
+
+<p>I’ve been avoiding doing this for months. And when I finally started, it took me under an hour to complete. Fun</p>
+
+<h2 id="re-starting-protohackers">Re-starting Protohackers</h2>
+
+<p>I heard about Protohackers from a fellow Recurser, and attempted a few challenges at the start of this year. As happens with projects, I start them with full interest, but lose momentum at some point and leave it.</p>
+
+<p>A few weeks/months later the interest comes back, and I make an attempt to finish it with any new knowledge I’ve learnt since then.</p>
+
+<p>That happened this weekend with Protohackers. I started solving them in Go, and completed 3 challenges! The code is up <a href="https://github.com/pjg11/protohackers" target="_blank" rel="noopener">here</a>.</p>
+
+<h2 id="reflections">Reflections</h2>
+
+<p>Surprisingly, I made some pretty good prioritizing decisions over the last two weeks.</p>
+
+<p>Since my attention is currently divided by multiple commitments, I decided to work on/finish existing projects, as it’s easier to get started and keep the momentum going.</p>
+
+<p>I joined a few RC study groups, but found myself skipping most of them. Rather than trying to fit them in, I chose to stop attending all of them except one, that I host.</p>
+
+<p>I also switched to posting a weeknote once every two weeks, to account for the slower pace for the meantime.</p>
+]]></content></entry>
+<entry>
+<title type="html">W26-27 2024: Very distracted</title>
+<link href="https://pjg1.site/weeknotes-26-27-2024" rel="alternate" type="text/html" title="W26-27 2024: Very distracted" />
+<published>2024-07-08T00:00:00+00:00</published>
+<updated>2024-07-08T00:00:00+00:00</updated>
+<id>https://pjg1.site/weeknotes-26-27-2024</id>
+<content type="html" xml:base="https://pjg1.site/weeknotes-26-27-2024">
+<![CDATA[<p>Both these weeks were busy with work stuff, some changes in routine (aka me trying to keep up with a show I really like) and lots of procrastination, which meant little to no progress on personal projects.</p>
+
+<p>I’ve been trying to readjust my routine to start making progress, which hasn’t been successful so far, so here’s a short note summarizing the last two weeks.</p>
+
+<h2 id="making-progress-on-a-c-project">Making progress on a C project</h2>
+
+<p>I revisited a project I mentioned in a <a href="https://pjg1.site/weeknotes-24-2024#figuring-out-how-to-read-a-file-in-the-ext4-filesystem" target="_blank" rel="noopener">previous weeknote</a> and attemtpted to port the rest of code in the post. It kind of works, but some cases don’t, and debugging those cases is the next step.</p>
+
+<h2 id="starting-a-personal-wiki">Starting a personal wiki?</h2>
+
+<p>I was recently helping out refactor the internal wiki at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>, and that inspired me to start my own. However, having separate wiki pages started to create confusion with the dev journal system, so I’m thinking on how to incorporate this with the journal itself.</p>
+
+<h2 id="lots-of-thinking">Lots of thinking</h2>
+
+<p>Since I was finding it tough to get started on something, I decided to spend time planning in the hopes that something would click. I’m in the process of breaking down projects into smaller, manageable tasks, and priortizing which ones to focus on.</p>
+
+<h2 id="browserengineering">browser.engineering</h2>
+
+<p>Riding the wave of the start of a new batch and new events at RC, I decided to join a study group working through the <a href="https://browser.engineering" target="_blank" rel="noopener">Web Browser Engineering</a> book. I had this book saved in my “someday” list for a while, and this study group seemed like a good opportunity.</p>
+
+<p>I’m working through the Chapter 1 exercises, and it seems interesting so far. Not sure if I’ll work through the entire book though.</p>
+
+<h2 id="reflections">Reflections</h2>
+
+<p>The new additions to my routine meant that my existing routine isn’t working. This was also reflective in my dev journal, where I have very few notes from these two weeks.</p>
+
+<p>Attempts at readjusting my routine shall continue.</p>
+]]></content></entry>
+</feed>

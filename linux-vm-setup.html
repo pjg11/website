@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>Linux x64 VM on an M1 Macbook</h1>
+<p><time datetime="2023-01-13">January 13, 2023</time>
+• <a class="tag" href="/tags#linux">linux</a>, <a class="tag" href="/tags#vm">vm</a></p>
+<p>I upgraded to the M1 MacBook Pro as my daily driver laptop about a year ago. Being a machine with the ARM architecture, I couldn’t use the same setup that I had on my previous machine, an Intel machine. I tried a bunch of solutions before finally settling on the current one, which I’ll describe in detail in this post.</p>
+
+<h2 id="initial-trial-and-error">Initial trial and error</h2>
+
+<p>I started off with a free trial of Parallels Desktop, which at the time (2021) provided support for M1 Macs over VMWare, which is what I used on my previous laptop. After the trial got over, I was looking for a more permanent solution. VMWare did release a version of their app for M1 soon enough, but that too seemed buggy at times.</p>
+
+<p>Enter <a href="https://mac.getutm.app" target="_blank" rel="noopener">UTM</a>, a free and open-source alternative to Parallels and VMWare for MacOS. Setting up the VM using it was a breeze due to the installation instructions as part of their documentation. I used a Kali Linux ARM VM on UTM for a long time, till I started noticing some core issues.</p>
+
+<h2 id="core-issues">Core issues</h2>
+
+<p>One of the them was not being able to run Linux x64 (x86-64) binaries. Oftentimes for Reverse Engineering challenges as part of CTFs, we were provided with an executable, which were created on and for the x64 architecture. Using virtualization tools (like Parallels and VMWare) meant that I could only set up an ARM VM on an ARM machine, so this stayed an issue regardless of the tool I used.</p>
+
+<p>The main solution was emulation, i.e., running a different architecture than the host system’s architecture. I tried emulation in two ways:</p>
+
+<ul>
+  <li><a href="https://karton.github.io" target="_blank" rel="noopener">Karton</a> is a tool to run Linux programs on macOS, a different Linux distro, or a different architecture, with Docker as its base. This worked fine but having a VM for most tasks and a docker container just to run x64 binaries felt too much.</li>
+  <li>UTM runs <a href="https://www.qemu.org" target="_blank" rel="noopener">QEMU</a> under the hood, which provides support for Emulation. I tried setting up and running a x64 VM, but it ran extremely slowly.</li>
+</ul>
+
+<p>The other issue was that some software wouldn’t install due to certain dependencies not providing support for ARM machines (at least at the time).</p>
+
+<p>Additionally, I had some tools installed on the Mac since they worked better there, so working between two different GUIs was getting a little annoying, and the VM took up a lot of space because of the GUI. This struck an idea, which led to the current setup.</p>
+
+<h2 id="setup-overview">Setup Overview</h2>
+
+<ol>
+  <li>
+    <p><a href="#terminal-only-vm">Terminal-only VM</a>: From the emulation attempts, I realized that what made emulated VMs really slow was the GUI, as Karton didn’t have any speed issues but the emulated VM did. I figured that having a GUI on the VM was not necessary, as most of my work was done in the terminal.</p>
+  </li>
+  <li>
+    <p><a href="#emulated-vlan">Emulated VLAN</a>: This part is specific for situations that require connecting to a VPN, as is my case with Hack The Box machines. I needed to use both the host and the VM for different parts of the challenge. I could only connect the VPN on one place at a time, so that meant changing the connection between the two. This got extremely annoying, and Emulated VLAN, a network mode in UTM was the solution.</p>
+  </li>
+  <li>
+    <p><a href="#remote-access-via-ssh">Remote access via SSH</a>: With the GUI gone, the suggested settings for file and clipboard sharing between the host and virtual machine didn’t work. This was solved by accessing the VM using SSH and Port Forwarding as part of Emulated VLAN.</p>
+  </li>
+</ol>
+
+<h2 id="terminal-only-vm">Terminal-only VM</h2>
+
+<p>This step requires downloading UTM and the 64-bit installer from the Kali Linux website. The setup for this VM is the same as a usual setup except for a few changes:</p>
+
+<ul>
+  <li>
+    <p>When creating a new VM, select Emulate instead of Virtualize. Most of the settings are set properly by default, so the rest of the setup continues as usual.</p>
+  </li>
+  <li>
+    <p>During the Kali Linux installation process, deselect the default desktop envrionment (Xfce) in the Software selection section. Since no GUI is selected, this should lead to a terminal-only installation.</p>
+  </li>
+</ul>
+
+<figure>
+<a href="/public/images/linux-vm-setup/terminal-only-selection.png" target="_blank"><img src="/public/images/linux-vm-setup/terminal-only-selection.png" alt="Software Selection section in the Kali Linux installation process. The boxes next to all of the three listed desktop environments are unchecked." loading="lazy" /></a>
+</figure>
+<ul>
+  <li>Once the installation is complete, the VM reboots and you may see the installation screen again. To fix this, switch off the VM and open the Settings page. Under the Drives section, remove the installer Drive, which has the type CD/DVD (ISO Image). The VM should boot fine from here.</li>
+</ul>
+
+<figure>
+<a href="/public/images/linux-vm-setup/utm-delete-installer.png" target="_blank"><img src="/public/images/linux-vm-setup/utm-delete-installer.png" alt="The first drive (the installer) is selected in the sidebar of the UTM settings page. The &quot;Delete Drive&quot; button in displayed in red." loading="lazy" /></a>
+</figure>
+<h2 id="emulated-vlan">Emulated VLAN</h2>
+
+<p>Emulated VLAN is one of the different networking modes on UTM, which are described here. The reason why this mode allows VPN connections to go through over the other modes is described by one of the UTM devs in a <a href="https://github.com/utmapp/UTM/issues/3238#issuecomment-959911107" target="_blank" rel="noopener">GitHub issue</a>:</p>
+
+<blockquote>
+  <p>Have you tried the emulated VLAN network mode? If any, that one would definitely go through the VPN since it’s emulated in userspace. The other modes use macOS Virtualization features that might not respect the host’s VPN settings.</p>
+</blockquote>
+
+<p>Open the settings page of the virtual machine, click on Network and change the network mode to Emulated VLAN.</p>
+
+<figure>
+<a href="/public/images/linux-vm-setup/emulated-vlan.png" target="_blank"><img src="/public/images/linux-vm-setup/emulated-vlan.png" alt="The Network tab is selected in the sidebar of the UTM settings page, with the Network Mode set to Emulated VLAN." loading="lazy" /></a>
+</figure>
+<p>To be able to access this machine remotely, port forwarding needs to be set, which is covered in the next step.</p>
+
+<h2 id="remote-access-via-ssh">Remote access via SSH</h2>
+
+<p>With the Emulated VLAN mode, we’re now dealing with two separate networks - your local network containing the host machine (<code>192.168.0.X</code> range) and the Virtual LAN containing the VM (<code>10.0.2.X</code> range). To access services on the VM from the host machine, we need to map required ports of the VM to ports on the host machine.</p>
+
+<p>This technique is called port forwarding. One such service is <code>ssh</code> at port <code>22</code>, which we can use to access the machine on the host’s terminal.</p>
+
+<h3 id="port-forwarding">Port Forwarding</h3>
+<p>After changing the network mode in the previous step, a new section called Port Forwarding should appear in the sidebar. Click on New button in the Port Forwarding section, and forward port <code>22</code> on the guest machine to port <code>2200</code> on the host machine. The IP address fields are left blank, so that the defaults are applied.<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup></p>
+
+<figure>
+<a href="/public/images/linux-vm-setup/port-forwarding-add.png" target="_blank"><img src="/public/images/linux-vm-setup/port-forwarding-add.png" alt="A pop-up box appears after clicking on the New button. There are four text fields - Guest Address (left empty), Guest Port (set to 22), Host Address (left empty) and Host Port (set to 2200)." loading="lazy" /></a>
+</figure>
+<p>You can add additional ports to transfer files between the host and VM or as ports to listen for incoming reverse shells. I added 3 additional ports - <code>1234</code>, <code>4444</code> and <code>8888</code>).</p>
+
+<h3 id="start-ssh-server">Start SSH server</h3>
+<p>Save the settings and start up the VM. Once logged in, start the <code>ssh</code> server. If <code>ssh</code> is not installed, install it first.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>apt <span class="nb">install </span>ssh
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>service ssh start</code></pre>
+
+<p>If you prefer that <code>ssh</code> is enabled by default each time the VM starts, use the following command after installation:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>systemctl <span class="nb">enable </span>ssh.service</code></pre>
+
+<p>Once started, open a terminal on the host machine and log in with the credentials you’ve set, <code>127.0.0.1</code> as the IP and <code>2200</code> as the port number.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>ssh pjg1@127.0.0.1 <span class="nt">-p</span> 2200</code></pre>
+
+<p>Now that your VM is accessible on the host, copy and pasting text should be the same as always. The process to transfer files is a little longer.</p>
+
+<h3 id="file-transfer---host-to-vm">File Transfer - Host to VM</h3>
+<p>First, start a server using Python on the host machine.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>python3 <span class="nt">-m</span> http.server
+<span class="go">Serving HTTP on :: port 8000 (http://[::]:8000/) ...</span></code></pre>
+
+<p>Then on the virtual machine, retrieve the file of choice using <code>wget</code> and the IP address of the host machine, generally seen in the <code>en0</code> interface.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>wget http://&lt;ip_address&gt;:8000/&lt;file_path&gt;</code></pre>
+
+<h3 id="file-transfer---vm-to-host">File Transfer - VM to Host</h3>
+<p>First, start a server using Python on the virtual machine, using any of the port forwarded ports.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>python3 <span class="nt">-m</span> http.server 8888
+<span class="go">Serving HTTP on :: port 8888 (http://[::]:8888/) ...</span></code></pre>
+
+<p>Then on the host machine, retrieve the file of choice using <code>wget</code> and <code>127.0.0.1</code> as the IP address.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>wget http://127.0.0.1:8888/&lt;file_path&gt;</code></pre>
+
+<p>I currently use these steps with <a href="https://iterm2.com" target="_blank" rel="noopener">iTerm2</a> as the terminal. Another option is the <a href="https://medium.com/@lizrice/linux-vms-on-an-m1-based-mac-with-vscode-and-utm-d73e7cb06133" target="_blank" rel="noopener">remote-ssh</a> extension, if you’re a VSCode user.</p>
+
+<p>With all of that, you’re good to go!</p>
+<h2 id="notes">Notes</h2>
+  <ol class="footnotes" role="doc-endnotes">
+    <li id="fn:1" role="doc-endnote">
+      <p>The UTM UI has been updated with their recent release. When setting a port forward in the <a href="https://www.webscalability.com/blog/2021/05/access-your-utm-vm-over-ssh/" target="_blank" rel="noopener">earlier UI</a>, each text field had a label next to it, making it clear which is which. Now for some reason, the labels have been removed, but the order is the same. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

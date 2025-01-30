@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>Python type conversion cheatsheet</h1>
+<p><time datetime="2024-02-11">February 11, 2024</time>
+• <a class="tag" href="/tags#python">python</a></p>
+<p>The built-in functions to convert between different types in Python is something I keep forgetting and have to look up each time. So I decided to make a cheatsheet for reference. Tested on version 3.11.7.</p>
+
+<h2 id="int---hex">int &lt;-&gt; hex</h2>
+
+<p>There are two <a href="https://docs.python.org/3.11/library/functions.html" target="_blank" rel="noopener">built-in functions</a> for this, <code>hex()</code> and <code>int()</code>.</p>
+
+<p><code>hex()</code> converts an integer (base 10) to a hexadecimal number (base 16). Hexadecimal numbers aren’t a separate type in Python, so the resuting output is of type <code>str</code>.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">hex</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+<span class="go">'0xff'</span></code></pre>
+
+<p>For the other way round, <code>int()</code> is called with the base set to 16. The function accepts input with and without the <code>0x</code> prefix.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">int</span><span class="p">(</span><span class="sh">'</span><span class="s">0xff</span><span class="sh">'</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="go">255
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">int</span><span class="p">(</span><span class="sh">'</span><span class="s">ff</span><span class="sh">'</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="go">255</span></code></pre>
+
+<p>Even typing the hex string with the <code>0x</code> prefix but without the quotes will output its integer representation.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="mh">0xff</span>
+<span class="go">255</span></code></pre>
+
+<h2 id="hex---bytes">hex &lt;-&gt; bytes</h2>
+
+<p>The functions are part of the <a href="https://docs.python.org/3.11/library/stdtypes.html#bytes" target="_blank" rel="noopener"><code>bytes</code></a> built-in type.</p>
+
+<p><code>bytes.hex()</code> converts bytes to a hexadecimal string.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">bytes</span><span class="p">.</span><span class="nf">hex</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">hello</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">'68656c6c6f'</span></code></pre>
+
+<p><code>bytes.fromhex()</code> converts a hex string to its byte form. Unlike <code>int()</code>, this function only accepts input without the <code>0x</code> prefix.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">bytes</span><span class="p">.</span><span class="nf">fromhex</span><span class="p">(</span><span class="sh">'</span><span class="s">68656c6c6f</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">b'hello'
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">bytes</span><span class="p">.</span><span class="nf">fromhex</span><span class="p">(</span><span class="sh">'</span><span class="s">0x68656c6c6f</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+ValueError: non-hexadecimal number found in fromhex() arg at position 1</span></code></pre>
+
+<h2 id="int---bytes">int &lt;-&gt; bytes</h2>
+
+<p>The <code>int</code> data type has <a href="https://docs.python.org/3.11/library/stdtypes.html#additional-methods-on-integer-types" target="_blank" rel="noopener">functions</a> for converting to and from bytes.</p>
+
+<p><code>int.to_bytes()</code> requires two parameters apart from the number itself.</p>
+
+<p>The first is the length of the resulting output, or the number of bytes. I can either specify a number, or use another function, <code>int.bit_length()</code> to calculate the number of bytes.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">num</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">bin</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+<span class="go">'0b101'
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">bit_length</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+<span class="go">3
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">nbytes</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">.</span><span class="nf">bit_length</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">+</span> <span class="mi">7</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span>
+<span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">nbytes</span>
+<span class="go">1</span></code></pre>
+
+<p>The next parameter is the byte order. When in doubt, default to big-endian.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">to_bytes</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">.</span><span class="nf">bit_length</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">+</span> <span class="mi">7</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span><span class="p">,</span> <span class="sh">'</span><span class="s">big</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">b'\x05'
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">to_bytes</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="sh">'</span><span class="s">big</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">b'\x00\x05'
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">to_bytes</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="sh">'</span><span class="s">little</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">b'\x05\x00'</span></code></pre>
+
+<p>The function can also be written as <code>num.to_bytes(2, 'big')</code>, however I prefer the earlier notation as its more consistent with <code>int.from_bytes()</code>, the reverse function.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">from_bytes</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="se">\x00\x05</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">big</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">5
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">from_bytes</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="se">\x05\x00</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">little</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">5</span></code></pre>
+
+<h2 id="str---bytes">str &lt;-&gt; bytes</h2>
+
+<p>The process of translating human readable characters (string) to something
+computers can understand (bytes) is called encoding. Strings can be encoded using <a href="https://docs.python.org/3.11/library/stdtypes.html#str.encode" target="_blank" rel="noopener"><code>str.encode()</code></a>. <code>utf-8</code> is the default encoding, however this can be changed.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">str</span><span class="p">.</span><span class="nf">encode</span><span class="p">(</span><span class="sh">'</span><span class="s">hello</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">utf-8</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">b'hello'
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">str</span><span class="p">.</span><span class="nf">encode</span><span class="p">(</span><span class="sh">'</span><span class="s">hello</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">utf-16</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">b'\xff\xfeh\x00e\x00l\x00l\x00o\x00'</span></code></pre>
+
+<p>The reverse process, i.e., decoding (converting bytes to string) is done using <a href="https://docs.python.org/3.11/library/stdtypes.html#bytes.decode" target="_blank" rel="noopener"><code>bytes.decode()</code></a>.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">bytes</span><span class="p">.</span><span class="nf">decode</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">hello</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">utf-8</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">'hello'
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">bytes</span><span class="p">.</span><span class="nf">decode</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="se">\xff\xfe</span><span class="s">h</span><span class="se">\x00</span><span class="s">e</span><span class="se">\x00</span><span class="s">l</span><span class="se">\x00</span><span class="s">l</span><span class="se">\x00</span><span class="s">o</span><span class="se">\x00</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">utf-16</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">'hello'</span></code></pre>
+
+<h2 id="int---str">int &lt;-&gt; str</h2>
+
+<p>This is the one I have most confusion about, as the <code>int</code>s are one of two types:</p>
+<ul>
+  <li>ASCII characters, either individual or appended together</li>
+  <li>All characters of a string are added up as one single integer/long</li>
+</ul>
+
+<p>For ASCII characters, its two <a href="https://docs.python.org/3.11/library/functions.html" target="_blank" rel="noopener">built-in functions</a> - <code>chr()</code> for number to character, and <code>ord()</code> for the opposite.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">chr</span><span class="p">(</span><span class="mi">65</span><span class="p">)</span>
+<span class="go">'A'
+</span><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nf">ord</span><span class="p">(</span><span class="sh">'</span><span class="s">A</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">65</span></code></pre>
+
+<p>For longer ints, the process is the same as <a href="#int--bytes">int &lt;-&gt; bytes</a>, with the additional step of encoding or decoding where needed.</p>
+
+<p>In the case of int to str, the resulting bytes are decoded.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">num</span> <span class="o">=</span> <span class="mi">448378203247</span>
+<span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">to_bytes</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="sh">'</span><span class="s">big</span><span class="sh">'</span><span class="p">).</span><span class="nf">decode</span><span class="p">(</span><span class="sh">'</span><span class="s">utf-8</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">'hello'</span></code></pre>
+
+<p>For the other way round, the string input is encoded before converting.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">text</span> <span class="o">=</span> <span class="sh">'</span><span class="s">hello</span><span class="sh">'</span>
+<span class="gp">&gt;&gt;&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">.</span><span class="nf">from_bytes</span><span class="p">(</span><span class="n">text</span><span class="p">.</span><span class="nf">encode</span><span class="p">(</span><span class="sh">'</span><span class="s">utf-8</span><span class="sh">'</span><span class="p">),</span> <span class="sh">'</span><span class="s">big</span><span class="sh">'</span><span class="p">)</span>
+<span class="go">448378203247</span></code></pre>
+
+<p>The same holds true for <a href="#hex--bytes">hex &lt;-&gt; bytes</a> as well.</p>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

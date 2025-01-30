@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>RC03: The Curious Case of the Inconsistent Byte Order</h1>
+<p><time datetime="2023-09-18">September 18, 2023</time>
+• <a class="tag" href="/tags#c">c</a>, <a class="tag" href="/tags#networking">networking</a>, <a class="tag" href="/tags#recurse">recurse</a></p>
+<p>This week, I started working on building a <a href="https://github.com/pjg11/tuntcp" target="_blank" rel="noopener">TCP/IP stack from scratch in C</a>.</p>
+
+<p>Part of the IP implementation is calculating the checksum, which requires splitting the IP header into 16-bit chunks. I’ll be using these hex bytes from an IP packet as an example</p>
+
+<pre class="highlight"><code class="language-">45 00 00 14 00 01 00 00 40 06 00 00 0a 00 02 0f d0 5e 75 2b</code></pre>
+
+<p>which should be converted into the following chunks</p>
+
+<pre class="highlight"><code class="language-">4500 0014 0001 0000 4006 0000 0a00 020f d05e 752b</code></pre>
+
+<p>Sounds simple, right? I thought so too, but not when C code is involved! Things didn’t work as I expected them to, and I decided to start an investigation.</p>
+
+<h2 id="initial-assessment">Initial assessment</h2>
+
+<p>Here’s the program I was working with. It first creates an IP packet, then displays the packet as 16-bit chunks.</p>
+
+<pre class="highlight"><code class="language-c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">ipv4</span> <span class="p">{</span>
+    <span class="kt">uint8_t</span>     <span class="n">version_ihl</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>     <span class="n">tos</span><span class="p">;</span>
+    <span class="kt">uint16_t</span>    <span class="n">len</span><span class="p">;</span>
+    <span class="kt">uint16_t</span>    <span class="n">id</span><span class="p">;</span>
+    <span class="kt">uint16_t</span>    <span class="n">frag_offset</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>     <span class="n">ttl</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>     <span class="n">proto</span><span class="p">;</span>
+    <span class="kt">uint16_t</span>    <span class="n">checksum</span><span class="p">;</span>
+    <span class="kt">uint32_t</span>    <span class="n">src</span><span class="p">;</span>
+    <span class="kt">uint32_t</span>    <span class="n">dst</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">ipv4</span> <span class="o">*</span> <span class="n">ip</span> <span class="o">=</span> <span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">ipv4</span><span class="p">));</span>
+    <span class="kt">uint32_t</span> <span class="n">saddr</span><span class="p">,</span> <span class="n">daddr</span><span class="p">;</span>
+    <span class="n">inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="s">"10.0.2.15"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">saddr</span><span class="p">);</span>
+    <span class="n">inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="s">"208.94.117.43"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">daddr</span><span class="p">);</span>
+
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">version_ihl</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span> <span class="o">|</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">tos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">len</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">frag_offset</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">ttl</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">proto</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">checksum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">src</span> <span class="o">=</span> <span class="n">saddr</span><span class="p">;</span>
+    <span class="n">ip</span><span class="o">-&gt;</span><span class="n">dst</span> <span class="o">=</span> <span class="n">daddr</span><span class="p">;</span>
+
+    <span class="kt">uint16_t</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint16_t</span> <span class="o">*</span><span class="p">)</span> <span class="n">ip</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">count</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+    
+    <span class="k">while</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>  <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%.4x "</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="o">++</span><span class="p">);</span>
+        <span class="n">count</span> <span class="o">-=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+
+<p>And…that didn’t go as I hoped.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>gcc <span class="nt">-o</span> checksum checksum.c
+<span class="gp">$</span><span class="w"> </span>./checksum
+<span class="go">0045 0014 0001 0000 0640 0000 000a 0f02 5ed0 2b75</span></code></pre>
+
+<p>Chunks 2, 3, 4 and 6 look correct, but the other chunks display individual bytes in the opposite order.</p>
+
+<h2 id="the-prime-suspect---byte-order">The prime suspect - Byte Order</h2>
+
+<p>I suspected this to have something to do with the byte order - the way in which our machines stores bytes.</p>
+
+<p>I explain these terms briefly in the following sections, but I would also recommend reading the <a href="https://beej.us/guide/bgnet/html/#byte-order" target="_blank" rel="noopener">Byte Order section</a> from Beej’s Guide to Network Programming, an excellent resource for low-level network stuff.</p>
+
+<p>I assigned all variables in the way I usually would, so I assumed that the machine would store and print all values in the same order.</p>
+
+<p>But seeing an inconsistent byte order in the output instead confused me, which made the investigation very interesting.</p>
+
+<h2 id="trial-and-error">Trial and error</h2>
+
+<p>I started with changing the printing section of the code to display individual bytes instead of chunks.</p>
+
+<pre class="highlight"><code class="language-c"><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="p">)</span> <span class="n">ip</span><span class="p">;</span>
+<span class="kt">size_t</span> <span class="n">count</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+
+<span class="k">while</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%.2x "</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="o">++</span><span class="p">);</span>
+    <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>     
+<span class="p">}</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span></code></pre>
+
+<p>The output confused me even more.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>gcc <span class="nt">-o</span> checksum checksum.c
+<span class="gp">$</span><span class="w"> </span>./checksum
+<span class="go">45 00 14 00 01 00 00 00 40 06 00 00 0a 00 02 0f d0 5e 75 2b</span></code></pre>
+
+<p>This looks closer to the header at the start of the post, but bytes 3-6 are written in the wrong order. The correct order would be <code>00 14 00 01</code>.</p>
+
+<p>Additionally, the bytes are displayed in the exact opposite order of the chunks output. What? Why?</p>
+
+<p><em>*sigh*</em></p>
+
+<p>Let’s put some questions in place to guide the investigation:</p>
+<ol>
+  <li>Why are bytes in the chunks output reversed?</li>
+  <li>Why does the bytes output have only some bytes printed in the opposite order?</li>
+</ol>
+
+<h2 id="getting-somewhere">Getting somewhere</h2>
+
+<p>The answer to the first question is an example I remembered, from the book <a href="https://nostarch.com/hacking2.htm" target="_blank" rel="noopener">Hacking: The Art of Exploitation</a>. It prints the contents of a register in different ways in <code>gdb</code>. Here’s a modified version of it:</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">(gdb)</span><span class="w"> </span>x/xh <span class="nv">$eip</span>
+<span class="go">0x8048384 &lt;main+16&gt;: 0x45c7
+</span><span class="gp">(gdb)</span><span class="w"> </span>x/2xb <span class="nv">$eip</span>
+<span class="go">0x8048384 &lt;main+16&gt;: 0xc7 0x45</span></code></pre>
+
+<p>The second command is the individual byte representation of the first command, the same as my case. The book also explains why this happens - the byte order, my prime suspect.</p>
+
+<p>The little-endian order, which is the byte order of my machine (and most machines), stores bytes in the reverse order to what we think they would store.</p>
+
+<p>Keeping the above example in mind, it is common to think that the value <code>0x45c7</code> would be stored as the bytes <code>45 c7</code> in memory. But nope, my machine stores the value as <code>c7 45</code> instead, which is the output of the second command.</p>
+
+<p>If they were stored in the opposite order, they would have to be read in the opposite order too. So the bytes are read from right to left, and hence displayed in the reverse order when printed as a chunk.</p>
+
+<p>Okay, one question solved, one more to go!</p>
+
+<h2 id="the-case-gets-complicated">The case gets complicated</h2>
+
+<p>The second question was not as easy to answer.</p>
+
+<p>The bytes in question, bytes 3-6 of the header, correspond to the <code>len</code> and <code>id</code> fields of the IP header. Let’s start with the declaration of these fields:</p>
+
+<pre class="highlight"><code class="language-c"><span class="kt">uint16_t</span>    <span class="n">len</span><span class="p">;</span>
+<span class="kt">uint16_t</span>    <span class="n">id</span><span class="p">;</span></code></pre>
+
+<p>They’re both 16 bits or 2 bytes in size. Here’s how they were assigned:</p>
+
+<pre class="highlight"><code class="language-c"><span class="n">ip</span><span class="o">-&gt;</span><span class="n">len</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span></code></pre>
+
+<p>As little-endian is the default byte order of the machine, it applies to these assignments too. So the value 20 is represented as hex bytes <code>14 00</code> in memory, while the value 1 corresponds to the hex bytes <code>01 00</code>.</p>
+
+<p>Now this is a problem, as network programs store and read data from left to right, like we do. That order is called the big-endian order.</p>
+
+<p>To solve this, we would need to switch the byte order from little to big-endian, which can be done with a function called <a href="https://beej.us/guide/bgnet/html/#htonsman" target="_blank" rel="noopener"><code>htons()</code></a> or <code>h</code>ost <code>to</code> <code>n</code>etwork <code>s</code>hort. Host Byte Order in this case is little-endian, while Network Byte Order is always big-endian.</p>
+
+<p>This would solve the problem, but something doesn’t feel right. Changing the byte order just for two fields doesn’t make sense. <em>Why do the other values not require <code>htons()</code>?</em></p>
+
+<h2 id="mystery-solved">Mystery solved</h2>
+
+<p>It’s something I struggled to figure even as I started typing this post, but I think I got it:</p>
+
+<ul>
+  <li>
+    <p>The fields <code>version_ihl</code>, <code>tos</code>, <code>ttl</code>, and <code>proto</code> are 8 bits or 1 byte in size. Byte order matters for values greater than a byte, which isn’t the case here. So no <code>htons()</code> required.</p>
+  </li>
+  <li>
+    <p>The <code>src</code> and <code>dst</code> fields (32 bits each) are in big-endian order already, thanks to <a href="https://beej.us/guide/bgnet/html/#inet_ntopman" target="_blank" rel="noopener"><code>inet_pton()</code></a>. No <code>htons()</code> required here either.</p>
+  </li>
+  <li>
+    <p>The <code>frag_offset</code> and <code>checksum</code> fields were a big reason behind the confusion. They’re the same size as <code>len</code> and <code>id</code>, but were intialized to 0. As the bytes <code>00 00</code> are the same as <code>00 00</code><sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>, it looked like they displayed correctly. <code>htons()</code> would be required for these fields.</p>
+  </li>
+</ul>
+
+<p>And now, it all makes sense. The byte order needs to be switched for all fields greater than a byte.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Based on the above findings, I made the following changes, making the byte order consistent across the struct.</p>
+
+<pre class="highlight"><code class="language-c"><span class="n">ip</span><span class="o">-&gt;</span><span class="n">version_ihl</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span> <span class="o">|</span> <span class="mi">5</span><span class="p">;</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">tos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">len</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">frag_offset</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">ttl</span> <span class="o">=</span> <span class="mi">64</span><span class="p">;</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">proto</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">checksum</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">src</span> <span class="o">=</span> <span class="n">saddr</span><span class="p">;</span>
+<span class="n">ip</span><span class="o">-&gt;</span><span class="n">dst</span> <span class="o">=</span> <span class="n">daddr</span><span class="p">;</span></code></pre>
+
+<p>With that set, the bytes print correctly!</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>gcc <span class="nt">-o</span> checksum checksum.c
+<span class="gp">$</span><span class="w"> </span>./checksum
+<span class="go">45 00 00 14 00 01 00 00 40 06 00 00 0a 00 02 0f d0 5e 75 2b</span></code></pre>
+
+<p>I changed the printing section to display chunks again, and they look fine too.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>gcc <span class="nt">-o</span> checksum checksum.c
+<span class="gp">$</span><span class="w"> </span>./checksum
+<span class="go">0045 1400 0100 0000 0640 0000 000a 0f02 5ed0 2b75</span></code></pre>
+
+<p>I was wondering if this swapped order of chunks would affect the resulting checksum. According to <a href="https://www.rfc-editor.org/rfc/rfc1071#page-3" target="_blank" rel="noopener">RFC 1071</a>, it doesn’t:</p>
+
+<blockquote>
+  <p>For example, assume a “little-endian” machine summing data that is stored in memory in network (“big-endian”) order. Fetching each 16-bit word will swap bytes, resulting in the sum [4]; however, storing the result back into memory will swap the sum back into network byte order.</p>
+</blockquote>
+
+<p>Interesting! I didn’t know little-endian byte order worked like this.</p>
+
+<p>With that, I declare this investigation complete. Detective Piya, signing off!</p>
+
+<hr />
+
+<p>Just as I was finishing up this post, I read through the <a href="https://beej.us/guide/bgnet/html/#byte-order" target="_blank" rel="noopener">Byte Order section</a> in Beej’s Guide, where I found this:</p>
+
+<blockquote>
+  <p>A lot of times when you’re building packets or filling out data structures you’ll need to make sure your two- and four-byte numbers are in Network Byte Order.</p>
+</blockquote>
+
+<p>Oh well, the solution was here all along. Regardless, I enjoyed sharpening my debugging skills by figuring things out step by step (and making this post, too!).</p>
+<h2 id="notes">Notes</h2>
+  <ol class="footnotes" role="doc-endnotes">
+    <li id="fn:1" role="doc-endnote">
+      <p>Which one refers to which byte order is totally up to you :P <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>Hanukkah of Data</h1>
+<p><time datetime="2024-04-10">April 10, 2024</time>
+• <a class="tag" href="/tags#sql">sql</a></p>
+<p><a href="https://hanukkah.bluebird.sh/5784/" target="_blank" rel="noopener">Hanukkah of Data</a> is a set of data puzzles based around a storyline, released in 2022. I found out about this a few months past its release, and recently solved them using SQLite.</p>
+
+<h2 id="0-noahs-market">0. Noah’s Market</h2>
+
+<p>The story revolves around finding the missing rug of Noah, who’s the owner of a store called Noah’s Market in Manhattan. The dataset is a backup of the Noah’s Market database, created by Alex in 2017. However, it is password protected.</p>
+
+<blockquote>
+  <p>“Alex set up the backups to be password-protected. I can never remember the password itself, but it’s just the year in the Hebrew calendar when Alex set up the database.”</p>
+</blockquote>
+
+<p>Some searching later, I found the password - 5777. With the dataset unlocked, I had a look at the tables and their schema.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="p">.</span><span class="k">open</span> <span class="n">noahs</span><span class="p">.</span><span class="n">sqlite</span>
+<span class="gp">sqlite&gt;</span><span class="w"> </span><span class="p">.</span><span class="k">schema</span>
+<span class="go">CREATE TABLE products (sku text,desc text,wholesale_cost decimal(10,2),dims_cm array);
+CREATE TABLE customers (customerid integer,name text,address text,citystatezip text,birthdate text,phone text,timezone text,lat decimal(10,5),long decimal(10,5));
+CREATE TABLE orders (orderid text,customerid text,ordered timestamp,shipped timestamp,total decimal(10,2),items array);
+CREATE TABLE orders_items (orderid integer,sku text,qty integer,unit_price decimal(10,2));</span></code></pre>
+
+<p>I found myself having to join these tables pretty often, so I saved the output as a view for easy reference. I also learnt about <code>NATURAL JOIN</code> as a shorthand to <code>JOIN ON primarykey = foreignkey</code>, making the command shorter (and it also removes duplicate columns!)</p>
+
+<pre class="highlight"><code class="language-sql"><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">noahsrug</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">customers</span>
+<span class="k">NATURAL</span> <span class="k">JOIN</span> <span class="n">orders</span>
+<span class="k">NATURAL</span> <span class="k">JOIN</span> <span class="n">orders_items</span>
+<span class="k">NATURAL</span> <span class="k">JOIN</span> <span class="n">products</span><span class="p">;</span></code></pre>
+
+<p>The next set of puzzles have a similar structure - the description contains clues to a customer of Noah’s Market who may have the rug, and submitting the customer’s phone number solves the puzzle.</p>
+
+<h2 id="1-the-investigator">1. The Investigator</h2>
+
+<p>This person’s phone number is the numeric representation of their last name. So each letter corresponds to the <a href="https://en.wikipedia.org/wiki/File:Telephone_keys.JPG#/media/File:Telephone_keys.JPG" target="_blank" rel="noopener">digits printed on the phone buttons</a> - “abc” to 2, “def” to 3, and so on.</p>
+
+<p>While the solution seemed easy conceptually, there’s no existing SQLite function that maps characters to numbers, making this a lot harder than I expected. This led me to look into <a href="https://sqlite.org/loadext.html" target="_blank" rel="noopener">custom extensions</a>, and I used the <a href="https://www.sqlite.org/src/file/ext/misc/rot13.c" target="_blank" rel="noopener">rot13 extension</a> code as the basis for mine, <code>phonenum</code>.</p>
+
+<details>
+  <summary><code>phonenum.c</code></summary>
+
+<pre class="highlight"><code class="language-c"><span class="cp">#include</span> <span class="cpf">"sqlite3ext.h"</span><span class="cp">
+</span><span class="n">SQLITE_EXTENSION_INIT1</span>
+<span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">phonenum</span><span class="p">(</span><span class="n">sqlite3_context</span> <span class="o">*</span><span class="n">context</span><span class="p">,</span> <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">sqlite3_value</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">sqlite3_value_type</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="n">SQLITE_NULL</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">;</span>
+
+  <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">in</span> <span class="o">=</span> <span class="n">sqlite3_value_text</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+  <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">sqlite3_value_bytes</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">out</span><span class="p">[</span><span class="n">len</span><span class="p">];</span>
+
+  <span class="k">for</span> <span class="p">(;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="n">tolower</span><span class="p">(</span><span class="n">in</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="sc">'a'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'b'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'c'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'2'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="sc">'d'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'e'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'f'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'3'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="sc">'g'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'h'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'i'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'4'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="sc">'j'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'k'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'l'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'5'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="sc">'m'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'n'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'o'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'6'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="sc">'p'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'q'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'r'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'s'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'7'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="sc">'t'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'u'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'v'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'8'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="sc">'w'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'x'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'y'</span><span class="p">:</span>
+    <span class="k">case</span> <span class="sc">'z'</span><span class="p">:</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="sc">'9'</span><span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">sqlite3_result_text</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">out</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">SQLITE_TRANSIENT</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cp">#ifdef _WIN32
+</span><span class="kr">__declspec</span><span class="p">(</span><span class="n">dllexport</span><span class="p">)</span>
+<span class="cp">#endif
+</span><span class="kt">int</span> <span class="nf">sqlite3_phonenum_init</span><span class="p">(</span><span class="n">sqlite3</span> <span class="o">*</span><span class="n">db</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">pzErrMsg</span><span class="p">,</span> <span class="k">const</span> <span class="n">sqlite3_api_routines</span> <span class="o">*</span><span class="n">pApi</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">rc</span> <span class="o">=</span> <span class="n">SQLITE_OK</span><span class="p">;</span>
+  <span class="n">SQLITE_EXTENSION_INIT2</span><span class="p">(</span><span class="n">pApi</span><span class="p">);</span>
+  
+  <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">pzErrMsg</span><span class="p">;</span> <span class="cm">/* Unused parameter */</span>
+  
+  <span class="k">if</span> <span class="p">(</span><span class="n">rc</span> <span class="o">==</span> <span class="n">SQLITE_OK</span><span class="p">)</span> <span class="p">{</span> 
+    <span class="n">rc</span> <span class="o">=</span> <span class="n">sqlite3_create_function</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="s">"phonenum"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> 
+                                <span class="n">SQLITE_UTF8</span> <span class="o">|</span> <span class="n">SQLITE_INNOCUOUS</span> <span class="o">|</span> <span class="n">SQLITE_DETERMINISTIC</span><span class="p">,</span>
+                                <span class="mi">0</span><span class="p">,</span> <span class="n">phonenum</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+  
+  <span class="k">return</span> <span class="n">rc</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+
+</details>
+
+<p>A few hours of debugging later, I compiled the code as a shared object and loaded it in SQLite.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="p">.</span><span class="n">shell</span> <span class="n">gcc</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">homebrew</span><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">sqlite</span><span class="o">/</span><span class="n">include</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">o</span> <span class="n">phonenum</span> <span class="n">phonenum</span><span class="p">.</span><span class="k">c</span>
+<span class="gp">sqlite&gt;</span><span class="w"> </span><span class="p">.</span><span class="k">load</span> <span class="n">phonenum</span></code></pre>
+
+<p>I used a combination of <code>substr()</code> and <code>instr()</code> to get the last name from the full name, before passing it to <code>phonenum()</code>.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">customers</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">phonenum</span><span class="p">(</span><span class="n">substr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">instr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">' '</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="k">replace</span><span class="p">(</span><span class="n">phone</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">Sam Tannenbaum|826-636-2286</span></code></pre>
+
+<h2 id="2-the-contractor">2. The Contractor</h2>
+
+<p>Theis person’s initials are ‘JP’ and they shopped from Noah’s Market in 2017, while they were tasked with the cleaning of the rug. One of the purchased items mentioned were cleaning supplies, so I first looked for related items in the <code>products</code> database.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">sku</span><span class="p">,</span> <span class="k">desc</span> <span class="k">FROM</span> <span class="n">products</span> <span class="k">WHERE</span> <span class="k">desc</span> <span class="k">LIKE</span> <span class="s1">'%rug %'</span><span class="p">;</span>
+<span class="go">HOM2761|Rug Cleaner</span></code></pre>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">name</span> <span class="k">LIKE</span> <span class="s1">'J% P%'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y'</span><span class="p">,</span> <span class="n">shipped</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'2017'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="k">desc</span> <span class="o">==</span> <span class="s1">'Rug Cleaner'</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">Joshua Peterson|332-274-4185</span></code></pre>
+
+<h2 id="3-the-neighbor">3. The Neighbor</h2>
+
+<p>The person lives in the the same neighborhood as the Contractor, and is a Cancer born in the Year of the Rabbit.
+First, I got the name of the neighborhood using the phone number I found earlier.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">citystatezip</span> <span class="k">FROM</span> <span class="n">customers</span> <span class="k">WHERE</span> <span class="n">phone</span> <span class="o">==</span> <span class="s1">'332-274-4185'</span><span class="p">;</span>
+<span class="go">Jamaica, NY 11435</span></code></pre>
+
+<p>Then coming to the clues about the person’s birthdate. The astrological sign, Cancer, gives us a range for the day and month (21 June – 22 July), while the Chinese zodiac, <a href="https://chinesenewyear.net/zodiac/rabbit/" target="_blank" rel="noopener">Rabbit</a>, gives a range for the birth year.
+I checked for the earliest and latest birth years in the dataset, to add all valid birth years in the <code>WHERE</code> clause.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">birthdate</span><span class="p">),</span> <span class="k">max</span><span class="p">(</span><span class="n">birthdate</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">customers</span><span class="p">;</span>
+<span class="go">1935-01-29|2001-12-31</span></code></pre>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">customers</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="p">((</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%d'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="s1">'21'</span>
+<span class="gp">   ...&gt;</span><span class="w">         </span><span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%m'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'06'</span><span class="p">)</span>
+<span class="gp">   ...&gt;</span><span class="w">        </span><span class="k">OR</span> <span class="p">(</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%d'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="s1">'22'</span>
+<span class="gp">   ...&gt;</span><span class="w">            </span><span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%m'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'07'</span><span class="p">))</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">citystatezip</span> <span class="o">==</span> <span class="s1">'Jamaica, NY 11435'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="k">IN</span> <span class="p">(</span><span class="s1">'1939'</span><span class="p">,</span> <span class="s1">'1951'</span><span class="p">,</span> <span class="s1">'1963'</span><span class="p">,</span> 
+<span class="gp">   ...&gt;</span><span class="w">                                     </span><span class="s1">'1975'</span><span class="p">,</span> <span class="s1">'1987'</span><span class="p">,</span> <span class="s1">'1999'</span><span class="p">);</span>
+<span class="go">Robert Morton|917-288-9635</span></code></pre>
+
+<h2 id="4-the-early-bird">4. The Early Bird</h2>
+
+<p>This person met The Neighbor at 5AM with pastries they just bought from Noah’s. This means that the order happened somewhere close to 5AM. I filtered for pastry orders by checking if the <code>sku</code> starts with <code>BKY</code> for bakery items.</p>
+
+<p>The database also contains the <code>ordered</code> and <code>shipped</code> timestamps for each order. Since they were purchased from the store (as opposed to being ordered from home for example), the ordered and shipped time would be the same for this order.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%H'</span><span class="p">,</span> <span class="n">shipped</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'04'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">sku</span> <span class="k">LIKE</span> <span class="s1">'BKY%'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">ordered</span> <span class="o">==</span> <span class="n">shipped</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">Renee Harmon|607-231-3605</span></code></pre>
+
+<h2 id="5-the-cat-lady">5. The Cat Lady</h2>
+
+<p>The Early Bird decided to give away the rug during their “Marie Kondo phase”, which would be sometime after 2019. They gave it to a person from Staten Island, who was wearing a “Noah’s Market” sweatshirt and owned 10 or 11 old cats.</p>
+
+<p>This means they purchased lots of cat food from Noah’s. There are products for Adult and Senior cats, so I filtered for those, and searched for the person with the most cat related orders.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">citystatezip</span> <span class="k">LIKE</span> <span class="s1">'Staten Island%'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="k">desc</span> <span class="n">REGEXP</span> <span class="s1">'.*(Adult|Senior) Cat.*'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y'</span><span class="p">,</span> <span class="n">shipped</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2019</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">GROUP</span> <span class="k">BY</span> <span class="n">name</span> 
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">ORDER</span> <span class="k">BY</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">DESC</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">Nicole Wilson|631-507-6048</span></code></pre>
+
+<p>The sweatshirt clue turned out to be a red herring, which I did spend quite some time on. In hindsight, focusing on the puzzle’s title would have helped save some time.</p>
+
+<p>The speedrun description of this puzzle didn’t have the Staten Island clue, so I removed it and…the solution didn’t work. After some attempts at trying different queries and nothing really working, I looked solutions online. Turns out, I misunderstood the phrase “most cat related orders”.</p>
+
+<p>My solution finds the maximum number of orders…but doesn’t consider the “quantity” of each order. Since the person owns 10 or 11 cats, they would buy 10 or 11 quantities of the same item! Knowing this made the solution much simpler than the original, and worked for both the original puzzle and the speedrun.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="k">desc</span> <span class="n">REGEXP</span> <span class="s1">'.*(Adult|Senior) Cat.*'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">qty</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">Nicole Wilson|631-507-6048</span></code></pre>
+
+<h2 id="6-the-bargain-hunter">6. The Bargain Hunter</h2>
+
+<p>I was stuck on this for a long time, and I ended up slightly peeking at another solution to get unstuck. The solution comes from this one line in the description:</p>
+
+<blockquote>
+  <p>In fact I like to tease her that Noah actually loses money whenever she comes in the store.</p>
+</blockquote>
+
+<p>This line always felt relevant from the beginning, but I didn’t know what to look for. Now that I was sure, I focused my attention on the columns in the database. Two of them stood out, <code>wholesale_cost</code> (the price Noah’s bought the item for) and <code>unit_price</code> (the price Noah’s sold the item for).</p>
+
+<p>If the unit price is lesser than the wholesale cost, that would mean a loss. The person having the maximum transactions resulting in loss would be The Bargain Hunter.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">unit_price</span> <span class="o">&lt;</span> <span class="n">wholesale_cost</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">GROUP</span> <span class="k">BY</span> <span class="n">name</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">ORDER</span> <span class="k">BY</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">DESC</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">Sherri Long|585-838-9161</span></code></pre>
+
+<h2 id="7-the-meet-cute">7. The Meet Cute</h2>
+
+<p>This person was at Noah’s on the same day as the Bargain Hunter, and purchased the same item in a color that the Bargain Hunter wanted.</p>
+
+<p>There are no clues on what day this happened, so I started with finding color related items purchased by the Bargain Hunter. All products with color variations have the <code>sku</code> starting with <code>COL</code>. Ordered and shipped time will also be the same here.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">orderid</span><span class="p">,</span> <span class="k">desc</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">sku</span> <span class="k">LIKE</span> <span class="s1">'COL%'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'Sherri Long'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">ordered</span> <span class="o">==</span> <span class="n">shipped</span><span class="p">;</span>
+<span class="go">70503|Noah's Poster (azure)
+124821|Noah's Action Figure (green)</span></code></pre>
+
+<p>Using these queries, I checked for orders around the same time for the same item manually, by comparing the substring of the product names (without the color) and checking for the last 5 orders before the Bargain Hunter’s order.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span><span class="p">,</span> <span class="n">orderid</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">ordered</span> <span class="o">==</span> <span class="n">shipped</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="k">desc</span> <span class="k">LIKE</span> <span class="s1">'Noah</span><span class="se">''</span><span class="s1">s Poster%'</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">orderid</span> <span class="k">BETWEEN</span> <span class="mi">70498</span> <span class="k">AND</span> <span class="mi">70502</span><span class="p">;</span>
+<span class="go">Carlos Myers|838-335-7157|70502</span></code></pre>
+
+<p>The first one returned an answer, and it happens to be the previous order ID! However, just to be sure I checked for the Action Figure query too, which returned no result.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span><span class="p">,</span> <span class="n">shipped</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">ordered</span> <span class="o">==</span> <span class="n">shipped</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="k">desc</span> <span class="k">LIKE</span> <span class="s1">'Noah</span><span class="se">''</span><span class="s1">s Action Figure%'</span><span class="p">;</span>
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">AND</span> <span class="n">orderid</span> <span class="k">BETWEEN</span> <span class="mi">124816</span> <span class="k">AND</span> <span class="mi">124820</span><span class="p">;</span></code></pre>
+
+<p>However, this solution didn’t work for the speedrun for two reasons.</p>
+
+<ol>
+  <li>
+    <p>There are items apart from the ones starting with <code>COL</code> that have color variations. The format of the items is <code>Item name (color)</code>, so I changed the <code>WHERE</code> condition to look for a bracket in the description instead.</p>
+  </li>
+  <li>
+    <p>The speedrun dataset returned more queries than the two I got here, so manually checking each order was time-consuming. I looked for a way to automate the checking, which I did using the <code>WITH</code> clause to save the initial orders as a temporary table. The table is then joined with <code>noahsrug</code>, and the <code>WHERE</code> conditions become <code>JOIN</code> conditions.</p>
+  </li>
+</ol>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">WITH</span> <span class="n">a</span> <span class="k">AS</span> 
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="p">(</span><span class="k">SELECT</span> <span class="n">orderid</span><span class="p">,</span> <span class="k">desc</span>
+<span class="gp">   ...&gt;</span><span class="w">    </span><span class="k">FROM</span> <span class="n">noahsrug</span> 
+<span class="gp">   ...&gt;</span><span class="w">    </span><span class="k">WHERE</span> <span class="k">desc</span> <span class="k">LIKE</span> <span class="s1">'%(%'</span> 
+<span class="gp">   ...&gt;</span><span class="w">      </span><span class="k">AND</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'Sherri Long'</span>
+<span class="gp">   ...&gt;</span><span class="w">      </span><span class="k">AND</span> <span class="n">ordered</span> <span class="o">==</span> <span class="n">shipped</span><span class="p">)</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">b</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">a</span> 
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">JOIN</span> <span class="n">noahsrug</span> <span class="k">AS</span> <span class="n">b</span> 
+<span class="gp">   ...&gt;</span><span class="w">   </span><span class="k">ON</span> <span class="n">substr</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">instr</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="s1">'('</span><span class="p">))</span> <span class="o">==</span> <span class="n">substr</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">instr</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="s1">'('</span><span class="p">))</span> 
+<span class="gp">   ...&gt;</span><span class="w">  </span><span class="k">AND</span> <span class="n">b</span><span class="p">.</span><span class="n">orderid</span> <span class="k">BETWEEN</span> <span class="n">a</span><span class="p">.</span><span class="n">orderid</span> <span class="o">-</span> <span class="mi">5</span> <span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="n">orderid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">Carlos Myers|838-335-7157</span></code></pre>
+
+<h2 id="8-the-collector">8. The Collector</h2>
+
+<p>Ending on an easier note after some tough puzzle. This person has a set of all Noah’s collectibles. These are items that contain “Noah’s” in their name, or more precisely, the <code>sku</code> starts with <code>COL</code> - short for collectibles. Finding the person with the maximum collectibles purchases solves this puzzle.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">WHERE</span> <span class="n">sku</span> <span class="k">LIKE</span> <span class="s1">'COL%'</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">GROUP</span> <span class="k">BY</span> <span class="n">name</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">ORDER</span> <span class="k">BY</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">DESC</span>
+<span class="gp">   ...&gt;</span><span class="w"> </span><span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">James Smith|212-547-3518</span></code></pre>
+
+<h2 id="speedrun-mode">Speedrun Mode</h2>
+
+<p>Completing all the puzzles unlocks the speedrun mode, which lets you attempt the same puzzles with a different dataset and slightly different clues. I also got the idea of solving all puzzles at once while reading <a href="https://ellakaye.rbind.io/posts/2023-12-07_hanukkah-of-data-5784" target="_blank" rel="noopener">Ella Kaye’s writeup</a> and wanted to do something similar for SQLite.</p>
+
+<p>I considered writing a Python script, but then remembered that I can execute multiple queries written in a SQL file from SQLite directly. That seemed about right, so I started by adding all of the solution queries to <code>noahs-speedrun.sql</code>.</p>
+
+<p>I saved each solution query to a temporary view, so that I could reference them in puzzles where information from a previous puzzle is required. Lastly, I added <code>SELECT</code> statements which display all of the solutions together.</p>
+
+<details>
+  <summary><code>noahsrug-speedrun.sql</code></summary>
+
+<pre class="highlight"><code class="language-sql"><span class="p">.</span><span class="k">load</span> <span class="n">phonenum</span>
+<span class="p">.</span><span class="k">mode</span> <span class="n">list</span>
+<span class="p">.</span><span class="n">headers</span> <span class="k">off</span>
+
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">noahsrug</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">customers</span>
+<span class="k">NATURAL</span> <span class="k">JOIN</span> <span class="n">orders</span>
+<span class="k">NATURAL</span> <span class="k">JOIN</span> <span class="n">orders_items</span>
+<span class="k">NATURAL</span> <span class="k">JOIN</span> <span class="n">products</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">investigator</span> <span class="k">AS</span> 
+<span class="k">SELECT</span> <span class="n">phone</span>
+<span class="k">FROM</span> <span class="n">customers</span>
+<span class="k">WHERE</span> <span class="n">phonenum</span><span class="p">(</span><span class="n">substr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">instr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">' '</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="k">replace</span><span class="p">(</span><span class="n">phone</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">contractor</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">phone</span><span class="p">,</span> <span class="n">citystatezip</span>
+<span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="k">WHERE</span> <span class="n">name</span> <span class="k">LIKE</span> <span class="s1">'D% S%'</span>
+  <span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y'</span><span class="p">,</span> <span class="n">shipped</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'2017'</span>
+  <span class="k">AND</span> <span class="k">desc</span> <span class="o">==</span> <span class="s1">'Rug Cleaner'</span>
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">neighbor</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">phone</span>
+<span class="k">FROM</span> <span class="n">customers</span>
+<span class="k">WHERE</span> <span class="p">((</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%d'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="s1">'23'</span>
+        <span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%m'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'09'</span><span class="p">)</span>
+       <span class="k">OR</span> <span class="p">(</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%d'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="s1">'22'</span>
+           <span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%m'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'10'</span><span class="p">))</span>
+  <span class="k">AND</span> <span class="n">citystatezip</span> <span class="o">==</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">citystatezip</span> <span class="k">FROM</span> <span class="n">contractor</span><span class="p">)</span>
+  <span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y'</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="k">IN</span> <span class="p">(</span><span class="s1">'1943'</span><span class="p">,</span> <span class="s1">'1955'</span><span class="p">,</span> <span class="s1">'1967'</span><span class="p">,</span> 
+                                    <span class="s1">'1979'</span><span class="p">,</span> <span class="s1">'1991'</span><span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">earlybird</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">phone</span> 
+<span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="k">WHERE</span> <span class="n">sku</span> <span class="k">LIKE</span> <span class="s1">'BKY%'</span>
+  <span class="k">AND</span> <span class="n">strftime</span><span class="p">(</span><span class="s1">'%H'</span><span class="p">,</span> <span class="n">shipped</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'04'</span>
+  <span class="k">AND</span> <span class="n">ordered</span> <span class="o">==</span> <span class="n">shipped</span> 
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">catlady</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">phone</span>
+<span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="k">WHERE</span> <span class="k">desc</span> <span class="n">REGEXP</span> <span class="s1">'.* (Adult|Senior) Cat.*'</span>
+  <span class="k">AND</span> <span class="n">qty</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">bargainhunter</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="k">WHERE</span> <span class="n">unit_price</span> <span class="o">&lt;</span> <span class="n">wholesale_cost</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">name</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">meetcute</span> <span class="k">AS</span>
+<span class="k">WITH</span> <span class="n">a</span> <span class="k">AS</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">phone</span><span class="p">,</span> <span class="k">desc</span><span class="p">,</span> <span class="n">orderid</span> 
+   <span class="k">FROM</span> <span class="n">noahsrug</span> 
+   <span class="k">WHERE</span> <span class="k">desc</span> <span class="k">LIKE</span> <span class="s1">'%(%'</span> 
+     <span class="k">AND</span> <span class="n">name</span> <span class="o">==</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">bargainhunter</span><span class="p">)</span>
+     <span class="k">AND</span> <span class="n">ordered</span> <span class="o">==</span> <span class="n">shipped</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="n">b</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">phone</span>
+<span class="k">FROM</span> <span class="n">a</span>
+<span class="k">JOIN</span> <span class="n">noahsrug</span> <span class="k">AS</span> <span class="n">b</span>
+  <span class="k">ON</span> <span class="n">substr</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">instr</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="s1">'('</span><span class="p">))</span> <span class="o">==</span> <span class="n">substr</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">instr</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="k">desc</span><span class="p">,</span> <span class="s1">'('</span><span class="p">))</span> 
+ <span class="k">AND</span> <span class="n">b</span><span class="p">.</span><span class="n">orderid</span> <span class="o">==</span> <span class="n">a</span><span class="p">.</span><span class="n">orderid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">TEMP</span> <span class="k">VIEW</span> <span class="n">collector</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">phone</span>
+<span class="k">FROM</span> <span class="n">noahsrug</span>
+<span class="k">WHERE</span> <span class="n">sku</span> <span class="k">LIKE</span> <span class="s1">'COL%'</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">name</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">investigator</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">contractor</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">neighbor</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">earlybird</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">catlady</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">bargainhunter</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">meetcute</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="n">phone</span> <span class="k">FROM</span> <span class="n">collector</span><span class="p">;</span></code></pre>
+
+</details>
+
+<pre class="highlight"><code class="language-console"><span class="gp">sqlite&gt;</span><span class="w"> </span><span class="p">.</span><span class="k">open</span> <span class="n">noahs</span><span class="o">-</span><span class="n">speedrun</span><span class="p">.</span><span class="n">sqlite</span>
+<span class="gp">sqlite&gt;</span><span class="w"> </span><span class="p">.</span><span class="k">read</span> <span class="n">noahsrug</span><span class="o">-</span><span class="n">speedrun</span><span class="p">.</span><span class="k">sql</span>
+<span class="go">767-365-7269
+838-351-0370
+914-594-5535
+716-789-4433
+347-835-2358
+838-295-7143
+516-544-4187
+516-638-9966</span></code></pre>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

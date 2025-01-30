@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>Minified versions of fonts</h1>
+<p><time datetime="2024-03-30">March 30, 2024</time>
+• <a class="tag" href="/tags#fonts">fonts</a></p>
+<p>While looking for custom fonts for this website, I came across <a href="https://github.com/joelesko/minlo-font/tree/main" target="_blank" rel="noopener">Minlo</a>, a minified version of the Apple system font Menlo.</p>
+
+<p>I first thought it was made smaller by some cool compression technique. While that is true (converting to WOFF2 leads to smaller file sizes), I found that it even contains lesser characters (glyphs) than in a regular font file.</p>
+
+<p>As I’d been considering using custom fonts in my website, I wanted to make something like Minlo, but for other fonts.</p>
+
+<h2 id="manual-approach">Manual approach</h2>
+
+<p>The first idea I had was to manually remove glyphs I don’t need using <a href="https://fontforge.org/en-US/" target="_blank" rel="noopener">Font Forge</a>, a font editor.</p>
+
+<p>I found a post that describes the exact same steps I tried - <a href="https://barrd.dev/article/create-a-custom-font-with-only-the-glyphs-you-need/" target="_blank" rel="noopener">Create a custom font with only the glyphs you need</a>. To summarize:</p>
+
+<ul>
+  <li>Open a font file in FontForge</li>
+  <li>Select glyphs you wish to remove and delete them</li>
+  <li>Regenerate the font file</li>
+</ul>
+
+<p>The process is straight-forward but time-consuming. Font files can have lots of glyphs, specifically any combination of characters from this <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters" target="_blank" rel="noopener">List of unicode characters</a>. There are also separate files for different weights, so the process became repetitive really quickly.</p>
+
+<p>There had to be a way to do this programmatically, right?</p>
+
+<h2 id="meet-pyftsubset">Meet <code>pyftsubset</code></h2>
+
+<p>I found an answer to this in the most unexpected of places - the <a href="https://rsms.me/inter/#faq-subset" target="_blank" rel="noopener">FAQ section of Inter</a>, a sans-serif font family.</p>
+
+<p>The tool is called <code>pyftsubset</code>, and since I’m looking for to create a file that contains a subset of the original set of glyphs, this sounds like the right one to go with!</p>
+
+<p>Looking at the <a href="https://fonttools.readthedocs.io/en/latest/subset/" target="_blank" rel="noopener">documentation</a>, the tool is part of the <code>fonttools</code> Python package, which I installed using <code>pip</code>.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>python3 <span class="nt">-m</span> pip <span class="nb">install </span>fonttools
+<span class="gp">$</span><span class="w"> </span>pyftsubset <span class="nt">-h</span>
+<span class="go">usage: pyftsubset font-file [glyph...] [--option=value]...
+Try pyftsubset --help for more information.</span></code></pre>
+
+<p>Looking back at the docs, there are a couple of ways to provide which glyphs I want to keep. The easiest option seems to be using <code>--unicodes</code><sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>, that takes a list of the Unicode code points (<code>U+</code> followed by hexadecimal digits) representing each character.</p>
+
+<p>If you’re familiar with ASCII, Unicode (more specifically UTF-8) is another encoding standard that contains more characters than ASCII, like symbols and characters from other languages.</p>
+
+<h3 id="demo-time">Demo time!</h3>
+<p>I created a subset file of the font Inter Regular, containing only uppercase and lowercase letters, digits and punctuation.</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>pyftsubset Inter-Regular.otf <span class="nt">--unicodes</span><span class="o">=</span>U+0020-007E <span class="se">\ </span>
+<span class="go">  --layout-features='' \ 
+  --passthrough-tables</span></code></pre>
+
+<p>The unicode range is from the <a href="https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)" target="_blank" rel="noopener">Basic Latin unicode block</a>, the <code>--layout-features</code> flag is set to an empty string to remove all glyphs associated with <a href="https://rsms.me/inter/#features" target="_blank" rel="noopener">OpenType features</a>, while <code>--passthrough-tables</code> skips over any sections of the file that the tool doesn’t know what to do with.</p>
+
+<p>With this, the file size has reduced from 591KB to 12KB, a 97% decrease!</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span><span class="nb">du</span> <span class="nt">-Ahs</span> Inter-Regular.otf Inter-Regular.subset.otf
+<span class="go">591K    Inter-Regular.otf
+ 12K    Inter-Regular.subset.otf</span></code></pre>
+
+<p>Converting the file to the WOFF2 format reduces the size further to 7.5KB!</p>
+
+<pre class="highlight"><code class="language-console"><span class="gp">$</span><span class="w"> </span>pyftsubset Inter-Regular.otf <span class="nt">--unicodes</span><span class="o">=</span>U+0020-007E <span class="se">\ </span>
+<span class="go">  --layout-features='' \ 
+  --passthrough-tables \ 
+  --flavor=woff2
+
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">du</span> <span class="nt">-Ahs</span> Inter-Regular.otf Inter-Regular.subset.woff2
+<span class="go">591K    Inter-Regular.otf
+7.5K    Inter-Regular.subset.woff2</span></code></pre>
+
+<p>This was pretty fun to experiment with, and after quite a lot of trial and error, I settled on a combination of Verdana for the text (same as before) and a custom subset of Menlo for code blocks.</p>
+
+<h2 id="font-trivia">Font trivia</h2>
+
+<p>While re-designing my blog, I found out more about the origins of Verdana and Menlo, and apparently they share common links to other fonts!</p>
+
+<p>Verdana was the basis for the design of <a href="https://en.wikipedia.org/wiki/Bitstream_Vera" target="_blank" rel="noopener">Bitstream Vera Sans</a>. Bitstream Vera also has a monospaced font, which is what Menlo is based on.</p>
+
+<p>Another common link is the <a href="https://en.wikipedia.org/wiki/DejaVu_fonts" target="_blank" rel="noopener">DejaVu font family</a>, an extension to the Bitstream Vera font family that adds support for more glyphs, which Menlo includes.</p>
+
+<p>This explains why the two work well together!</p>
+<h2 id="notes">Notes</h2>
+  <ol class="footnotes" role="doc-endnotes">
+    <li id="fn:1" role="doc-endnote">
+      <p>I got confused for a bit on why the <code>unicodes</code> flag was displayed with one dash instead of two. This a bug in the docs, which has been discussed in <a href="https://github.com/fonttools/fonttools/issues/2900" target="_blank" rel="noopener">fonttools#2900</a>. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

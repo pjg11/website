@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>W25 2024: You win some, you lose some</h1>
+<p><time datetime="2024-06-24">June 24, 2024</time>
+• <a class="tag" href="/tags#weeknotes">weeknotes</a></p>
+<h2 id="smol-pr-victory">Smol PR victory</h2>
+
+<p>I submitted <a href="https://github.com/robinovitch61/wander/pull/138" target="_blank" rel="noopener">a PR</a> for wander, which got merged! I came across a similar bug recently, so the fix in terms of code was simple.</p>
+
+<p>Understanding the codebase was the tougher part, which the project’s maintainer (and fellow Recurser) very kindly walked me through in a chat.</p>
+
+<h2 id="blog-post-struggles">Blog post struggles</h2>
+
+<p>I thought publishing these weeknotes would make writing other posts easier. I was wrong.</p>
+
+<p>I don’t feel like pushing through it either, I’ve sort of lost interest. Maybe having the code in a repo + a README is sufficient? Let’s see.</p>
+
+<h2 id="ctf-adventures">CTF adventures</h2>
+
+<p>A group of Recursers decided to participate in <a href="https://capturetheflag.withgoogle.com" target="_blank" rel="noopener">Google CTF</a> over the weekend! I hadn’t played a CTF in a while, so my skills were rusty (they were basic to begin with). And Google CTF in particular is tough, where even the “easy” challenges are not that easy.</p>
+
+<p>I fell into a rabbit hole with one of the challenges, and that path wasn’t helpful in solving it AT ALL :/</p>
+
+<p>Regardless, the rabbit hole was really interesting. I started looking into terminal escape sequences, a combination of characters that allow for functionality in the terminal - printing text in different colors being an example.</p>
+
+<p>I was particularly interested in terminal injection - using certain sequences in a way that lets me execute shell commands. Turns out that wasn’t possible (the code was escaping the escape sequences), but I left with a better understanding of how it works.</p>
+
+<p>Here are some links I found helpful:</p>
+<ul>
+  <li><a href="https://gpanders.com/blog/state-of-the-terminal/" target="_blank" rel="noopener">State of the Terminal</a></li>
+  <li><a href="https://invisible-island.net/xterm/ctlseqs/ctlseqs.html" target="_blank" rel="noopener">XTerm Control Sequences</a></li>
+  <li><a href="https://www.youtube.com/watch?v=3T2Al3jdY38&amp;pp=ygULU1RPSyBkZWZjb24%3D" target="_blank" rel="noopener">Weaponizing Plaintext ANSI Escape Sequences as a Forensic Nightmare</a></li>
+  <li><a href="https://www.youtube.com/watch?v=iIHw0KWgzAs&amp;pp=ygUeZGF2aWQgbGVhZGJldHRlciBibHVlIGhhdCAyMDIz" target="_blank" rel="noopener">Houdini of the Terminal</a></li>
+</ul>
+
+<h2 id="reflections">Reflections</h2>
+
+<p>Did I work in a more structured way than usual? Not really, but I had one big win: I didn’t fall down the “maintaining my website” rabbit hole! I decided on this earlier in the week, and I’m happy I’m stuck to it.</p>
+
+<p>I’ve also realized that there are times I’m learning things that don’t feel useful in the moment, but help me in another situation.</p>
+
+<p>For example, the bug fix for wander was something I came across in one of my personal projects. I dropped that project mid-way, so it wasn’t particularly useful there. However, having worked on that code helped me figure out the exact fix in this case, which was cool.</p>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>

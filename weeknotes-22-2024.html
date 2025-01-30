@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/mbp-linux-power">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>W22 2024: Starting weeknotes</h1>
+<p><time datetime="2024-06-03">June 03, 2024</time>
+• <a class="tag" href="/tags#weeknotes">weeknotes</a></p>
+<p>I’ve been making progress on multiple personal projects lately, so I’m using that momentum to re-establish my blogging habit by sharing weekly updates here.</p>
+
+<h2 id="gossip-glomers">Gossip Glomers</h2>
+
+<p>I’ve been writing more Go code lately, and there has coincidentally been interest around Go-related projects from folks at the <a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a" target="_blank" rel="noopener">Recurse Center</a>. I heard some gossip (pun totally intended) about Recursers working on <a href="https://fly.io/dist-sys" target="_blank" rel="noopener">Gossip Glomers</a>, a series of distributed systems challenges.</p>
+
+<p>I joined while they were a few challenges in, but my lack of familiarity with the concepts meant I couldn’t contribute much, so I caught up on previous challenges over the rest of the week, <a href="https://github.com/pjg11/gossip-glomers" target="_blank" rel="noopener">code here</a>.</p>
+
+<p>I liked the challenges I solved so far, looking forward to further group programming sessions!</p>
+
+<h2 id="virtual-rc-cli">Virtual RC CLI</h2>
+
+<p>A project I started working on two weeks ago (also in Go) was to build a CLI tool for <a href="https://www.recurse.com/virtual-rc" target="_blank" rel="noopener">Virtual RC</a>, the online representation of RC’s physical space. This week, I worked on one of the main features I was interested in using their API.</p>
+
+<p>The API is built with ActionCable, and the workflow looks something like this:</p>
+<ul>
+  <li>Connect to WebSocket endpoint</li>
+  <li>Subscribe to channel</li>
+  <li>Get initial state of Virtual RC as JSON</li>
+  <li>Receive subsequent smaller updates to state as JSON</li>
+  <li>Unsubscribe to channel and close connection when done.</li>
+</ul>
+
+<p>The workflow would work best with a program that runs as a server or daemon - it starts a connection once, maintains the state via the initial message and further updates, and displays the updated state.</p>
+
+<p>However, since my tool is a CLI that terminates after the command is executed, I had to start and stop a connection for each execution.</p>
+
+<p>This sounds fine in theory, but it lead to an initial lag of 3-4 seconds for each run in reality. With the help of some pairing, we came to the conclusion that the lag comes from the API taking time to sending the initial state message - a big chunk of JSON data.</p>
+
+<p>Since then, I’ve been re-considering the direction this project should take. One solution would be to have the connection run as a background process doing the work of receiving updates and maintaining state. Then the CLI tool has to get the state from the process, which would be a lot faster.</p>
+
+<p>This doesn’t feel very different from having a Virtual RC tab open in the browser though, so is all this effort even worth it? I’m not sure, so I’ve decided to let the ideas simmer for a while and prioritize other projects in the meantime.</p>
+
+<h2 id="revamping-this-website">Revamping this website?</h2>
+
+<p>Speaking of prioritizing, I successfully managed to bring my focus to this little corner of the internet. It started off as a theme re-design (as it always does), except this time, it is slowly turning into a complete overhaul of all aspects of my personal website.</p>
+
+<p>This is still very much in-progress, I’ll have more details to share next week.</p>
+
+<h2 id="reflections">Reflections</h2>
+
+<p>I made progress on many different projects this week, which is a rarity, and it made me wonder where all this momentum came from.</p>
+
+<p>I think I can trace down to the combination of starting a <a href="https://stackoverflow.blog/2024/05/22/you-should-keep-a-developer-s-journal/" target="_blank" rel="noopener">dev journal</a> about two weeks ago and good luck - finding the linked blog post at a time when it resonated with me the most.</p>
+
+<p>Writing stuff down lead to more ideas, and writing those ideas down made it more likely that I’d give them a shot instead of getting overwhelmed and giving up. This is the positive feedback loop I needed, as I’m more open to trying out new ideas than I’ve been in a very long time.</p>
+
+<p>For example, I’ve been writing and posting checkins in the Recurse Center community for months, but I wouldn’t have considered posting them publicly earlier. But here I am now, doing exactly that in the form of these weeknotes.</p>
+</main>
+<footer>
+<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
+<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+</footer>
+</body>
+</html>
