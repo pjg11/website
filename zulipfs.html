@@ -23,7 +23,7 @@
 <main role="main">
 <h1>Things I learnt while working on ZulipFS</h1>
 <p><time datetime="2025-02-03">February 03, 2025</time>
-• <a class="tag" href="/tags#fuse">fuse</a>, <a class="tag" href="/tags#zulip">zulip</a></p>
+</p>
 <p>I came across <a href="https://en.wikipedia.org/wiki/Filesystem_in_Userspace" target="_blank" rel="noopener">FUSE</a> recently, which brought up an idea: <em>what if I could access a <a href="https://zulip.com" target="_blank" rel="noopener">Zulip</a> instance as a filesystem?</em></p>
 
 <p>This led to the creation of ZulipFS, where channels are represented as directories, and topics as files within those directories. The usage and code for the project is available <a href="https://github.com/pjg11/zulipfs" target="_blank" rel="noopener">here</a>. This post talks about things I learnt about FUSE, filesystems in general and design choices I made in the process.</p>
@@ -193,13 +193,15 @@
 <span class="k">def</span> <span class="nf">zulip_name</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
   <span class="k">return</span> <span class="n">emoji</span><span class="p">.</span><span class="nf">emojize</span><span class="p">(</span><span class="n">name</span><span class="p">.</span><span class="nf">replace</span><span class="p">(</span><span class="sh">'</span><span class="s">%2F</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span><span class="p">))</span></code></pre>
 
-<hr />
+<h2 id="acknowledgements">Acknowledgements</h2>
 
 <p>Thanks to <a href="https://fractalkitty.com" target="_blank" rel="noopener">Sophia</a> for reviewing a draft of this post.</p>
 </main>
 <footer>
-<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
-<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+<p>Tags: <span><a class="tag" href="/tags#fuse">#fuse</a>, <a class="tag" href="/tags#zulip">#zulip</a></span></p>
+<p>Comment via: <a href="mailto:piya@pjg1.site">Email</a>, <a href="https://mastodon.social/@pjg1">Mastodon</a></p>
+<p><a class="rc-scout__logo" href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i></i></a>
+&copy; 2022-2025 Piya Gehi</p>
 </footer>
 </body>
 </html>

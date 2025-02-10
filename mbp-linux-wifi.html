@@ -23,7 +23,7 @@
 <main role="main">
 <h1>Installing Ubuntu on a 2017 MBP - fixing WiFi troubles</h1>
 <p><time datetime="2024-09-09">September 09, 2024</time>
-• <a class="tag" href="/tags#linux">linux</a></p>
+</p>
 <p>I’d been curious on what it’s like to use Linux as the main OS, and wanted to upgrade from my <a href="/linux-vm-setup">Linux VM setup</a> for a while now. So when a family member was upgrading to a newer machine, I asked for their older machine - a <a href="https://support.apple.com/en-us/111947" target="_blank" rel="noopener">2017 MacBook Pro</a> - and decided to install Linux on it.</p>
 
 <p>I chose Ubuntu as that’s the distro I’m most comfortable with. After some initial research, I created a bootable installer using <a href="https://ubuntu.com/tutorials/create-a-usb-stick-on-macos#1-overview" target="_blank" rel="noopener">this guide</a> and proceeded with the install which went smoothly. Ubuntu also booted much faster compared to macOS on the same machine, so I was feeling good about this.</p>
@@ -108,8 +108,10 @@
 <p>Earlier iterations of this service failed to run, since it would sometimes try to execute commands before the wireless interface (<code>wlp3s0</code>) is even detected. To solve this, I added the <code>Restart</code> and <code>RestartSec</code> parameters to retry after it fails, and now it connects shortly after booting.</p>
 </main>
 <footer>
-<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
-<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+<p>Tags: <span><a class="tag" href="/tags#linux">#linux</a>, <a class="tag" href="/tags#wifi">#wifi</a></span></p>
+<p>Comment via: <a href="mailto:piya@pjg1.site">Email</a>, <a href="https://mastodon.social/@pjg1">Mastodon</a></p>
+<p><a class="rc-scout__logo" href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i></i></a>
+&copy; 2022-2025 Piya Gehi</p>
 </footer>
 </body>
 </html>

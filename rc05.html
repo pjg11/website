@@ -23,7 +23,7 @@
 <main role="main">
 <h1>RC05: Creating and hosting a CTF challenge in two days</h1>
 <p><time datetime="2023-10-11">October 11, 2023</time>
-• <a class="tag" href="/tags#ctf">ctf</a>, <a class="tag" href="/tags#python">python</a>, <a class="tag" href="/tags#recurse">recurse</a></p>
+</p>
 <p>I’ve <a href="https://writeups-pjg1.netlify.app" target="_blank" rel="noopener">played quite a few CTF challenges</a>, but hadn’t attempted to create and host one before. With the announcement of Impossible Stuff Day at RC last week<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>, it seemed like a good opportunity to finally give it a shot.</p>
 
 <p>This post covers details of the challenge and the underlying infrastructure. The source files are up on <a href="https://github.com/pjg11/quack-ctf-challenge" target="_blank" rel="noopener">pjg11/quack-ctf-challenge</a> if you’d like to try it out yourself!</p>
@@ -72,11 +72,11 @@ When this option is specified, sshd will not detach and does not become a daemon
 
 <p>I tried a test run, and it worked! I also found out that Docker makes it very easy to forward ports from the Docker container to the host machine, something I wasn’t sure how to do before.</p>
 
-<pre class="highlight"><code class="language-console"><span class="gp">root@ubuntu:~#</span><span class="w"> </span>docker build <span class="nt">-t</span> <span class="nb">test</span> <span class="nb">.</span>
+<pre class="highlight"><code class="language-console"><span class="gp">#</span><span class="w"> </span>docker build <span class="nt">-t</span> <span class="nb">test</span> <span class="nb">.</span>
 <span class="go">[+] Building 32.4s (9/9) FINISHED
-</span><span class="gp">root@ubuntu:~#</span><span class="w"> </span>docker run <span class="nt">-d</span> <span class="nt">-p</span> 20000:22 <span class="nb">test</span>
+</span><span class="gp">#</span><span class="w"> </span>docker run <span class="nt">-d</span> <span class="nt">-p</span> 20000:22 <span class="nb">test</span>
 <span class="go">858a1c9b2658715ebc074f8c6de189ebf5fb0b3005d02a5466159a63bae1f75e
-</span><span class="gp">root@ubuntu:~#</span><span class="w"> </span>ssh <span class="nt">-p</span> 20000 localhost
+</span><span class="gp">#</span><span class="w"> </span>ssh <span class="nt">-p</span> 20000 localhost
 <span class="go">user@858a1c9b2658:~$ </span></code></pre>
 
 <p>SSH by default logs into a shell session, however I wanted to run the challenge file at login instead. I couldn’t find how to do so, which lead me to change the setup entirely, as I was short on time.</p>
@@ -147,7 +147,7 @@ When this option is specified, sshd will not detach and does not become a daemon
 
 <p>This wasn’t successful, as the script wouldn’t wait for input.</p>
 
-<pre class="highlight"><code class="language-console"><span class="gp">root@ubuntu:~#</span><span class="w"> </span>nc localhost 9999
+<pre class="highlight"><code class="language-console"><span class="gp">#</span><span class="w"> </span>nc localhost 9999
 <span class="go">
   ╔══════════════════════════════════════════════════╗
   ║                                                  ║
@@ -227,7 +227,7 @@ ___( -)&gt;
 
 <p>I was still using the <code>xinetd</code> setup, so I faced issues with interactivity once again.</p>
 
-<pre class="highlight"><code class="language-console"><span class="gp">root@ubuntu:~#</span><span class="w"> </span>nc localhost 9999
+<pre class="highlight"><code class="language-console"><span class="gp">#</span><span class="w"> </span>nc localhost 9999
 <span class="go">    __
 ___( -)&gt;
 \ &lt;_. )
@@ -241,7 +241,7 @@ Traceback (most recent call last):
     input("&gt; ")
 EOFError: EOF when reading a line
 &gt;&gt;&gt;
-</span><span class="gp">root@ubuntu:~#</span><span class="w"> </span></code></pre>
+</span><span class="gp">#</span><span class="w"> </span></code></pre>
 
 <p>It displays the traceback and shell prompt as expected, but exits before I could even type anything in the interactive shell… *sigh*</p>
 
@@ -285,7 +285,7 @@ ___( O)&gt;
 
 <p>Lastly, I created a flag file, which the users can read on entering the shell. It follows the format commonly found in CTFs - some text written within braces in 1337 5p34k to make it look all cool and fancy:</p>
 
-<pre class="highlight"><code class="language-console"><span class="gp">root@ubuntu:~#</span><span class="w"> </span><span class="nb">echo</span> <span class="s2">"CTF{th4nks_f0r_p14y1ng}"</span> <span class="o">&gt;</span> flag.txt</code></pre>
+<pre class="highlight"><code class="language-console"><span class="gp">#</span><span class="w"> </span><span class="nb">echo</span> <span class="s2">"CTF{th4nks_f0r_p14y1ng}"</span> <span class="o">&gt;</span> flag.txt</code></pre>
 
 <p>I made the changes to the Dockerfile and other files, and once again, I faced the “EOF when reading a line” I saw earlier. I found myself at a dead end, so I gave up on this setup, and finally went back to using SSH.</p>
 
@@ -411,7 +411,7 @@ inotifywait <span class="nt">-e</span> open .secret/flag.txt <span class="nt">-m
 <h3 id="accessing-logs">Accessing logs</h3>
 <p>The logs are accessible using the <code>docker logs</code> command:</p>
 
-<pre class="highlight"><code class="language-console"><span class="gp">root@ubuntu:~#</span><span class="w"> </span>docker logs &lt;containerid&gt;</code></pre>
+<pre class="highlight"><code class="language-console"><span class="gp">#</span><span class="w"> </span>docker logs &lt;containerid&gt;</code></pre>
 
 <p>During the challenge, appending the <code>-f</code> file to command shows log entries as they appear. Once the challenge is over and I’ve stopped the container, I can redirect the output of the command (without <code>-f</code>) to a file.</p>
 
@@ -436,8 +436,10 @@ inotifywait <span class="nt">-e</span> open .secret/flag.txt <span class="nt">-m
   </ol>
 </main>
 <footer>
-<p>&copy; 2022-2025 <a href="/contact">Piya Gehi</a></p>
-<a href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i class="rc-scout__logo"></i></a>
+<p>Tags: <span><a class="tag" href="/tags#ctf">#ctf</a>, <a class="tag" href="/tags#python">#python</a>, <a class="tag" href="/tags#recurse">#recurse</a></span></p>
+<p>Comment via: <a href="mailto:piya@pjg1.site">Email</a>, <a href="https://mastodon.social/@pjg1">Mastodon</a></p>
+<p><a class="rc-scout__logo" href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i></i></a>
+&copy; 2022-2025 Piya Gehi</p>
 </footer>
 </body>
 </html>
