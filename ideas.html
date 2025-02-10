@@ -9,6 +9,7 @@
 <meta property="og:title" content="Ideas">
 <link rel="icon" href="/public/favicon.ico">
 <link rel="stylesheet" href="/public/style.css">
+<title>Ideas</title>
 </head>
 <body>
 <header>
@@ -22,98 +23,61 @@
 </header>
 <main role="main">
 <h1>Ideas</h1>
-<p><time datetime="2025-01-26">January 26, 2025</time>
+<p><time datetime="2025-02-10">February 10, 2025</time>
 </p>
 <p>If any of these ideas particularly interest you, let me know!</p>
 
 <details>
-<summary>Debugging a segmentation fault the hard way</summary>
-
-Inspect a core dump instead of print debugging
-
+  <summary>What processes does my machine run on start up, and can I kill it?</summary>
+  <p>Inspired by <a href="https://peteris.rocks/blog/can-you-kill-it" target="_blank" rel="noopener">Can you kill it? Ubuntu Server startup processes</a>. Should I be checking <code>systemd</code> services instead of <code>htop</code> though? There are a lot of processes that do start, but don’t appear in the list as they’ve stopped.</p>
 </details>
 
 <details>
-<summary>How does Linux boot, really?</summary>
-
-Dissecting the kernel logs to see how the kernel boots. Doesn't include bootloader loading (not sure if that would be too much to include).
-
+  <summary>How does Linux boot, really?</summary>
+  <p>Dissecting the kernel logs to see how the kernel boots. Doesn’t include bootloader loading (not sure if that would be too much to include).</p>
 </details>
 
 <details>
-<summary>What processes does my machine run on start up, and can I kill it?</summary>
-
-Inspired by [Can you kill it? Ubuntu Server startup processes](https://peteris.rocks/blog/can-you-kill-it). Should I be checking `systemd` services instead of `htop` though? There are a lot of processes that do start, but don't appear in the list as they've stopped.
-
+  <summary>Shell configuration checklist</summary>
+  <p>A checklist that can help you identify what changes have been made to your configuration, and what is possible to set. Useful in cases when you made your config files a long time ago and don’t remember what to look for.</p>
+  <ul>
+    <li>is your setup automated by a framework like oh-my-zsh?</li>
+    <li>startup files and the order they’re executed in</li>
+    <li>PATH management</li>
+    <li>shell options</li>
+    <li>aliases</li>
+    <li>functions</li>
+    <li>command prompt setup</li>
+    <li>shell scripts</li>
+    <li>the rc file</li>
+    <li>other dotfiles - app-specifc config files</li>
+    <li>cron jobs</li>
+    <li>System settings via <code>defaults</code></li>
+  </ul>
 </details>
 
 <details>
-<summary>PATH management</summary>
-
-I discovered this while seeing some paths on my macOS machine, and I didn't know where they came from. I've written a post about managing user specific paths in [How To View and Update the Linux PATH Environment Variable](https://www.digitalocean.com/community/tutorials/how-to-view-and-update-the-linux-path-environment-variable), but this covers `/etc/paths` and `etc/paths.d`.
-
+  <summary>Debugging a segmentation fault the hard way</summary>
+  <p>Inspect a core dump instead of print debugging</p>
 </details>
+
 <details>
-<summary>How I manage my passwords</summary>
-
-[KeepassXC](http://keepassxc.org) as the password manager, manually filling in passwords on websites, and a script to do so programmatically.
-
+  <summary>Something something <code>/proc</code></summary>
+  <p>The proc filesystem looks really cool, and finding something cool about a process from it would be fun, like <a href="https://jvns.ca/blog/2014/03/23/recovering-files-using-slash-proc-and-other-useful-facts/" target="_blank" rel="noopener">Recovering files using /proc (and spying, too!)</a>. Maybe I should read the <code>man</code> page.</p>
 </details>
+
 <details>
-<summary>Print camera output to the framebuffer</summary>
+  <summary>Offline docs on the command line</summary>
+  <p>The only options for accessing offline documentation are web or GUI-based (<a href="https://devdocs.io" target="_blank" rel="noopener">DevDocs</a>, <a href="https://kapeli.com/dash" target="_blank" rel="noopener">Dash</a>). The idea is to make a TUI for the same.</p>
 
-I came across [Writing To The Framebuffer](https://seenaburns.com/2018/04/04/writing-to-the-framebuffer/) a while ago, and thought it would be cool to print the output of my camera instead of an image. Good way to explore the `/dev` directory.
-
+  <p>Designing the interface itself is one thing, but I don’t know where to get the documentation itself from. Maybe DevDocs has an API?</p>
 </details>
+
 <details>
-<summary>Automating my macOS setup</summary>
+  <summary>A <code>jq</code>-like tool, for HTML</summary>
+  <p>There are existing tools out there for extracting HTML contents based on CSS selectors <a href="https://github.com/mgdm/htmlq" target="_blank" rel="noopener">htmlq</a>, <a href="https://github.com/ericchiang/pup/" target="_blank" rel="noopener">pup</a> and <a href="https://www.w3.org/Tools/HTML-XML-utils/README" target="_blank" rel="noopener">html-xml-utils</a>.</p>
 
-- Install packages via `brew` and `mas` (maybe Brewfile?)
-- Dotfiles using Stow (maybe?) - `.zshrc`, `.config/`, `~/Library/Application Support`
-- System settings via `defaults`
-- Cron jobs to automate cleanup of application files that can be safely deleted - log files, caches
-
-</details>
-<details>
-<summary>Confusing zsh shell options</summary>
-
-I was setting shell options in my `.zshrc`, and found some confusing options relating to managing the history:
-
-- `HIST_FIND_NO_DUPS`
-- `HIST_IGNORE_ALL_DUPS`
-- `HIST_SAVE_NO_DUPS`
-- `HIST_IGNORE_DUPS`
-- `HIST_FIND_NO_DUPS`
-
-It would be cool to see how each one behaves differently from the other and list which ones I ultimately ended up using.
-
-</details>
-<details>
-<summary>Tools to analyze the baseline of my machine</summary>
-
-To know what's wrong in a machine, I first need to know what it's normal state looks like. I want to explore some of the tools that help me find that, as well as the normal ranges for that thing.
-
-A good starting point seems to be [Linux Performance Analysis in 60,000 Milliseconds](https://netflixtechblog.com/linux-performance-analysis-in-60-000-milliseconds-accc10403c55), linked in [SREcon: Performance Checklists for SREs 2016](https://www.brendangregg.com/blog/2016-05-04/srecon2016-perf-checklists-for-sres.html).
-
-</details>
-<details>
-<summary>Something something <code>/proc</code></summary>
-
-The proc filesystem looks really cool, and finding something cool about a process from it would be fun, like [Recovering files using /proc (and spying, too!)](https://jvns.ca/blog/2014/03/23/recovering-files-using-slash-proc-and-other-useful-facts/). Maybe I should read the `man` page.
-
-</details>
-<details>
-<summary>Finding where your app's data is being written to using `lsof`</summary>
-
-I knew an app I used on macOS wrote to a SQLite database, but I didn't know where it was located. Using `lsof` helped me find that.
-
-</details>
-<details>
-<summary>A <code>jq</code>-like tool, for HTML</summary>
-
-There are existing tools out there for extracting HTML contents based on CSS selectors [htmlq](https://github.com/mgdm/htmlq), [pup](https://github.com/ericchiang/pup/) and [html-xml-utils](https://www.w3.org/Tools/HTML-XML-utils/README).
-
-However, `jq` also allows to modify keys and values within JSON, which none of the tools do for HTML. I'm planning on switching to hand-crafted HTML pages instead of using a static site generator for my website, and a tool that lets me modify attributes and values for multiple elements at once would be really useful.
+  <p>However, <code>jq</code> also allows to modify keys and values within JSON, which none of the tools do for HTML. I’m planning on switching to hand-crafted HTML pages instead of using a static site generator for my website, and a tool that lets me modify attributes and values for multiple elements at once would be really useful.</p>
 
 </details>
 </main>
