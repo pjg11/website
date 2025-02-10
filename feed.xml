@@ -3,7 +3,7 @@
 <generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator>
 <link href="https://pjg1.site/feed.xml" rel="self" type="application/atom+xml" />
 <link href="https://pjg1.site/" rel="alternate" type="text/html" />
-<updated>2025-02-10T13:54:28+00:00</updated>
+<updated>2025-02-10T16:47:02+00:00</updated>
 <id>https://pjg1.site/feed.xml</id>
 <title type="html">pjg1.site</title>
 <subtitle></subtitle>
@@ -127,9 +127,9 @@ EOF</span></code></pre>
 
 <pre class="highlight"><code class="language-console"><span class="gp">#</span><span class="w"> </span>ip <span class="nb">link set </span>dev wlp3s0 up
 <span class="gp">#</span><span class="w"> </span>ip addr show dev wlp3s0
-<span class="gp">2: wlp3s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;</span><span class="w"> </span>mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-<span class="gp">    link/ether &lt;MAC&gt;</span><span class="w"> </span>brd ff:ff:ff:ff:ff:ff
-<span class="go">    inet 192.168.100.128/24 scope global wlp3s0
+<span class="go">2: wlp3s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether &lt;MAC&gt; brd ff:ff:ff:ff:ff:ff
+    inet 192.168.100.128/24 scope global wlp3s0
        valid_lft forever preferred_lft forever</span></code></pre>
 
 <p>With this, I was online!</p>
