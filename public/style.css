@@ -7,7 +7,13 @@ body {
 	font: 1.05rem/1.5 system-ui, sans-serif;
 	max-width: 645px;
 	margin: 0 auto;
-	padding: 2rem;
+	padding: 1.5rem;
+}
+
+@media only screen and (max-width: 645px) {
+	body {
+		font: 1rem/1.4 system-ui, sans-serif;
+	}
 }
 
 main {
@@ -34,7 +40,7 @@ footer p {
 
 code,kbd {
 	font-family: ui-monospace, monospace;
-	font-size: 92.5%;
+	font-size: 90%;
 	padding: 0 1px;
 }
 

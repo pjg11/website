@@ -117,14 +117,14 @@
 
 <p>I ran <code>ping -c 1 192.0.2.1</code> from another shell session, which returned the following packets (emphasis mine):</p>
 
-<pre><code class="language-console">18:22:35.053952 <span class="b">lo</span>    In  <span class="b">IP 192.0.2.1 &gt; 192.0.2.1</span>: ICMP echo request, id 28435, seq 1, length 64
-18:22:35.053964 <span class="b">lo</span>    In  <span class="b">IP 192.0.2.1 &gt; 192.0.2.1</span>: ICMP echo reply, id 28435, seq 1, length 64</code></pre>
+<pre class="highlight"><code class="language-console">18:22:35.053952 <span class="k">lo</span>    In  <span class="k">IP 192.0.2.1 &gt; 192.0.2.1</span>: ICMP echo request, id 28435, seq 1, length 64
+18:22:35.053964 <span class="k">lo</span>    In  <span class="k">IP 192.0.2.1 &gt; 192.0.2.1</span>: ICMP echo reply, id 28435, seq 1, length 64</code></pre>
 
 <p>The packets came from the loopback interface (<code>lo</code>) and the source and destination addresses are the same, interesting.</p>
 
 <p>Running <code>ping -c 1 192.0.2.2</code> returned only one packet (emphasis mine):</p>
 
-<pre><code class="language-console">18:22:37.419702 <span class="b">tun0</span>  Out <span class="b">IP 192.0.2.1 &gt; 192.0.2.2</span>: ICMP echo request, id 6389, seq 1, length 64</code></pre>
+<pre class="highlight"><code class="language-console">18:22:37.419702 <span class="k">tun0</span>  Out <span class="k">IP 192.0.2.1 &gt; 192.0.2.2</span>: ICMP echo request, id 6389, seq 1, length 64</code></pre>
 
 <p>The source address is <code>192.0.2.1</code>, and the packet is captured at the <code>tun0</code> interface. Also, no echo reply packet after the request.</p>
 
@@ -173,7 +173,7 @@ src 192.0.2.1      preferred source address when sending to this destination</co
 </main>
 <footer>
 <p>Tags: <span><a class="tag" href="/tags#networking">#networking</a>, <a class="tag" href="/tags#recurse">#recurse</a></span></p>
-<p>Comment via: <a href="mailto:piya@pjg1.site">Email</a>, <a href="https://mastodon.social/@pjg1">Mastodon</a></p>
+<p>Comment via: <a href="mailto:piya@pjg1.site">Email</a></p>
 <p><a class="rc-scout__logo" href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i></i></a>
 &copy; 2022-2025 Piya Gehi</p>
 </footer>
