@@ -1,12 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" >
-<generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator>
+<generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator>
 <link href="https://pjg1.site/feed.xml" rel="self" type="application/atom+xml" />
 <link href="https://pjg1.site/" rel="alternate" type="text/html" />
-<updated>2025-02-17T16:00:23+00:00</updated>
+<updated>2025-02-26T16:29:09+00:00</updated>
 <id>https://pjg1.site/feed.xml</id>
 <title type="html">pjg1.site</title>
 <subtitle></subtitle>
+<entry>
+<title type="html">Faded codeblocks using CSS</title>
+<link href="https://pjg1.site/fade-block-css" rel="alternate" type="text/html" title="Faded codeblocks using CSS" />
+<published>2025-02-26T00:00:00+00:00</published>
+<updated>2025-02-26T00:00:00+00:00</updated>
+<id>https://pjg1.site/fade-block-css</id>
+<content type="html" xml:base="https://pjg1.site/fade-block-css">
+<![CDATA[<p>One aspect I’ve gotten stuck on with the styling of this blog is code blocks. I’ve tried adding a border and/or a background color in the past, but I couldn’t stick with either of them and constantly kept changing styles.</p>
+
+<p>I wanted a subtler indication to scroll if a block overflows, and a fading gradient towards seemed like a good option.</p>
+
+<p>Here’s the CSS I wrote for it:</p>
+
+<pre class="highlight"><code class="language-css"><span class="nt">pre</span> <span class="p">{</span>
+  <span class="nl">position</span><span class="p">:</span> <span class="nb">relative</span><span class="p">;</span>
+  <span class="nl">background</span><span class="p">:</span> <span class="no">white</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nt">pre</span><span class="nd">::after</span> <span class="p">{</span>
+  <span class="nl">content</span><span class="p">:</span> <span class="s1">""</span><span class="p">;</span>
+  <span class="nl">position</span><span class="p">:</span> <span class="nb">absolute</span><span class="p">;</span>
+  <span class="nl">top</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+  <span class="nl">bottom</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+  <span class="nl">left</span><span class="p">:</span> <span class="m">95%</span><span class="p">;</span>
+  <span class="nl">right</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+  <span class="nl">background-image</span><span class="p">:</span> <span class="n">linear-gradient</span><span class="p">(</span><span class="n">to</span> <span class="nb">right</span><span class="p">,</span> <span class="nb">transparent</span><span class="p">,</span> <span class="no">white</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">@media</span> <span class="p">(</span><span class="n">prefers-color-scheme</span><span class="p">:</span> <span class="n">dark</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nt">pre</span> <span class="p">{</span>
+    <span class="nl">background</span><span class="p">:</span> <span class="no">black</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nt">pre</span><span class="nd">::after</span> <span class="p">{</span>
+    <span class="nl">background-image</span><span class="p">:</span> <span class="n">linear-gradient</span><span class="p">(</span><span class="n">to</span> <span class="nb">right</span><span class="p">,</span> <span class="nb">transparent</span><span class="p">,</span> <span class="no">black</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="nt">pre</span> <span class="nt">code</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="m">0.75rem</span> <span class="m">0</span><span class="p">;</span>
+  <span class="nl">overflow</span><span class="p">:</span> <span class="nb">auto</span><span class="p">;</span>
+  <span class="py">padding-inline-end</span><span class="p">:</span> <span class="m">1.5rem</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+
+<p>The key behind this effect is the <code>::after</code> pseudo-element, which is a linear-gradient positioned to the right end of the <code>pre</code> block. The <code>left</code> value ensures that the gradient doesn’t overlap the block completely, and acts as a subtle gradient, suggesting the user to scroll to see the code.</p>
+
+<p>Usually I’d add the scroll to the <code>pre</code> block, however since we want the pseudoelement to stay at a fixed position, the scroll and overflow is applied to the child block - the <code>code</code> element in this case.</p>
+
+<p>The gradient hiding overflow text makes sense, but this also covers the text at the end of the scroll. This is fixed by adding <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/padding-inline-end" target="_blank" rel="noopener"><code>padding-inline-end</code></a> to the <code>code</code> element, which adds padding at the end of scroll.</p>
+
+<p>Here’s how it looks:</p>
+
+<pre><code>This is a super long string of text that appears to be faded where the text overflows.</code></pre>
+
+<p>While I’ve demonstrated this for codeblocks, this styling could be extended for any block element - say a paragraph within a div, or a paragraph within a blockquote.</p>
+]]></content></entry>
 <entry>
 <title type="html">Baby’s first monitoring system</title>
 <link href="https://pjg1.site/first-monitoring-system" rel="alternate" type="text/html" title="Baby’s first monitoring system" />
@@ -1242,42 +1295,5 @@ Summary: 62.1 wakeups/second,  0.0 GPU ops/seconds, 0.0 VFS ops/sec and 0.7% CPU
 <p>I spent this weekend identifying specific concepts I always wanted to learn, and tried looking for project ideas that will help me learn them. I also looked out for resources that could provide the foundational knowledge.</p>
 
 <p>I’m scared, but also excited.</p>
-]]></content></entry>
-<entry>
-<title type="html">W32 2024: Baby steps</title>
-<link href="https://pjg1.site/weeknotes-32-2024" rel="alternate" type="text/html" title="W32 2024: Baby steps" />
-<published>2024-08-13T00:00:00+00:00</published>
-<updated>2024-08-13T00:00:00+00:00</updated>
-<id>https://pjg1.site/weeknotes-32-2024</id>
-<content type="html" xml:base="https://pjg1.site/weeknotes-32-2024">
-<![CDATA[<h2 id="structured-learning-baby-steps">Structured learning baby steps</h2>
-
-<p>After last week’s note, I started thinking about the topics I wanted to learn more about. I was inspired by a fellow Recurser’s <a href="https://ravi.fyi" target="_blank" rel="noopener">Learning Sabbatical</a>, which had links to books and other useful resources.</p>
-
-<p>I initially thought of making a similar curriculum (and even made one), but decided to focus on one book after getting started. I found out about <a href="http://csapp.cs.cmu.edu" target="_blank" rel="noopener">Computer Systems: A Programmer’s Perspective</a> a year ago - a fellow Recurser was reading through the book and recommended it, and I paired on one of the labs. It’s also listed in the Computer Architecture section of the <a href="https://teachyourselfcs.com" target="_blank" rel="noopener">Teach Yourself Computer Science</a> website.</p>
-
-<p>I read the introductory chapter, and I love the book. The language is easy to understand, and I’m finally making sense of terminology I’ve vaguely heard of but didn’t understand properly.</p>
-
-<p>Reading the book in order has proved to be a bad idea in the past, so I’m trying a “choose your adventure” style of reading, where I decide the order of chapters as I go.</p>
-
-<p>I’ve currently reading a chapter about Linkers, and there’s a lot to process. I would ideally like to solidify my knowledge by some combination of code + blog posts, so that’s something to think about.</p>
-
-<h2 id="attempt-at-installing-linux-on-a-mac">Attempt at installing Linux on a Mac</h2>
-
-<p>I’ve been curious on what it would be like to have Linux as the main OS on a machine, as I mostly use macOS and my usage of Linux is limited to Virtual Machine where I mainly use the CLI.</p>
-
-<p>I’ve also heard about the concept of a homelab and doing cool networking things with it (things like setting up a firewall or using the machine as a router), and figured it would be better to experiment on a dedicated machine if I have the chance.</p>
-
-<p>I recently got my hands on a 2017 MacBook Pro, and decided to install Ubuntu on it. The installation itself was pretty smooth…however I couldn’t connect to the WiFi after rebooting.</p>
-
-<p>Based on some initial searching, I think it didn’t install the WiFi driver, which might be causing this.</p>
-
-<p>One of the solutions is to connect an Ethernet cable directly and then install the driver…but my MacBook has no Ethernet port. I’d need to buy an adapter for that, so if anyone has any other ideas let me know!</p>
-
-<h2 id="tuntcp-on-hold-again">tuntcp: on hold (again)</h2>
-
-<p>This week was supposed to be my last week working on this, but most of my time was spent reading CS:APP, so this got pushed to the side. I revisited the project on the weekend, and had another breakthrough in terms of what the end result should look like. Despite this, I was struggling to write actual code.</p>
-
-<p>Since I am working on stuff I’m more excited about now, this is going on the back burner. I might come back to it whenever I find myself feeling stuck again.</p>
 ]]></content></entry>
 </feed>

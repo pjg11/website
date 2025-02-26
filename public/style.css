@@ -60,7 +60,6 @@ kbd:hover {
 pre {
 	font-family: ui-monospace, monospace;
 	position: relative;
-	z-index: 1;
 	margin: 0;
 }
 
