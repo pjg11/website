@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:url" content="https://pjg1.site/kbd-css">
+<meta property="og:site_name" content="pjg1.site">
+<meta property="og:image" content="https://pjg1.site/public/images/favicon-full.png">
+<meta property="og:title" content="A minimal keyboard key effect with CSS">
+<link rel="icon" href="/public/favicon.ico">
+<link rel="stylesheet" href="/public/style.css">
+<title>A minimal keyboard key effect with CSS</title>
+<style>
+div.keyboard {
+  text-align: center;
+  line-height: 1.5
+}
+
+kbd {
+  font-family: ui-monospace, monospace;
+  font-size: 90%;
+  margin: 0 0.07rem;
+  padding: 0.07rem 0.35rem;
+  border: 0.07rem solid;
+  border-bottom: 0.18rem solid;
+  border-radius: 0.21rem;
+}
+
+kbd:hover {
+  border-bottom: 0.07rem solid;
+  vertical-align: -0.1rem;
+  cursor: text;
+}
+</style>
+</head>
+<body>
+<header>
+<a href="/" class="title"><code>pjg1.site</code></a>
+<nav>
+<a href="/now">now</a>
+<a href="/tags">tags</a>
+<a href="/contact">contact</a>
+<a href="/feed.xml">rss</a>
+</nav>
+</header>
+<main role="main">
+<h1>A minimal keyboard key effect with CSS</h1>
+<p><time datetime="2025-02-27">February 27, 2025</time>
+</p>
+<p>I use the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd" target="_blank" rel="noopener"><code>kbd</code></a> element to specify keypresses in my posts. To differentiate it from the inline <code>code</code> element, I’ve styled it as a minimal version of an actual key:</p>
+
+<pre class="highlight"><code class="language-">kbd {
+  font-family: ui-monospace, monospace;
+  font-size: 90%;
+  margin: 0 0.07rem;
+  padding: 0.07rem 0.35rem;
+  border: 0.07rem solid;
+  border-bottom: 0.18rem solid;
+  border-radius: 0.21rem;
+}
+
+kbd:hover {
+  border-bottom: 0.07rem solid;
+  vertical-align: -0.1rem;
+  cursor: text;
+}</code></pre>
+
+<p>The hover effect is inspired from <a href="https://dylanatsmith.com/wrote/styling-the-kbd-element" target="_blank" rel="noopener">Styling the kbd element</a> by Dylan Smith. I experimented with the <code>border-bottom</code> and <code>vertical-align</code> values till I found a combination that recreated the hover effect well.</p>
+
+<p>Here are keys from the QWERTY keyboard layout as an example:</p>
+
+<div class="keyboard">
+<kbd>Q</kbd><kbd>W</kbd><kbd>E</kbd><kbd>R</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd><kbd>I</kbd><kbd>O</kbd><kbd>P</kbd><br />
+<kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd><kbd>G</kbd><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd><br />
+<kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd><kbd>B</kbd><kbd>N</kbd><kbd>M</kbd>
+</div>
+</main>
+<footer>
+<p>Tags: <span><a class="tag" href="/tags#blogging">#blogging</a>, <a class="tag" href="/tags#css">#css</a>, <a class="tag" href="/tags#til">#til</a></span></p>
+<p>Comment via: <a href="mailto:piya@pjg1.site">Email</a></p>
+<p><a class="rc-scout__logo" href="https://www.recurse.com/scout/click?t=2ac66128b9116e0722d941ebf7e14b5a"><i></i></a>
+&copy; 2022-2025 Piya Gehi</p>
+</footer>
+</body>
+</html>

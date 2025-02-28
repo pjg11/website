@@ -45,16 +45,17 @@ code,kbd {
 }
 
 kbd {
-	padding: 0.1rem 0.3rem;
-	border: 1px solid;
-	border-bottom: 2px solid;
-	line-height: 1;
-	border-radius: 3px;
+	margin: 0 0.07rem;
+	padding: 0.07rem 0.35rem;
+	border: 0.07rem solid;
+	border-bottom: 0.18rem solid;
+	border-radius: 0.21rem;
 }
 
 kbd:hover {
-	border-bottom: 1px solid;
-	vertical-align: text-bottom;	
+	border-bottom: 0.07rem solid;
+	vertical-align: -0.1rem;
+	cursor: text;
 }
 
 pre {
